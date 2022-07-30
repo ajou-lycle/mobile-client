@@ -73,11 +73,23 @@ class _HomePageState extends State<HomePage>
 
     return Scaffold(
         backgroundColor: Color(0xFFEEEEEE),
-        body: Center(
-            child: SizedBox(
-                height: size.height * 0.75,
-                child: Swiper(
+        body: SafeArea(
+            minimum: EdgeInsets.symmetric(vertical: kDefaultPadding),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Padding(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: kDefaultPadding),
+                    child: Text(
+                      "장성호님, 안녕하세요",
+                      style: TextStyle(fontSize: (size.width - 32) * 0.1),
+                    )),
+                Expanded(
+                    child: Swiper(
                   onIndexChanged: (index) => _currentIndex = index,
+                  autoplay: true,
                   fade: 0.25,
                   itemCount: _imageUrl.length,
                   scrollDirection: Axis.horizontal,
@@ -85,7 +97,6 @@ class _HomePageState extends State<HomePage>
                   scale: 0.75,
                   itemBuilder: (context, index) {
                     bool isCurrentPage = _currentIndex == index;
-
                     return Container(
                         margin: const EdgeInsets.all(kDefaultPadding),
                         decoration: BoxDecoration(
@@ -122,8 +133,8 @@ class _HomePageState extends State<HomePage>
                                         },
                                         blendMode: BlendMode.srcATop,
                                         child: Container(
-                                          width: size.width * 0.5,
-                                          height: size.width * 0.5,
+                                          width: (size.width - 32) * 0.5,
+                                          height: (size.width - 32) * 0.5,
                                           decoration: BoxDecoration(
                                               borderRadius:
                                                   const BorderRadius.all(
@@ -135,8 +146,8 @@ class _HomePageState extends State<HomePage>
                                         ),
                                       )
                                     : Container(
-                                        width: size.width * 0.5,
-                                        height: size.width * 0.5,
+                                        width: (size.width - 32) * 0.5,
+                                        height: (size.width - 32) * 0.5,
                                         decoration: BoxDecoration(
                                             borderRadius:
                                                 const BorderRadius.all(
@@ -148,8 +159,8 @@ class _HomePageState extends State<HomePage>
                                       ),
                                 Image.asset(
                                   'assets/medal.png',
-                                  width: size.width * 0.15,
-                                  height: size.width * 0.15,
+                                  width: (size.width - 32) * 0.15,
+                                  height: (size.width - 32) * 0.15,
                                 )
                               ]),
                               SizedBox(
@@ -158,13 +169,24 @@ class _HomePageState extends State<HomePage>
                               Text(
                                 "BAYC #156",
                                 style: TextStyle(
-                                    fontSize: Theme.of(context)
-                                        .textTheme
-                                        .headline4
-                                        ?.fontSize),
+                                    fontSize: (size.width - 32) * 0.1),
                               )
                             ]));
                   },
-                ))));
+                )),
+                Padding(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: kDefaultPadding),
+                    child: Text(
+                      "${_currentIndex + 1} / ${_imageUrl.length}",
+                      style: TextStyle(fontSize: (size.width - 32) * 0.1),
+                    )),
+                Container(
+                  height: 40,
+                  color: Colors.white,
+                  child: Text("추후 하단 바가 들어갑니다."),
+                )
+              ],
+            )));
   }
 }
