@@ -24,16 +24,54 @@ class _HomePageState extends State<HomePage> {
     Size size = MediaQuery.of(context).size;
 
     return Scaffold(
-        body: Swiper(
-          itemCount: _imageUrl.length,
-          itemWidth: size.width * 0.75,
-          itemHeight: size.width * 0.75,
-          autoplay: true,
-          scrollDirection: Axis.horizontal,
-          layout: SwiperLayout.STACK,
-          itemBuilder: (context, index) {
-            return Image.network(_imageUrl[index]);
-          },
-        ));
+        backgroundColor: Colors.grey,
+        body: Center(
+            child: SizedBox(
+                height: size.height * 0.75,
+                child: Swiper(
+                  fade: 0.25,
+                  itemCount: _imageUrl.length,
+                  autoplay: true,
+                  scrollDirection: Axis.horizontal,
+                  viewportFraction: 0.7,
+                  scale: 0.75,
+                  itemBuilder: (context, index) {
+                    return Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.all(Radius.circular(16)),
+                            boxShadow: [BoxShadow()]),
+                        child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Stack(children: [
+                                Container(
+                                  width: size.width * 0.5,
+                                  height: size.width * 0.5,
+                                  decoration: BoxDecoration(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(16)),
+                                      image: DecorationImage(
+                                          image:
+                                              NetworkImage(_imageUrl[index]))),
+                                ),
+                                Image.asset(
+                                  'assets/medal.png',
+                                  width: size.width * 0.15,
+                                  height: size.width * 0.15,
+                                )
+                              ]),
+                              SizedBox(
+                                height: 32,
+                              ),
+                              Text(
+                                "BAYC #156",
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 32),
+                              ),
+                            ]));
+                  },
+                ))));
   }
 }
