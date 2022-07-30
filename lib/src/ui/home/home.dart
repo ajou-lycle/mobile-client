@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:card_swiper/card_swiper.dart';
 
+import 'package:lycle/src/constants/ui.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -9,7 +11,8 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
   List<String> _imageUrl = [
     "http://wiki.hash.kr/images/2/25/BAYC_1.png",
     "http://wiki.hash.kr/images/f/ff/BAYC_2.png",
@@ -17,45 +20,132 @@ class _HomePageState extends State<HomePage> {
     "http://wiki.hash.kr/images/7/76/BAYC_4.png",
   ];
 
-  final List<String> _imageUrlList = List<String>.empty(growable: true);
+  int _currentIndex = 0;
+
+  late final AnimationController _backgroundGradientController;
+  late final Animation _backgroundGradientAnimationForward;
+  late final Animation _backgroundGradientAnimationReverse;
+
+  @override
+  initState() {
+    _backgroundGradientController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 5000));
+
+    _backgroundGradientAnimationForward = ColorTween(
+      begin: Color(0xA0ffffff),
+      end: Colors.transparent,
+    ).animate(_backgroundGradientController)
+      ..addListener(() {
+        setState(() {});
+      });
+
+    _backgroundGradientAnimationReverse = ColorTween(
+      begin: Colors.transparent,
+      end: Color(0xA0ffffff),
+    ).animate(_backgroundGradientController)
+      ..addListener(() {
+        setState(() {});
+      });
+
+    _backgroundGradientController.forward();
+
+    _backgroundGradientController.addListener(() {
+      if (_backgroundGradientController.status == AnimationStatus.completed) {
+        _backgroundGradientController.reverse();
+      } else if (_backgroundGradientController.status ==
+          AnimationStatus.dismissed) {
+        _backgroundGradientController.forward();
+      }
+    });
+
+    super.initState();
+  }
+
+  @override
+  dispose() {
+    _backgroundGradientController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
 
     return Scaffold(
-        backgroundColor: Colors.grey,
+        backgroundColor: Color(0xFFEEEEEE),
         body: Center(
             child: SizedBox(
                 height: size.height * 0.75,
                 child: Swiper(
+                  onIndexChanged: (index) => _currentIndex = index,
                   fade: 0.25,
                   itemCount: _imageUrl.length,
-                  autoplay: true,
                   scrollDirection: Axis.horizontal,
                   viewportFraction: 0.7,
                   scale: 0.75,
                   itemBuilder: (context, index) {
+                    bool isCurrentPage = _currentIndex == index;
+
                     return Container(
+                        margin: const EdgeInsets.all(kDefaultPadding),
                         decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.all(Radius.circular(16)),
-                            boxShadow: [BoxShadow()]),
+                          color: Colors.white,
+                          borderRadius: const BorderRadius.all(
+                              Radius.circular(kDefaultRadius)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.7),
+                              spreadRadius: 0,
+                              blurRadius: 5.0,
+                              offset: const Offset(
+                                  5, 5), // changes position of shadow
+                            ),
+                          ],
+                        ),
                         child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Stack(children: [
-                                Container(
-                                  width: size.width * 0.5,
-                                  height: size.width * 0.5,
-                                  decoration: BoxDecoration(
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(16)),
-                                      image: DecorationImage(
-                                          image:
-                                              NetworkImage(_imageUrl[index]))),
-                                ),
+                                isCurrentPage
+                                    ? ShaderMask(
+                                        shaderCallback: (Rect bound) {
+                                          return LinearGradient(
+                                              begin: Alignment.bottomLeft,
+                                              end: Alignment.topRight,
+                                              colors: [
+                                                _backgroundGradientAnimationForward
+                                                    .value,
+                                                _backgroundGradientAnimationReverse
+                                                    .value,
+                                              ]).createShader(bound);
+                                        },
+                                        blendMode: BlendMode.srcATop,
+                                        child: Container(
+                                          width: size.width * 0.5,
+                                          height: size.width * 0.5,
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(
+                                                          kDefaultRadius)),
+                                              image: DecorationImage(
+                                                  image: NetworkImage(
+                                                      _imageUrl[index]))),
+                                        ),
+                                      )
+                                    : Container(
+                                        width: size.width * 0.5,
+                                        height: size.width * 0.5,
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                const BorderRadius.all(
+                                                    Radius.circular(
+                                                        kDefaultRadius)),
+                                            image: DecorationImage(
+                                                image: NetworkImage(
+                                                    _imageUrl[index]))),
+                                      ),
                                 Image.asset(
                                   'assets/medal.png',
                                   width: size.width * 0.15,
@@ -68,8 +158,11 @@ class _HomePageState extends State<HomePage> {
                               Text(
                                 "BAYC #156",
                                 style: TextStyle(
-                                    color: Colors.black, fontSize: 32),
-                              ),
+                                    fontSize: Theme.of(context)
+                                        .textTheme
+                                        .headline4
+                                        ?.fontSize),
+                              )
                             ]));
                   },
                 ))));

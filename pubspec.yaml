@@ -37,6 +37,7 @@ dependencies:
 
   # ui
   card_swiper: ^2.0.0
+  shimmer: ^2.0.0
 
 dev_dependencies:
   flutter_test:
