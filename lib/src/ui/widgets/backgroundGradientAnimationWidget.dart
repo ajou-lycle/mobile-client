@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 
 class BackgroundGradientAnimationWidget extends StatefulWidget {
+  final Widget child;
+  final Color beginColor;
+  final Color endColor;
+  final Alignment beginAlignment;
+  final Alignment endAlignment;
+  final Duration duration;
+
   const BackgroundGradientAnimationWidget(
       {Key? key,
       required this.child,
@@ -10,13 +17,6 @@ class BackgroundGradientAnimationWidget extends StatefulWidget {
       required this.endAlignment,
       required this.duration})
       : super(key: key);
-
-  final Widget child;
-  final Color beginColor;
-  final Color endColor;
-  final Alignment beginAlignment;
-  final Alignment endAlignment;
-  final Duration duration;
 
   @override
   State<BackgroundGradientAnimationWidget> createState() =>

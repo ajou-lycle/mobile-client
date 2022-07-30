@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:card_swiper/card_swiper.dart';
 
 import 'package:lycle/src/constants/ui.dart';
+import 'package:lycle/src/ui/nftDetail/nftDetail.dart';
+import 'package:lycle/src/ui/widgets/roundedImage.dart';
 
+import '../../data/heroTag.dart';
 import '../widgets/backgroundGradientAnimationWidget.dart';
+import '../widgets/heroWidget.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -13,13 +17,19 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage> {
   List<String> _imageUrl = [
     "http://wiki.hash.kr/images/2/25/BAYC_1.png",
     "http://wiki.hash.kr/images/f/ff/BAYC_2.png",
     "http://wiki.hash.kr/images/4/4e/BAYC_3.png",
     "http://wiki.hash.kr/images/7/76/BAYC_4.png",
+  ];
+
+  List<String> _nftTitle = [
+    "BAYC #1",
+    "BAYC #11",
+    "BAYC #111",
+    "BAYC #1111",
   ];
 
   int _currentIndex = 0;
@@ -82,31 +92,58 @@ class _HomePageState extends State<HomePage>
                                         endAlignment: Alignment.topRight,
                                         duration:
                                             const Duration(milliseconds: 5000),
-                                        child: Container(
-                                          width: (size.width - 32) * 0.5,
-                                          height: (size.width - 32) * 0.5,
-                                          decoration: BoxDecoration(
-                                              borderRadius:
-                                                  const BorderRadius.all(
-                                                      Radius.circular(
-                                                          kDefaultRadius)),
-                                              image: DecorationImage(
-                                                  image: NetworkImage(
-                                                      _imageUrl[index]))),
-                                        ),
-                                      )
-                                    : Container(
+                                        child: InkWell(
+                                            onTap: () {
+                                              Navigator.of(context).push(
+                                                  PageRouteBuilder(
+                                                      transitionDuration:
+                                                          const Duration(
+                                                              seconds: 1),
+                                                      reverseTransitionDuration:
+                                                          const Duration(
+                                                              seconds: 1),
+                                                      pageBuilder: (context,
+                                                          animation,
+                                                          secondaryAnimation) {
+                                                        final curvedAnimation =
+                                                            CurvedAnimation(
+                                                                parent:
+                                                                    animation,
+                                                                curve: Interval(
+                                                                    0, 0.5));
+                                                        return FadeTransition(
+                                                            opacity:
+                                                                curvedAnimation,
+                                                            child:
+                                                                NFTDetailPage(
+                                                              imageUrl:
+                                                                  _imageUrl[
+                                                                      index],
+                                                              nftTitle:
+                                                                  _nftTitle[
+                                                                      index],
+                                                              animation:
+                                                                  animation,
+                                                            ));
+                                                      }));
+                                            },
+                                            child: HeroWidget(
+                                                tag: HeroTag.image(
+                                                    _imageUrl[index]),
+                                                child: RoundedImage(
+                                                    width:
+                                                        (size.width - 32) * 0.5,
+                                                    height:
+                                                        (size.width - 32) * 0.5,
+                                                    radius: kDefaultRadius,
+                                                    imageProvider: NetworkImage(
+                                                        _imageUrl[index])))))
+                                    : RoundedImage(
                                         width: (size.width - 32) * 0.5,
                                         height: (size.width - 32) * 0.5,
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                                const BorderRadius.all(
-                                                    Radius.circular(
-                                                        kDefaultRadius)),
-                                            image: DecorationImage(
-                                                image: NetworkImage(
-                                                    _imageUrl[index]))),
-                                      ),
+                                        radius: kDefaultRadius,
+                                        imageProvider:
+                                            NetworkImage(_imageUrl[index])),
                                 Image.asset(
                                   'assets/medal.png',
                                   width: (size.width - 32) * 0.15,
@@ -114,13 +151,15 @@ class _HomePageState extends State<HomePage>
                                 )
                               ]),
                               SizedBox(
-                                height: 32,
+                                height: kLargePadding,
                               ),
-                              Text(
-                                "BAYC #156",
-                                style: TextStyle(
-                                    fontSize: (size.width - 32) * 0.1),
-                              )
+                              HeroWidget(
+                                  tag: HeroTag.text(_nftTitle[index]),
+                                  child: Text(
+                                    _nftTitle[index],
+                                    style: TextStyle(
+                                        fontSize: (size.width - 32) * 0.1),
+                                  )),
                             ]));
                   },
                 )),
