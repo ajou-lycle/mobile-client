@@ -4,6 +4,8 @@ import 'package:card_swiper/card_swiper.dart';
 
 import 'package:lycle/src/constants/ui.dart';
 
+import '../widgets/backgroundGradientAnimationWidget.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -21,51 +23,6 @@ class _HomePageState extends State<HomePage>
   ];
 
   int _currentIndex = 0;
-
-  late final AnimationController _backgroundGradientController;
-  late final Animation _backgroundGradientAnimationForward;
-  late final Animation _backgroundGradientAnimationReverse;
-
-  @override
-  initState() {
-    _backgroundGradientController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 5000));
-
-    _backgroundGradientAnimationForward = ColorTween(
-      begin: Color(0xA0ffffff),
-      end: Colors.transparent,
-    ).animate(_backgroundGradientController)
-      ..addListener(() {
-        setState(() {});
-      });
-
-    _backgroundGradientAnimationReverse = ColorTween(
-      begin: Colors.transparent,
-      end: Color(0xA0ffffff),
-    ).animate(_backgroundGradientController)
-      ..addListener(() {
-        setState(() {});
-      });
-
-    _backgroundGradientController.forward();
-
-    _backgroundGradientController.addListener(() {
-      if (_backgroundGradientController.status == AnimationStatus.completed) {
-        _backgroundGradientController.reverse();
-      } else if (_backgroundGradientController.status ==
-          AnimationStatus.dismissed) {
-        _backgroundGradientController.forward();
-      }
-    });
-
-    super.initState();
-  }
-
-  @override
-  dispose() {
-    _backgroundGradientController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +46,6 @@ class _HomePageState extends State<HomePage>
                 Expanded(
                     child: Swiper(
                   onIndexChanged: (index) => _currentIndex = index,
-                  autoplay: true,
                   fade: 0.25,
                   itemCount: _imageUrl.length,
                   scrollDirection: Axis.horizontal,
@@ -119,19 +75,13 @@ class _HomePageState extends State<HomePage>
                             children: [
                               Stack(children: [
                                 isCurrentPage
-                                    ? ShaderMask(
-                                        shaderCallback: (Rect bound) {
-                                          return LinearGradient(
-                                              begin: Alignment.bottomLeft,
-                                              end: Alignment.topRight,
-                                              colors: [
-                                                _backgroundGradientAnimationForward
-                                                    .value,
-                                                _backgroundGradientAnimationReverse
-                                                    .value,
-                                              ]).createShader(bound);
-                                        },
-                                        blendMode: BlendMode.srcATop,
+                                    ? BackgroundGradientAnimationWidget(
+                                        beginColor: const Color(0xA0ffffff),
+                                        endColor: Colors.transparent,
+                                        beginAlignment: Alignment.bottomLeft,
+                                        endAlignment: Alignment.topRight,
+                                        duration:
+                                            const Duration(milliseconds: 5000),
                                         child: Container(
                                           width: (size.width - 32) * 0.5,
                                           height: (size.width - 32) * 0.5,
