@@ -6,14 +6,14 @@ class RoundedImage extends StatelessWidget {
   final double width;
   final double height;
   final double radius;
-  final ImageProvider imageProvider;
+  final DecorationImage decorationImage;
 
   const RoundedImage({
     Key? key,
     this.width = double.infinity,
     this.height = double.infinity,
     this.radius = kDefaultRadius,
-    required this.imageProvider,
+    required this.decorationImage,
   }) : super(key: key);
 
   @override
@@ -23,7 +23,7 @@ class RoundedImage extends StatelessWidget {
       height: height,
       decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(radius)),
-          image: DecorationImage(image: imageProvider)),
+          image: decorationImage),
     );
   }
 }

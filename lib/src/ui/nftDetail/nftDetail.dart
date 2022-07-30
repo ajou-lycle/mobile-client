@@ -45,7 +45,9 @@ class NFTDetailPage extends StatelessWidget {
                             width: size.width - 32,
                             height: size.width - 32,
                             radius: kDefaultRadius,
-                            imageProvider: NetworkImage(imageUrl)))),
+                            decorationImage: DecorationImage(
+                                image: NetworkImage(imageUrl),
+                                fit: BoxFit.cover)))),
                 AnimatedBuilder(
                     animation: animation,
                     builder: (context, child) => FadeTransition(
@@ -61,6 +63,7 @@ class NFTDetailPage extends StatelessWidget {
                       height: (size.width - 32) * 0.25,
                     ))
               ]),
+              // TODO: description component 분리
               SizedBox(
                 height: kLargePadding,
               ),

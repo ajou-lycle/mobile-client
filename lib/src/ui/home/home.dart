@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:card_swiper/card_swiper.dart';
 
 import 'package:lycle/src/constants/ui.dart';
+import 'package:lycle/src/controller/nftCard.dart';
 import 'package:lycle/src/ui/nftDetail/nftDetail.dart';
 import 'package:lycle/src/ui/widgets/roundedImage.dart';
 
@@ -19,20 +21,20 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<String> _imageUrl = [
-    "http://wiki.hash.kr/images/2/25/BAYC_1.png",
-    "http://wiki.hash.kr/images/f/ff/BAYC_2.png",
-    "http://wiki.hash.kr/images/4/4e/BAYC_3.png",
-    "http://wiki.hash.kr/images/7/76/BAYC_4.png",
+    "https://i.ytimg.com/vi/0q1muV-hOEc/maxresdefault.jpg",
+    "https://img.freepik.com/premium-vector/cute-llama-vector-icon-illustration-alpaca-mascot-cartoon-character_461200-167.jpg?w=1060",
+    "https://img.freepik.com/premium-vector/cute-business-llama-icon-illustration-alpaca-mascot-cartoon-character-animal-icon-concept-isolated_138676-989.jpg?w=1060",
+    "https://image.fnnews.com/resource/media/image/2021/09/24/202109240700515991_l.jpg",
   ];
 
   List<String> _nftTitle = [
-    "BAYC #1",
-    "BAYC #11",
-    "BAYC #111",
-    "BAYC #1111",
+    "LYCLE #1",
+    "LYCLE #11",
+    "LYCLE #111",
+    "LYCLE #1111",
   ];
 
-  int _currentIndex = 0;
+  NFTCardController nftCardIndexController = NFTCardIndexController(0);
 
   @override
   Widget build(BuildContext context) {
@@ -54,15 +56,17 @@ class _HomePageState extends State<HomePage> {
                       style: TextStyle(fontSize: (size.width - 32) * 0.1),
                     )),
                 Expanded(
+                  // TODO: Swiper component 분리
                     child: Swiper(
-                  onIndexChanged: (index) => _currentIndex = index,
+                  onIndexChanged: (index) =>
+                      nftCardIndexController.value = index,
                   fade: 0.25,
                   itemCount: _imageUrl.length,
                   scrollDirection: Axis.horizontal,
                   viewportFraction: 0.7,
                   scale: 0.75,
                   itemBuilder: (context, index) {
-                    bool isCurrentPage = _currentIndex == index;
+                    bool isCurrentPage = nftCardIndexController.value == index;
                     return Container(
                         margin: const EdgeInsets.all(kDefaultPadding),
                         decoration: BoxDecoration(
@@ -93,6 +97,7 @@ class _HomePageState extends State<HomePage> {
                                         duration:
                                             const Duration(milliseconds: 5000),
                                         child: InkWell(
+                                            // TODO: Navigator function 분리
                                             onTap: () {
                                               Navigator.of(context).push(
                                                   PageRouteBuilder(
@@ -136,14 +141,21 @@ class _HomePageState extends State<HomePage> {
                                                     height:
                                                         (size.width - 32) * 0.5,
                                                     radius: kDefaultRadius,
-                                                    imageProvider: NetworkImage(
-                                                        _imageUrl[index])))))
+                                                    decorationImage:
+                                                        DecorationImage(
+                                                            image: NetworkImage(
+                                                                _imageUrl[
+                                                                    index]),
+                                                            fit: BoxFit
+                                                                .cover)))))
                                     : RoundedImage(
                                         width: (size.width - 32) * 0.5,
                                         height: (size.width - 32) * 0.5,
                                         radius: kDefaultRadius,
-                                        imageProvider:
-                                            NetworkImage(_imageUrl[index])),
+                                        decorationImage: DecorationImage(
+                                            image:
+                                                NetworkImage(_imageUrl[index]),
+                                            fit: BoxFit.cover)),
                                 Image.asset(
                                   'assets/medal.png',
                                   width: (size.width - 32) * 0.15,
@@ -166,10 +178,18 @@ class _HomePageState extends State<HomePage> {
                 Padding(
                     padding:
                         const EdgeInsets.symmetric(vertical: kDefaultPadding),
-                    child: Text(
-                      "${_currentIndex + 1} / ${_imageUrl.length}",
-                      style: TextStyle(fontSize: (size.width - 32) * 0.1),
+                    child: ValueListenableBuilder<dynamic>(
+                      valueListenable: nftCardIndexController
+                          .getController(nftCardIndexController),
+                      builder:
+                          (BuildContext context, dynamic value, Widget? child) {
+                        return Text(
+                          "${value + 1} / ${_imageUrl.length}",
+                          style: TextStyle(fontSize: (size.width - 32) * 0.1),
+                        );
+                      },
                     )),
+                // TODO: bottom navigation bar 추가
                 Container(
                   height: 40,
                   color: Colors.white,

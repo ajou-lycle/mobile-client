@@ -32,6 +32,7 @@ class BackgroundGradientAnimationWidgetState
 
   @override
   initState() {
+    // TODO: animation init function 분리
     _backgroundGradientController =
         AnimationController(vsync: this, duration: widget.duration);
 
