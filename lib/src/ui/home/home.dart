@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:cupertino_icons/cupertino_icons.dart';
 
 import 'package:lycle/src/ui/nftCardList/nftCardList.dart';
+import 'package:lycle/src/ui/questList/questList.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -11,7 +12,7 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  final List<Widget> _widgetOptions = <Widget>[NFTCardListPage(), Container(), Container()];
+  final List<Widget> _widgetOptions = <Widget>[NFTCardListPage(), QuestListPage(), Container()];
   final List<BottomNavigationBarItem> _bottomNavigationBarOptions =
       <BottomNavigationBarItem>[
     BottomNavigationBarItem(
