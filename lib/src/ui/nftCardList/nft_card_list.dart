@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:card_swiper/card_swiper.dart';
 
 import 'package:lycle/src/constants/ui.dart';
-import 'package:lycle/src/controller/nftCard.dart';
-import 'package:lycle/src/ui/nftDetail/nftDetail.dart';
-import 'package:lycle/src/ui/widgets/roundedImage.dart';
+import 'package:lycle/src/controller/nft_card.dart';
+import 'package:lycle/src/ui/nftDetail/nft_card.dart';
+import 'package:lycle/src/ui/widgets/rounded_image.dart';
 
-import '../../data/heroTag.dart';
-import '../widgets/backgroundGradientAnimationWidget.dart';
-import '../widgets/heroWidget.dart';
+import '../../data/hero_tag.dart';
+import '../widgets/background_gradient_animation_widget.dart';
+import '../widgets/hero_widget.dart';
 
 class NFTCardListPage extends StatefulWidget {
   const NFTCardListPage({Key? key}) : super(key: key);

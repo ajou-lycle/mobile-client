@@ -4,43 +4,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:pedometer/pedometer.dart';
 
-import 'package:lycle/src/blocs/steps/steps_events.dart';
-import 'package:lycle/src/blocs/steps/steps_state.dart';
+import 'package:lycle/src/bloc/steps/steps_events.dart';
+import 'package:lycle/src/bloc/steps/steps_state.dart';
 
 import 'package:lycle/src/data/model/steps.dart';
 
+import '../../utils/health_kit_helper.dart';
+
 class TodayStepsBloc extends Bloc<TodayStepsEvent, TodayStepsState> {
   TodayStepsBloc() : super(TodayStepsEmpty()) {
-    Pedometer.stepCountStream.listen(_onStepCount).onError(_onStepCountError);
-
     _mapEventToState();
-  }
-
-  Future<void> _onStepCount(StepCount event) async {
-    print(event);
-    if (state is TodayStepsLoaded) {
-      final DateTime now = DateTime.now();
-      final Steps steps = state.props[0] as Steps;
-
-      bool isDatePassed = (now.day - steps.startAt.day) != 0 ? true : false;
-
-      if (isDatePassed) {
-        add(ReplacementTodaySteps(steps: steps));
-      } else {
-        add(IncrementTodaySteps(count: event.steps));
-      }
-    } else if (state is TodayStepsEmpty) {
-      // TODO: local db에 오늘 날짜 데이터가 없다면 create, 있다면 get event 발생시키기
-      Steps steps = Steps.byTodaySteps();
-
-      add(CreateTodaySteps(steps: steps));
-    } else {
-      print(state);
-    }
-  }
-
-  void _onStepCountError(error) {
-    print(error.toString());
   }
 
   TodayStepsState get initialState => TodayStepsEmpty();

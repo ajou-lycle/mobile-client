@@ -12,6 +12,7 @@ class QuestListPageState extends State<QuestListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: QuestListBody());
+        body: QuestListBody()
+        );
   }
 }

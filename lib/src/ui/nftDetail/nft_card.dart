@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:lycle/src/ui/widgets/heroWidget.dart';
+import 'package:lycle/src/ui/widgets/hero_widget.dart';
 
 import '../../constants/ui.dart';
 
-import '../../data/heroTag.dart';
+import '../../data/hero_tag.dart';
 
-import '../widgets/backgroundGradientAnimationWidget.dart';
-import '../widgets/roundedImage.dart';
+import '../widgets/background_gradient_animation_widget.dart';
+import '../widgets/rounded_image.dart';
 
 class NFTDetailPage extends StatelessWidget {
   final String imageUrl;
