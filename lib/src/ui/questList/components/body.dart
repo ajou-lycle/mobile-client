@@ -18,17 +18,20 @@ class QuestListBody extends StatefulWidget {
 }
 
 class QuestListBodyState extends State<QuestListBody> {
-  final readTypes = <String>[QuantityType.stepCount.identifier];
-  final writeTypes = <String>[QuantityType.stepCount.identifier];
+  final readTypes = [QuantityType.stepCount];
+  final writeTypes = [QuantityType.stepCount];
+
+  num steps = 0;
 
   late TodayStepsBloc _todayStepsBloc;
-  late HealthHelper healthHelper;
+  late QuantityHealthHelper healthHelper;
 
   @override
   void initState() {
     super.initState();
     _todayStepsBloc = BlocProvider.of<TodayStepsBloc>(context);
-    healthHelper = HealthHelper(readTypes: readTypes, writeTypes: writeTypes);
+    healthHelper =
+        QuantityHealthHelper(readTypes: readTypes, writeTypes: writeTypes);
   }
 
   @override
@@ -36,52 +39,15 @@ class QuestListBodyState extends State<QuestListBody> {
     super.didChangeDependencies();
 
     await healthHelper.requestPermission();
-    observerQuery();
+
+    DateTime before24Hours = DateTime.now().add(const Duration(days: -1));
+    healthHelper.observerQueryForQuantityQuery(
+        before24Hours, DateTime.now(), handleStepsData);
   }
 
-  void observerQuery() async {
-    Predicate predicate = Predicate(
-        DateTime.now().add(const Duration(days: -6, hours: -15, minutes: -20)),
-        DateTime.now());
-
-    final sub = HealthKitReporter.observerQuery(readTypes, predicate,
-        onUpdate: (identifier) async {
-      print('\n\n\n\nUpdates for observerQuerySub - $identifier');
-      try {
-        final preferredUnits = await HealthKitReporter.preferredUnits([
-          QuantityType.stepCount,
-        ]);
-
-        preferredUnits.forEach((preferredUnit) async {
-          final identifier = preferredUnit.identifier;
-          final unit = preferredUnit.unit;
-          print('preferredUnit: ${preferredUnit.map}');
-          final type = QuantityTypeFactory.from(identifier);
-          try {
-            final quantities =
-                await HealthKitReporter.quantityQuery(type, unit, predicate);
-            num steps = 0;
-            quantities.map((e) => e.map).toList().forEach((element) {
-              steps += element['harmonized']['value'];
-            });
-            print('quantity: ${steps / 7}\n');
-            final statistics =
-                await HealthKitReporter.statisticsQuery(type, unit, predicate);
-            print('statistics: ${statistics.map}');
-          } catch (e) {
-            print(e);
-          }
-        });
-      } catch (e) {
-        print(e);
-      }
-    });
-
-    print('observerQuerySub: $sub');
-
-    final isSet = await HealthKitReporter.enableBackgroundDelivery(
-        readTypes.first, UpdateFrequency.immediate);
-    print('enableBackgroundDelivery: $isSet');
+  void handleStepsData(num result) {
+    steps = result;
+    print(steps);
   }
 
   @override

@@ -1,50 +1,161 @@
 import 'dart:async';
 
 import 'package:health_kit_reporter/health_kit_reporter.dart';
+import 'package:health_kit_reporter/model/payload/preferred_unit.dart';
+import 'package:health_kit_reporter/model/predicate.dart';
+import 'package:health_kit_reporter/model/type/quantity_type.dart';
+import 'package:health_kit_reporter/model/update_frequency.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-// TODO: Stream for getting health data
+/// Helper for health kit reporter.
+///
+/// You extends this class when you must declare *explicit type* of list type in child constructor like this...
+/// ```dart
+/// QuantityHealthHelper._internal(
+///       {required List<QuantityType> readTypes,
+///       required List<QuantityType> writeTypes})
+///       : super._internal(readTypes, writeTypes) {
+///     _readTypesIdentifiers = List<String>.generate(
+///         readTypes.length, (index) => readTypes[index].identifier);
+///     _writeTypesIdentifiers = List<String>.generate(
+///         writeTypes.length, (index) => writeTypes[index].identifier);
+///         // something you want ...
+///   }
+/// ```
+///
+/// Throws an [ArgumentError] if the list [_readTypes] is empty or
+/// the list [_writeTypes] is empty or the runtimeType of both are not equal.
 
-class HealthHelper {
-  late List<String> readTypes;
-  late List<String> writeTypes;
+abstract class HealthHelper {
+  late List _readTypes;
+  late List _writeTypes;
+  late List<String> _readTypesIdentifiers;
+  late List<String> _writeTypesIdentifiers;
 
-  bool hasPermissions = false;
+  bool _hasPermissions = false;
 
-  HealthHelper._internal({required this.readTypes, required this.writeTypes})
-      : assert(readTypes != List.empty(),
+  HealthHelper._internal(this._readTypes, this._writeTypes)
+      : assert(_readTypes.isNotEmpty,
             ArgumentError("You must select health data types you wanna get.")),
-        assert(writeTypes != List.empty(),
-            ArgumentError("You must select health data types you wanna write"));
-
-  /// Create the singleton instance with the given types and permissions.
-  ///
-  /// Throws an [AssertionError] if the list of String [readTypes] is empty or
-  /// the list of String [writeTypes] is empty. Returns the singleton instance.
-  factory HealthHelper(
-          {required List<String> readTypes,
-          required List<String> writeTypes}) =>
-      HealthHelper._internal(readTypes: readTypes, writeTypes: writeTypes);
+        assert(_writeTypes.isNotEmpty,
+            ArgumentError("You must select health data types you wanna write")),
+        assert(
+            _readTypes.runtimeType == _writeTypes.runtimeType,
+            ArgumentError(
+                "You must declare same type for readTypes and writeTypes"));
 
   /// Request this permissions of this types to HealthKit.
-  ///
-  /// Throws an [AssertionError] if the length of this [readTypes] and
-  /// this [writeTypes] is *not* equal. Returns true when request is success.
-  Future<bool> requestPermission() async {
-    assert(
-        readTypes.length == writeTypes.length,
-        AssertionError(
-            'The length of this types and this permissions must be equal.'));
-
-    bool requested =
-        await HealthKitReporter.requestAuthorization(readTypes, writeTypes);
+  Future<void> requestPermission() async {
+    bool requested = await HealthKitReporter.requestAuthorization(
+        _readTypesIdentifiers, _writeTypesIdentifiers);
 
     // if use WorkOut, uncomment
     // await Permission.activityRecognition.request();
     // await Permission.location.request();
 
-    hasPermissions = requested;
+    _hasPermissions = requested;
+  }
 
-    return hasPermissions;
+  /// Get StreamSubscription of HealthKit data updated.
+  ///
+  /// Throws an [AssertionError] if [_hasPermissions] is false or
+  /// [predicate.startDate] is *not* before [predicate.endDate].
+  /// The parameter of [onUpdate] is identifier of HealthKit data type.
+  void _observerQuery(Predicate predicate, Function(String) onUpdate) async {
+    assert(_hasPermissions, AssertionError("You don't have permissions"));
+    assert(predicate.startDate.isBefore(predicate.endDate),
+        AssertionError("The start time must be before end time."));
+
+    HealthKitReporter.observerQuery(_readTypesIdentifiers, predicate,
+        onUpdate: onUpdate);
+
+    for (final identifier in _readTypesIdentifiers) {
+      await HealthKitReporter.enableBackgroundDelivery(
+          identifier, UpdateFrequency.immediate);
+    }
+  }
+}
+
+class QuantityHealthHelper extends HealthHelper {
+  QuantityHealthHelper._internal(
+      {required List<QuantityType> readTypes,
+      required List<QuantityType> writeTypes})
+      : super._internal(readTypes, writeTypes) {
+    _readTypesIdentifiers = List<String>.generate(
+        readTypes.length, (index) => readTypes[index].identifier);
+    _writeTypesIdentifiers = List<String>.generate(
+        writeTypes.length, (index) => writeTypes[index].identifier);
+  }
+
+  /// Create the singleton instance with the given types and permissions.
+  ///
+  /// Throws an [AssertionError] if the list of String [readTypes] is empty or
+  /// the list of String [writeTypes] is empty. Returns the singleton instance.
+  factory QuantityHealthHelper(
+          {required List<QuantityType> readTypes,
+          required List<QuantityType> writeTypes}) =>
+      QuantityHealthHelper._internal(
+          readTypes: readTypes, writeTypes: writeTypes);
+
+  set readTypes(List<QuantityType> value) {
+    assert(value.isNotEmpty, "You can't set empty list to readTypes");
+
+    _readTypes = value;
+    _readTypesIdentifiers = List<String>.generate(
+        readTypes.length, (index) => readTypes[index].identifier);
+  }
+
+  set writeTypes(List<QuantityType> value) {
+    assert(value.isNotEmpty, "You can't set empty list to writeTypes");
+
+    _writeTypes = value;
+    _writeTypesIdentifiers = List<String>.generate(
+        _writeTypes.length, (index) => _writeTypes[index].identifier);
+  }
+
+  List<QuantityType> get readTypes => _readTypes as List<QuantityType>;
+
+  List<QuantityType> get writeTypes => _writeTypes as List<QuantityType>;
+
+  /// Get StreamSubscription of the quantity of HealthKit data updated. You can handle it with callback.
+  ///
+  /// Throws an [AssertionError] if the DateTime [start] is *not* before [end].
+  /// The parameter of [callback] is the quantity, num, of HealthKit data updated.
+  void observerQueryForQuantityQuery(
+      DateTime start, DateTime end, void Function(num) callback) {
+    Predicate predicate = Predicate(start, end);
+
+    _observerQuery(predicate, (identifier) async {
+      try {
+        final preferredUnits = await HealthKitReporter.preferredUnits(
+            _readTypes as List<QuantityType>);
+
+        await Future.forEach(preferredUnits,
+            (PreferredUnit preferredUnit) async {
+          final identifier = preferredUnit.identifier;
+          final unit = preferredUnit.unit;
+          final type = QuantityTypeFactory.from(identifier);
+
+          try {
+            final quantities =
+                await HealthKitReporter.quantityQuery(type, unit, predicate);
+
+            num result = 0;
+
+            quantities.map((e) => e.map).toList().forEach((element) {
+              result += element['harmonized']['value'];
+            });
+
+            callback(result);
+          } catch (e) {
+            // TODO: Error type 정하기
+            print(e);
+          }
+        });
+      } catch (e) {
+// TODO: Error type 정하기
+        print(e);
+      }
+    });
   }
 }

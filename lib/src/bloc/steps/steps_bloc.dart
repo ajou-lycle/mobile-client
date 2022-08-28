@@ -13,18 +13,14 @@ import '../../utils/health_kit_helper.dart';
 
 class TodayStepsBloc extends Bloc<TodayStepsEvent, TodayStepsState> {
   TodayStepsBloc() : super(TodayStepsEmpty()) {
-    _mapEventToState();
-  }
-
-  TodayStepsState get initialState => TodayStepsEmpty();
-
-  void _mapEventToState() {
     on<GetTodaySteps>(_mapGetTodayStepsToState);
     on<CreateTodaySteps>(_mapCreateTodayStepsToState);
     on<IncrementTodaySteps>(_mapIncrementTodayStepsToState);
     on<ReplacementTodaySteps>(_mapReplacementTodayStepsToState);
     on<SensorErrorTodaySteps>(_mapSensorErrorTodayStepsToState);
   }
+
+  TodayStepsState get initialState => TodayStepsEmpty();
 
   Future<void> _mapGetTodayStepsToState(
       GetTodaySteps event, Emitter<TodayStepsState> emit) async {
