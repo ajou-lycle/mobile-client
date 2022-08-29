@@ -11,7 +11,7 @@ class GeolocationHelper {
   ///
   /// When the location services are not enabled or permissions
   /// are denied the `Future` will return an error.
-  Future _determinePosition() async {
+  Future requestServiceAndPermission() async {
     _serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!_serviceEnabled) {
       return Future.error('Location services are disabled.');
@@ -28,6 +28,19 @@ class GeolocationHelper {
     if (_permission == LocationPermission.deniedForever) {
       return Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
+    }
+  }
+
+  bool checkServiceAndPermission() {
+    if (_serviceEnabled) {
+      bool hasPermission = _permission != LocationPermission.denied ||
+              _permission != LocationPermission.deniedForever ||
+              _permission != LocationPermission.unableToDetermine
+          ? true
+          : false;
+      return hasPermission;
+    } else {
+      return _serviceEnabled;
     }
   }
 

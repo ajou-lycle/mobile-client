@@ -1,7 +1,10 @@
 import 'dart:async';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 import 'package:health_kit_reporter/health_kit_reporter.dart';
 import 'package:health_kit_reporter/model/payload/preferred_unit.dart';
+import 'package:health_kit_reporter/model/payload/quantity.dart';
 import 'package:health_kit_reporter/model/predicate.dart';
 import 'package:health_kit_reporter/model/type/quantity_type.dart';
 import 'package:health_kit_reporter/model/update_frequency.dart';
@@ -33,6 +36,8 @@ abstract class HealthHelper {
   late List<String> _writeTypesIdentifiers;
 
   bool _hasPermissions = false;
+  int _deniedCount = 0;
+  num _timeStamp = 0;
 
   HealthHelper._internal(this._readTypes, this._writeTypes)
       : assert(_readTypes.isNotEmpty,
@@ -120,9 +125,9 @@ class QuantityHealthHelper extends HealthHelper {
   /// Get StreamSubscription of the quantity of HealthKit data updated. You can handle it with callback.
   ///
   /// Throws an [AssertionError] if the DateTime [start] is *not* before [end].
-  /// The parameter of [callback] is the quantity, num, of HealthKit data updated.
-  void observerQueryForQuantityQuery(
-      DateTime start, DateTime end, void Function(num) callback) {
+  /// The parameter of [acceptCallback] is the quantity, num, of HealthKit data updated.
+  void observerQueryForQuantityQuery(DateTime start, DateTime end,
+      void Function(num) acceptCallback, void Function(int) deniedCallback) {
     Predicate predicate = Predicate(start, end);
 
     _observerQuery(predicate, (identifier) async {
@@ -142,11 +147,37 @@ class QuantityHealthHelper extends HealthHelper {
 
             num result = 0;
 
-            quantities.map((e) => e.map).toList().forEach((element) {
-              result += element['harmonized']['value'];
-            });
+            for (Quantity data in quantities) {
+              bool isDataAllowed = (data.startTimestamp != data.endTimestamp) &&
+                      (data.device?.name != null ||
+                          data.device?.manufacturer != null)
+                  ? true
+                  : false;
 
-            callback(result);
+              if (isDataAllowed) {
+                result += data.harmonized.value;
+              } else {
+                bool isAlreadyDenied =
+                    _timeStamp >= data.startTimestamp ? true : false;
+
+                if (isAlreadyDenied) {
+                  continue;
+                } else {
+                  _timeStamp = data.startTimestamp;
+                  _deniedCount += 1;
+
+                  deniedCallback(_deniedCount);
+
+                  if (int.parse(dotenv.env['DENIED_COUNT']!) == _deniedCount) {
+                    _deniedCount = 0;
+                  }
+
+                  return;
+                }
+              }
+            }
+
+            acceptCallback(result);
           } catch (e) {
             // TODO: Error type 정하기
             print(e);

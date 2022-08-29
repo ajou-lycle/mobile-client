@@ -1,97 +1,125 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 
 import 'package:lycle/src/bloc/steps/steps_events.dart';
 import 'package:lycle/src/bloc/steps/steps_state.dart';
 
 import 'package:lycle/src/data/model/steps.dart';
+import 'package:lycle/src/utils/geolocation_helper.dart';
 
 import '../../utils/health_kit_helper.dart';
 
-class TodayStepsBloc extends Bloc<TodayStepsEvent, TodayStepsState> {
+class QuestStepsBloc extends Bloc<QuestStepsEvent, QuestStepsState> {
   late QuantityHealthHelper healthHelper;
+  GeolocationHelper geolocationHelper = GeolocationHelper();
 
-
-  TodayStepsBloc({required this.healthHelper}) : super(TodayStepsEmpty()) {
-    on<GetTodaySteps>(_mapGetTodayStepsToState);
-    on<CreateTodaySteps>(_mapCreateTodayStepsToState);
-    on<IncrementTodaySteps>(_mapIncrementTodayStepsToState);
-    on<ReplacementTodaySteps>(_mapReplacementTodayStepsToState);
-    on<ErrorTodaySteps>(_mapErrorTodayStepsToState);
+  QuestStepsBloc({required this.healthHelper}) : super(QuestStepsEmpty()) {
+    on<GetQuestSteps>(_mapGetQuestStepsToState);
+    on<CreateQuestSteps>(_mapCreateQuestStepsToState);
+    on<IncrementQuestSteps>(_mapIncrementQuestStepsToState);
+    on<ReplacementQuestSteps>(_mapReplacementQuestStepsToState);
+    on<DeniedQuestSteps>(_mapDeniedQuestStepsToState);
+    on<ErrorQuestSteps>(_mapErrorQuestStepsToState);
   }
 
-  void handleStepCount(num count) =>
-      add(IncrementTodaySteps(count: count as int));
+  void handleStepCount(num acceptCount) {
+    if (state is! QuestStepsDenied) {
+      add(IncrementQuestSteps(count: acceptCount as int));
+    }
+  }
 
-  TodayStepsState get initialState => TodayStepsEmpty();
+  void deniedStepCount(num deniedCount) =>
+      add(DeniedQuestSteps(count: deniedCount as int));
 
-  Future<void> _mapGetTodayStepsToState(
-      GetTodaySteps event, Emitter<TodayStepsState> emit) async {
+  QuestStepsState get initialState => QuestStepsEmpty();
+
+  Future<void> _mapGetQuestStepsToState(
+      GetQuestSteps event, Emitter<QuestStepsState> emit) async {
     try {
-      emit(TodayStepsLoading());
+      emit(QuestStepsLoading());
 
       // TODO: local db에서 데이터 가져오는 로직
 
-      final steps = Steps.byTodaySteps();
+      int goal = 0;
+
+      final questSteps = QuestSteps.byTodaySteps(goal);
 
       healthHelper.observerQueryForQuantityQuery(
-          steps.startAt, steps.finishAt, handleStepCount);
+          questSteps.startAt, questSteps.finishAt, handleStepCount, deniedStepCount);
 
-      emit(TodayStepsLoaded(steps: steps));
+      emit(QuestStepsLoaded(questSteps: questSteps));
     } catch (e) {
-      emit(TodayStepsError(error: "get error"));
+      emit(QuestStepsError(error: "get error"));
     }
   }
 
-  Future<void> _mapCreateTodayStepsToState(
-      CreateTodaySteps event, Emitter<TodayStepsState> emit) async {
+  Future<void> _mapCreateQuestStepsToState(
+      CreateQuestSteps event, Emitter<QuestStepsState> emit) async {
     try {
-      emit(TodayStepsLoading());
+      emit(QuestStepsLoading());
 
-      final steps = Steps.byTodaySteps();
+      int goal = 0;
+      final questSteps = QuestSteps.byTodaySteps(0);
       healthHelper.observerQueryForQuantityQuery(
-          steps.startAt, steps.finishAt, handleStepCount);
+          questSteps.startAt, questSteps.finishAt, handleStepCount, deniedStepCount);
 
-      emit(TodayStepsLoaded(steps: event.steps));
+      emit(QuestStepsLoaded(questSteps: event.questSteps));
     } catch (e) {
-      emit(TodayStepsError(error: "get error"));
+      emit(QuestStepsError(error: "get error"));
     }
   }
 
-  void _mapIncrementTodayStepsToState(
-      IncrementTodaySteps event, Emitter<TodayStepsState> emit) async {
+  void _mapIncrementQuestStepsToState(
+      IncrementQuestSteps event, Emitter<QuestStepsState> emit) async {
     try {
-      final Steps steps = state.props[0] as Steps;
+      final questSteps = state.props[0] as QuestSteps;
 
-      emit(TodayStepsUpdated(steps: steps));
+      emit(QuestStepsUpdated(questSteps: questSteps));
 
-      steps.currentSteps = event.count;
+      questSteps.currentSteps = event.count;
 
-      emit(TodayStepsLoaded(steps: steps));
+      emit(QuestStepsLoaded(questSteps: questSteps));
     } catch (e) {
-      emit(TodayStepsError(error: "increment error"));
+      emit(QuestStepsError(error: "increment error"));
     }
   }
 
-  Future<void> _mapReplacementTodayStepsToState(
-      ReplacementTodaySteps event, Emitter<TodayStepsState> emit) async {
+  Future<void> _mapReplacementQuestStepsToState(
+      ReplacementQuestSteps event, Emitter<QuestStepsState> emit) async {
     try {
-      emit(TodayStepsLoading());
+      emit(QuestStepsLoading());
 
-      final Steps yesterdaySteps = state.props[0] as Steps;
-
+      int goal = 0;
       // TODO: local db에 저장하기
-      Steps todaySteps = Steps.byTodaySteps();
+      QuestSteps questSteps = QuestSteps.byTodaySteps(0);
 
-      emit(TodayStepsLoaded(steps: todaySteps));
+      emit(QuestStepsLoaded(questSteps: questSteps));
     } catch (e) {
-      emit(TodayStepsError(error: "replacement error"));
+      emit(QuestStepsError(error: "replacement error"));
     }
   }
 
-  void _mapErrorTodayStepsToState(
-      ErrorTodaySteps event, Emitter<TodayStepsState> emit) {
-    emit(TodayStepsError(error: "sensor error"));
+  void _mapDeniedQuestStepsToState(
+      DeniedQuestSteps event, Emitter<QuestStepsState> emit) {
+    try {
+      QuestStepsDenied questStepsDenied =
+          QuestStepsDenied(questSteps: state.props[0] as QuestSteps);
+
+      if (event.count == 2) {
+        (questStepsDenied.props[0] as QuestSteps).currentSteps = 0;
+        questStepsDenied.props[1] = false;
+      }
+
+      emit(questStepsDenied);
+    } catch (e) {
+      emit(QuestStepsError(error: "Denied error"));
+    }
+  }
+
+  void _mapErrorQuestStepsToState(
+      ErrorQuestSteps event, Emitter<QuestStepsState> emit) {
+    emit(QuestStepsError(error: "error"));
   }
 }

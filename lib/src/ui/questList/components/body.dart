@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:health_kit_reporter/health_kit_reporter.dart';
-import 'package:health_kit_reporter/model/predicate.dart';
 import 'package:health_kit_reporter/model/type/quantity_type.dart';
-import 'package:health_kit_reporter/model/update_frequency.dart';
 
 import 'package:lycle/src/bloc/steps/steps_bloc.dart';
 import 'package:lycle/src/bloc/steps/steps_events.dart';
@@ -24,18 +21,29 @@ class QuestListBodyState extends State<QuestListBody> {
 
   num steps = 0;
 
-  late TodayStepsBloc _todayStepsBloc;
+  late QuestStepsBloc _todayStepsBloc;
   late QuantityHealthHelper healthHelper;
 
   @override
   void initState() {
     super.initState();
-    _todayStepsBloc = BlocProvider.of<TodayStepsBloc>(context);
+    _todayStepsBloc = BlocProvider.of<QuestStepsBloc>(context);
   }
 
   @override
   void didChangeDependencies() async {
     super.didChangeDependencies();
+  }
+
+  void _showDialog(String title, String content, List<Widget> actions) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+            title: Text(title), content: Text(content), actions: actions);
+      },
+    );
   }
 
   @override
@@ -49,17 +57,53 @@ class QuestListBodyState extends State<QuestListBody> {
           TextButton(
               onPressed: () async {
                 await _todayStepsBloc.healthHelper.requestPermission();
-                print("hello");
-                final Steps steps = Steps.byTodaySteps();
-                _todayStepsBloc.add(CreateTodaySteps(steps: steps));
+                int goal = 3000;
+                final QuestSteps questSteps = QuestSteps.byTodaySteps(goal);
+                _todayStepsBloc.add(CreateQuestSteps(questSteps: questSteps));
               },
               child: Text("걸음 수 가져오기")),
-          BlocBuilder<TodayStepsBloc, TodayStepsState>(
-              builder: (context, state) {
-            if (state is TodayStepsLoaded) {
+          BlocBuilder<QuestStepsBloc, QuestStepsState>(
+              buildWhen: (previous, current) {
+            print("previous $previous");
+            print("current $current");
+            if (previous is QuestStepsLoaded && current is QuestStepsDenied) {
+              if (current.isDenied) {
+                List<Widget> actions = <Widget>[
+                  OutlinedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text("확인"))
+                ];
+
+                _showDialog(
+                    "퀘스트 실패", "반복되는 데이터 임의 수정으로, 현재 퀘스트에 실패하였습니다.", actions);
+              } else {
+                List<Widget> actions = <Widget>[
+                  OutlinedButton(
+                      onPressed: () {
+                        _todayStepsBloc.add(IncrementQuestSteps(
+                            count: previous.questSteps.currentSteps));
+                        Navigator.pop(context);
+                      },
+                      child: const Text("확인"))
+                ];
+
+                _showDialog("비매너 행위 경고",
+                    "1회 더 데이터 임의 수정을 할 시, 현재 퀘스트 도전이 실패합니다.", actions);
+              }
+            }
+
+            return true;
+          }, builder: (context, state) {
+            if (state is QuestStepsLoaded ||
+                state is QuestStepsUpdated ||
+                state is QuestStepsDenied) {
               return Text(
                   "Steps: ${(_todayStepsBloc.state.props[0] as Steps).currentSteps}");
-            } else if (state is TodayStepsError) {
+            } else if (state is QuestStepsEmpty) {
+              return const Text("Steps: 0");
+            } else if (state is QuestStepsError) {
               return Text("${state.error}");
             }
             return const CircularProgressIndicator();

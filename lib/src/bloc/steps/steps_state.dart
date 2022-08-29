@@ -2,23 +2,23 @@ import 'package:equatable/equatable.dart';
 
 import 'package:lycle/src/data/model/steps.dart';
 
-abstract class TodayStepsState extends Equatable {}
+abstract class QuestStepsState extends Equatable {}
 
-class TodayStepsEmpty extends TodayStepsState {
+class QuestStepsEmpty extends QuestStepsState {
   @override
   List<Object?> get props => [];
 }
 
-class TodayStepsLoading extends TodayStepsState {
+class QuestStepsLoading extends QuestStepsState {
   @override
   // TODO: implement props
   List<Object?> get props => [];
 }
 
-class TodayStepsError extends TodayStepsState {
+class QuestStepsError extends QuestStepsState {
   final String? error;
 
-  TodayStepsError({this.error});
+  QuestStepsError({this.error});
 
   @override
   String toString() => 'ErrorState { error: $error }';
@@ -28,28 +28,42 @@ class TodayStepsError extends TodayStepsState {
   List<Object?> get props => [error];
 }
 
-class TodayStepsLoaded extends TodayStepsState {
-  final Steps steps;
+class QuestStepsLoaded extends QuestStepsState {
+  final QuestSteps questSteps;
 
-  TodayStepsLoaded({required this.steps});
+  QuestStepsLoaded({required this.questSteps});
 
   @override
-  String toString() => 'LoadedState { steps: ${steps.currentSteps} }';
+  String toString() => 'LoadedState { steps: ${questSteps.currentSteps} }';
 
   @override
   // TODO: implement props
-  List<Object?> get props => [steps];
+  List<Object?> get props => [questSteps];
 }
 
-class TodayStepsUpdated extends TodayStepsState {
-  final Steps steps;
+class QuestStepsUpdated extends QuestStepsState {
+  final QuestSteps questSteps;
 
-  TodayStepsUpdated({required this.steps});
+  QuestStepsUpdated({required this.questSteps});
 
   @override
-  String toString() => 'UpdatedState { steps: ${steps.currentSteps} }';
+  String toString() => 'UpdatedState { steps: ${questSteps.currentSteps} }';
 
   @override
   // TODO: implement props
-  List<Object?> get props => [steps];
+  List<Object?> get props => [questSteps];
+}
+
+class QuestStepsDenied extends QuestStepsState {
+  final QuestSteps questSteps;
+  final bool isDenied = false;
+
+  QuestStepsDenied({required this.questSteps});
+
+  @override
+  String toString() => 'DeniedState { steps: ${questSteps.currentSteps}, isDenied: $isDenied }';
+
+  @override
+  // TODO: implement props
+  List<Object?> get props => [questSteps, isDenied];
 }

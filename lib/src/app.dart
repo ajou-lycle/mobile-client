@@ -17,8 +17,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: BlocProvider<TodayStepsBloc>(
-          create: (BuildContext context) => TodayStepsBloc(
+      home: BlocProvider<QuestStepsBloc>(
+          create: (BuildContext context) => QuestStepsBloc(
               healthHelper: QuantityHealthHelper(
                   readTypes: readTypes, writeTypes: writeTypes)),
           child: HomePage()),

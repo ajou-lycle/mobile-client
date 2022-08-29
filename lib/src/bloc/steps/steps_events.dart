@@ -2,9 +2,9 @@ import 'package:equatable/equatable.dart';
 
 import '../../data/model/steps.dart';
 
-abstract class TodayStepsEvent extends Equatable {}
+abstract class QuestStepsEvent extends Equatable {}
 
-class GetTodaySteps extends TodayStepsEvent {
+class GetQuestSteps extends QuestStepsEvent {
   @override
   String toString() => 'GetTodaySteps';
 
@@ -12,22 +12,22 @@ class GetTodaySteps extends TodayStepsEvent {
   List<Object?> get props => [];
 }
 
-class CreateTodaySteps extends TodayStepsEvent {
-  final Steps steps;
+class CreateQuestSteps extends QuestStepsEvent {
+  final QuestSteps questSteps;
 
-  CreateTodaySteps({required this.steps});
-
-  @override
-  String toString() => 'CreateTodaySteps : $steps';
+  CreateQuestSteps({required this.questSteps});
 
   @override
-  List<Object?> get props => [steps];
+  String toString() => 'CreateTodaySteps : $questSteps';
+
+  @override
+  List<Object?> get props => [questSteps];
 }
 
-class IncrementTodaySteps extends TodayStepsEvent {
+class IncrementQuestSteps extends QuestStepsEvent {
   final int count;
 
-  IncrementTodaySteps({required this.count});
+  IncrementQuestSteps({required this.count});
 
   @override
   String toString() => 'IncrementTodaySteps : $count';
@@ -37,23 +37,36 @@ class IncrementTodaySteps extends TodayStepsEvent {
   List<Object?> get props => [count];
 }
 
-class ReplacementTodaySteps extends TodayStepsEvent {
-  final Steps steps;
+class ReplacementQuestSteps extends QuestStepsEvent {
+  final QuestSteps questSteps;
 
-  ReplacementTodaySteps({required this.steps});
+  ReplacementQuestSteps({required this.questSteps});
 
   @override
-  String toString() => 'ReplacementTodaySteps : $steps';
+  String toString() => 'ReplacementTodaySteps : $questSteps';
 
   @override
   // TODO: implement props
-  List<Object?> get props => [steps];
+  List<Object?> get props => [questSteps];
 }
 
-class ErrorTodaySteps extends TodayStepsEvent {
+class DeniedQuestSteps extends QuestStepsEvent {
+  final int count;
+
+  DeniedQuestSteps({required this.count});
+
+  @override
+  String toString() => 'DeniedTodaySteps { count: $count }';
+
+  @override
+  // TODO: implement props
+  List<Object?> get props => [count];
+}
+
+class ErrorQuestSteps extends QuestStepsEvent {
   final String? error;
 
-  ErrorTodaySteps({this.error});
+  ErrorQuestSteps({this.error});
 
   @override
   String toString() => 'ErrorTodaySteps { error: $error }';
