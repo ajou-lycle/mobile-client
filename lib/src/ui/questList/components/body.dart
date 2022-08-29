@@ -57,15 +57,13 @@ class QuestListBodyState extends State<QuestListBody> {
           TextButton(
               onPressed: () async {
                 await _todayStepsBloc.healthHelper.requestPermission();
-                int goal = 3000;
+                int goal = 1000;
                 final QuestSteps questSteps = QuestSteps.byTodaySteps(goal);
                 _todayStepsBloc.add(CreateQuestSteps(questSteps: questSteps));
               },
               child: Text("걸음 수 가져오기")),
           BlocBuilder<QuestStepsBloc, QuestStepsState>(
               buildWhen: (previous, current) {
-            print("previous $previous");
-            print("current $current");
             if (previous is QuestStepsLoaded && current is QuestStepsDenied) {
               if (current.isDenied) {
                 List<Widget> actions = <Widget>[
@@ -99,8 +97,17 @@ class QuestListBodyState extends State<QuestListBody> {
             if (state is QuestStepsLoaded ||
                 state is QuestStepsUpdated ||
                 state is QuestStepsDenied) {
-              return Text(
-                  "Steps: ${(_todayStepsBloc.state.props[0] as Steps).currentSteps}");
+              final QuestSteps questSteps = state.props[0] as QuestSteps;
+              double progressValue = questSteps.currentSteps / questSteps.goal;
+              return Column(
+                children: [
+                  Text(
+                      "Steps: ${(_todayStepsBloc.state.props[0] as Steps).currentSteps}"),
+                  LinearProgressIndicator(
+                    value: progressValue,
+                  )
+                ],
+              );
             } else if (state is QuestStepsEmpty) {
               return const Text("Steps: 0");
             } else if (state is QuestStepsError) {
