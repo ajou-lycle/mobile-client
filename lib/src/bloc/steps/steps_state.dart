@@ -40,3 +40,16 @@ class TodayStepsLoaded extends TodayStepsState {
   // TODO: implement props
   List<Object?> get props => [steps];
 }
+
+class TodayStepsUpdated extends TodayStepsState {
+  final Steps steps;
+
+  TodayStepsUpdated({required this.steps});
+
+  @override
+  String toString() => 'UpdatedState { steps: ${steps.currentSteps} }';
+
+  @override
+  // TODO: implement props
+  List<Object?> get props => [steps];
+}

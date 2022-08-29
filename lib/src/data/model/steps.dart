@@ -1,6 +1,5 @@
 class Steps {
-  late int previousSteps;
-  late int currentSteps;
+  int currentSteps = 0;
   final DateTime startAt;
   late final DateTime finishAt;
 

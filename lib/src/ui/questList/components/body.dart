@@ -7,6 +7,7 @@ import 'package:health_kit_reporter/model/type/quantity_type.dart';
 import 'package:health_kit_reporter/model/update_frequency.dart';
 
 import 'package:lycle/src/bloc/steps/steps_bloc.dart';
+import 'package:lycle/src/bloc/steps/steps_events.dart';
 import 'package:lycle/src/utils/health_kit_helper.dart';
 
 import '../../../data/model/steps.dart';
@@ -30,24 +31,11 @@ class QuestListBodyState extends State<QuestListBody> {
   void initState() {
     super.initState();
     _todayStepsBloc = BlocProvider.of<TodayStepsBloc>(context);
-    healthHelper =
-        QuantityHealthHelper(readTypes: readTypes, writeTypes: writeTypes);
   }
 
   @override
   void didChangeDependencies() async {
     super.didChangeDependencies();
-
-    await healthHelper.requestPermission();
-
-    DateTime before24Hours = DateTime.now().add(const Duration(days: -1));
-    healthHelper.observerQueryForQuantityQuery(
-        before24Hours, DateTime.now(), handleStepsData);
-  }
-
-  void handleStepsData(num result) {
-    steps = result;
-    print(steps);
   }
 
   @override
@@ -60,11 +48,12 @@ class QuestListBodyState extends State<QuestListBody> {
         children: [
           TextButton(
               onPressed: () async {
-                // result = await exampleHealth();
-                setState(() {});
+                await _todayStepsBloc.healthHelper.requestPermission();
+                print("hello");
+                final Steps steps = Steps.byTodaySteps();
+                _todayStepsBloc.add(CreateTodaySteps(steps: steps));
               },
               child: Text("걸음 수 가져오기")),
-          // Text(result?.toString() ?? "연동 안 됌"),
           BlocBuilder<TodayStepsBloc, TodayStepsState>(
               builder: (context, state) {
             print(state);
@@ -76,7 +65,6 @@ class QuestListBodyState extends State<QuestListBody> {
             }
             return const CircularProgressIndicator();
           }),
-          // Text("Status: $_status")
         ],
       )),
     );
