@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:pedometer/pedometer.dart';
-
 import 'package:lycle/src/bloc/steps/steps_events.dart';
 import 'package:lycle/src/bloc/steps/steps_state.dart';
 
@@ -14,23 +12,22 @@ import '../../utils/health_kit_helper.dart';
 class TodayStepsBloc extends Bloc<TodayStepsEvent, TodayStepsState> {
   late QuantityHealthHelper healthHelper;
 
+
   TodayStepsBloc({required this.healthHelper}) : super(TodayStepsEmpty()) {
     on<GetTodaySteps>(_mapGetTodayStepsToState);
     on<CreateTodaySteps>(_mapCreateTodayStepsToState);
     on<IncrementTodaySteps>(_mapIncrementTodayStepsToState);
     on<ReplacementTodaySteps>(_mapReplacementTodayStepsToState);
-    on<SensorErrorTodaySteps>(_mapSensorErrorTodayStepsToState);
+    on<ErrorTodaySteps>(_mapErrorTodayStepsToState);
   }
 
-  void handleStepCount(num count) {
-    print(count);
-    add(IncrementTodaySteps(count: count as int));
-  }
+  void handleStepCount(num count) =>
+      add(IncrementTodaySteps(count: count as int));
 
   TodayStepsState get initialState => TodayStepsEmpty();
 
-  Future<void> _mapGetTodayStepsToState(GetTodaySteps event,
-      Emitter<TodayStepsState> emit) async {
+  Future<void> _mapGetTodayStepsToState(
+      GetTodaySteps event, Emitter<TodayStepsState> emit) async {
     try {
       emit(TodayStepsLoading());
 
@@ -47,8 +44,8 @@ class TodayStepsBloc extends Bloc<TodayStepsEvent, TodayStepsState> {
     }
   }
 
-  Future<void> _mapCreateTodayStepsToState(CreateTodaySteps event,
-      Emitter<TodayStepsState> emit) async {
+  Future<void> _mapCreateTodayStepsToState(
+      CreateTodaySteps event, Emitter<TodayStepsState> emit) async {
     try {
       emit(TodayStepsLoading());
 
@@ -62,8 +59,8 @@ class TodayStepsBloc extends Bloc<TodayStepsEvent, TodayStepsState> {
     }
   }
 
-  void _mapIncrementTodayStepsToState(IncrementTodaySteps event,
-      Emitter<TodayStepsState> emit) async {
+  void _mapIncrementTodayStepsToState(
+      IncrementTodaySteps event, Emitter<TodayStepsState> emit) async {
     try {
       final Steps steps = state.props[0] as Steps;
 
@@ -77,8 +74,8 @@ class TodayStepsBloc extends Bloc<TodayStepsEvent, TodayStepsState> {
     }
   }
 
-  Future<void> _mapReplacementTodayStepsToState(ReplacementTodaySteps event,
-      Emitter<TodayStepsState> emit) async {
+  Future<void> _mapReplacementTodayStepsToState(
+      ReplacementTodaySteps event, Emitter<TodayStepsState> emit) async {
     try {
       emit(TodayStepsLoading());
 
@@ -93,8 +90,8 @@ class TodayStepsBloc extends Bloc<TodayStepsEvent, TodayStepsState> {
     }
   }
 
-  void _mapSensorErrorTodayStepsToState(SensorErrorTodaySteps event,
-      Emitter<TodayStepsState> emit) {
+  void _mapErrorTodayStepsToState(
+      ErrorTodaySteps event, Emitter<TodayStepsState> emit) {
     emit(TodayStepsError(error: "sensor error"));
   }
 }

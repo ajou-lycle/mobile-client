@@ -50,13 +50,13 @@ class ReplacementTodaySteps extends TodayStepsEvent {
   List<Object?> get props => [steps];
 }
 
-class SensorErrorTodaySteps extends TodayStepsEvent {
+class ErrorTodaySteps extends TodayStepsEvent {
   final String? error;
 
-  SensorErrorTodaySteps({this.error});
+  ErrorTodaySteps({this.error});
 
   @override
-  String toString() => 'SensorErrorTodaySteps { error: $error }';
+  String toString() => 'ErrorTodaySteps { error: $error }';
 
   @override
   // TODO: implement props

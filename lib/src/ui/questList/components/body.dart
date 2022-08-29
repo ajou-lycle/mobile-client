@@ -56,7 +56,6 @@ class QuestListBodyState extends State<QuestListBody> {
               child: Text("걸음 수 가져오기")),
           BlocBuilder<TodayStepsBloc, TodayStepsState>(
               builder: (context, state) {
-            print(state);
             if (state is TodayStepsLoaded) {
               return Text(
                   "Steps: ${(_todayStepsBloc.state.props[0] as Steps).currentSteps}");

@@ -45,6 +45,7 @@
 	<false/>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<!-- health_kit_reporter -->
 	<key>NSHealthShareUsageDescription</key>
 	<string>We will sync your data with the Apple Health app to give you better insights</string>
 	<key>NSHealthUpdateUsageDescription</key>
@@ -53,12 +54,20 @@
 	<array>
 		<string>_dartobservatory._tcp</string>
 	</array>
-	<!-- Pedometer -->
-    <key>NSMotionUsageDescription</key>
-    <string>This application tracks your steps</string>
+	<!-- location -->
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>This app needs access to location when open.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>This app needs access to location when in the background.</string>
+    <key>NSLocationTemporaryUsageDescriptionDictionary</key>
+    <dict>
+      <key>YourPurposeKey</key>
+      <string>The example App requires temporary access to the device&apos;s precise location.</string>
+    </dict>
     <key>UIBackgroundModes</key>
     <array>
         <string>processing</string>
+        <string>location</string>
     </array>
 </dict>
 </plist>
