@@ -10,6 +10,7 @@ import 'package:lycle/src/utils/wallet_helper.dart';
 
 import '../../../data/model/steps.dart';
 import '../../../bloc/steps/steps_state.dart';
+import '../../../repository/web3/web3_api_client.dart';
 
 class QuestListBody extends StatefulWidget {
   @override
@@ -18,6 +19,7 @@ class QuestListBody extends StatefulWidget {
 
 class QuestListBodyState extends State<QuestListBody> {
   WalletHelper walletHelper = WalletHelper();
+  Web3ApiClient web3apiClient = Web3ApiClient();
 
   final readTypes = [QuantityType.stepCount];
   final writeTypes = [QuantityType.stepCount];
@@ -60,6 +62,7 @@ class QuestListBodyState extends State<QuestListBody> {
           TextButton(
               onPressed: () async {
                 await walletHelper.loginUsingMetamask();
+                await web3apiClient.init();
                 await _todayStepsBloc.healthHelper.requestPermission();
                 int goal = 1000;
                 final QuestSteps questSteps = QuestSteps.byTodaySteps(goal);
