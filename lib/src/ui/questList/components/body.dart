@@ -6,6 +6,7 @@ import 'package:health_kit_reporter/model/type/quantity_type.dart';
 import 'package:lycle/src/bloc/steps/steps_bloc.dart';
 import 'package:lycle/src/bloc/steps/steps_events.dart';
 import 'package:lycle/src/utils/health_kit_helper.dart';
+import 'package:lycle/src/utils/wallet_helper.dart';
 
 import '../../../data/model/steps.dart';
 import '../../../bloc/steps/steps_state.dart';
@@ -16,6 +17,8 @@ class QuestListBody extends StatefulWidget {
 }
 
 class QuestListBodyState extends State<QuestListBody> {
+  WalletHelper walletHelper = WalletHelper();
+
   final readTypes = [QuantityType.stepCount];
   final writeTypes = [QuantityType.stepCount];
 
@@ -56,6 +59,7 @@ class QuestListBodyState extends State<QuestListBody> {
         children: [
           TextButton(
               onPressed: () async {
+                await walletHelper.loginUsingMetamask();
                 await _todayStepsBloc.healthHelper.requestPermission();
                 int goal = 1000;
                 final QuestSteps questSteps = QuestSteps.byTodaySteps(goal);
