@@ -60,6 +60,7 @@ dependencies:
 
   url_launcher: ^6.1.5
   web_socket_channel: ^2.2.0
+  stream_channel: ^2.1.0
 
 dev_dependencies:
   flutter_test:

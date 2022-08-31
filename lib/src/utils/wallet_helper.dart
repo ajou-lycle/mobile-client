@@ -30,8 +30,6 @@ class WalletHelper {
         session = await connector.createSession(onDisplayUri: (uri) async {
           await launchUrlString(uri, mode: LaunchMode.externalApplication);
         });
-        print(session?.accounts[0]);
-        print(session?.chainId);
       } catch (exp) {
         print(exp);
       }

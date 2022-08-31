@@ -1,14 +1,14 @@
 enum EthereumNetworkType {
-  unknownChain._internal(0, 'Unknown Chain'),
-  ethereumMainnet._internal(1, 'Ethereum Mainnet'),
-  ropstenTestnet._internal(3, 'Ropsten Testnet'),
-  rinkebyTestnet._internal(4, 'Rinkeby Testnet'),
-  goreliTestnet._internal(5, 'Goreli Testnet');
+  unknownChain(0, 'Unknown Chain'),
+  ethereumMainnet(1, 'Ethereum Mainnet'),
+  ropstenTestnet(3, 'Ropsten Testnet'),
+  rinkebyTestnet(4, 'Rinkeby Testnet'),
+  goreliTestnet(5, 'Goreli Testnet');
 
   final int networkId;
   final String networkName;
 
-  const EthereumNetworkType._internal(this.networkId, this.networkName);
+  const EthereumNetworkType(this.networkId, this.networkName);
 
   factory EthereumNetworkType.getByNetworkId(int networkId) =>
       EthereumNetworkType.values.firstWhere(

@@ -7,6 +7,7 @@ import 'package:lycle/src/bloc/steps/steps_bloc.dart';
 import 'package:lycle/src/bloc/steps/steps_events.dart';
 import 'package:lycle/src/utils/health_kit_helper.dart';
 import 'package:lycle/src/utils/wallet_helper.dart';
+import 'package:web3dart/web3dart.dart';
 
 import '../../../data/model/steps.dart';
 import '../../../bloc/steps/steps_state.dart';
@@ -63,6 +64,12 @@ class QuestListBodyState extends State<QuestListBody> {
               onPressed: () async {
                 await walletHelper.loginUsingMetamask();
                 await web3apiClient.init();
+                await web3apiClient.burn(
+                    EthereumAddress.fromHex(walletHelper.session!.accounts[0]),
+                    EtherAmount.fromUnitAndValue(EtherUnit.ether, 1).getInWei);
+                await web3apiClient.mint(
+                    EthereumAddress.fromHex(walletHelper.session!.accounts[0]),
+                    EtherAmount.fromUnitAndValue(EtherUnit.ether, 2).getInWei);
                 await _todayStepsBloc.healthHelper.requestPermission();
                 int goal = 1000;
                 final QuestSteps questSteps = QuestSteps.byTodaySteps(goal);
