@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
@@ -20,7 +21,7 @@ class Web3ApiClient {
   // TODO: update to LYCLE Token
   static const _contractName = "StarDucksCappucinoToken";
 
-  final Web3Client _client = Web3Client(_rpcUrl, Client(), socketConnector: () {
+  final Web3Client client = Web3Client(_rpcUrl, Client(), socketConnector: () {
     return IOWebSocketChannel.connect(_wsUrl).cast<String>();
   });
 
@@ -32,10 +33,9 @@ class Web3ApiClient {
   final List<ContractFunction?> _contractFunctions =
       List<ContractFunction?>.empty(growable: true);
 
-  String _transactionHash = "";
-  bool _isTransactionFinished = false;
+  Web3ApiClient._internal();
 
-  bool get isTransactionFinished => _isTransactionFinished;
+  factory Web3ApiClient() => Web3ApiClient._internal();
 
   Future<void> init() async {
     await getCredentials();
@@ -119,60 +119,32 @@ class Web3ApiClient {
   /// Mint token.
   ///
   /// Throws [AssertionError] if this [_contract] is null or mint function is null.
-  Future<void> mint(EthereumAddress to, BigInt amount) async {
+  Future<String> mint(EthereumAddress to, BigInt amount) async {
     assert(_contract != null,
         "_contract is null; You must get deployed contract.");
     assert(_contractFunctions[ContractFunctionEnum.mint.index] != null,
         "${_contractFunctions[ContractFunctionEnum.mint.index]} is null; You must get function, mint.");
 
-    print("before: ${await balanceOf(to)}");
-
     Transaction transaction = Transaction.callContract(
-      contract: _contract!,
-      function: _contractFunctions[ContractFunctionEnum.mint.index]!,
-      parameters: [to, amount],
-      maxGas: 10000000,
-      gasPrice: EtherAmount.fromUnitAndValue(EtherUnit.gwei, 25),
-      from: _ownAddress,
-    );
+        contract: _contract!,
+        function: _contractFunctions[ContractFunctionEnum.mint.index]!,
+        parameters: [to, amount],
+        maxGas: 10000000,
+        gasPrice: EtherAmount.fromUnitAndValue(EtherUnit.gwei, 25),
+        from: _ownAddress);
 
-    _transactionHash = await _client.sendTransaction(_credentials!, transaction,
+    return await client.sendTransaction(_credentials!, transaction,
         chainId: EthereumNetworkType.ropstenTestnet.networkId);
-
-    final resultSocket = _client.socketConnector?.call();
-
-    assert(resultSocket != null, "Web3Client socket connector is null");
-
-    // test code
-    resultSocket?.sink.add(
-        '{"jsonrpc":"2.0","method":"eth_subscribe","params":["logs", {"address":"$_contractAddress","topics":[]}],"id":1}');
-    resultSocket?.stream.listen((event) async {
-      Map<String, dynamic> log = jsonDecode(event);
-      bool isFinishedTransactionLog = log['params'] != null ? true : false;
-
-      if (isFinishedTransactionLog) {
-        _isTransactionFinished =
-            log['params']['result']['transactionHash'] == _transactionHash
-                ? true
-                : false;
-        if (_isTransactionFinished) {
-          print(await balanceOf(to));
-          await resultSocket?.sink.close();
-        }
-      }
-    });
   }
 
   /// Burn token.
   ///
   /// Throws [AssertionError] if this [_contract] is null or burn function is null.
-  Future<void> burn(EthereumAddress to, BigInt amount) async {
+  Future<String> burn(EthereumAddress to, BigInt amount) async {
     assert(_contract != null,
         "_contract is null; You must get deployed contract.");
     assert(_contractFunctions[ContractFunctionEnum.burn.index] != null,
         "${_contractFunctions[ContractFunctionEnum.burn.index]} is null; You must get function, burn.");
-
-    print("before: ${await balanceOf(to)}");
 
     Transaction transaction = Transaction.callContract(
       contract: _contract!,
@@ -184,32 +156,8 @@ class Web3ApiClient {
       // value: EtherAmount.fromUnitAndValue(EtherUnit.wei, amount),
     );
 
-    _transactionHash = await _client.sendTransaction(_credentials!, transaction,
+    return await client.sendTransaction(_credentials!, transaction,
         chainId: EthereumNetworkType.ropstenTestnet.networkId);
-
-    final resultSocket = _client.socketConnector?.call();
-
-    assert(resultSocket != null, "Web3Client socket connector is null");
-
-    // test
-    resultSocket?.sink.add(
-        '{"jsonrpc":"2.0","method":"eth_subscribe","params":["logs", {"address":"$_contractAddress","topics":[]}],"id":1}');
-    resultSocket?.stream.listen((event) async {
-      Map<String, dynamic> log = jsonDecode(event);
-      bool isFinishedTransactionLog = log['params'] != null ? true : false;
-
-      if (isFinishedTransactionLog) {
-        _isTransactionFinished =
-            log['params']['result']['transactionHash'] == _transactionHash
-                ? true
-                : false;
-        if (_isTransactionFinished) {
-          print(await balanceOf(to));
-          // TODO: fix Warning: Operand of null-aware operation '?.' has type 'StreamChannel<String>' which excludes null.
-          await resultSocket?.sink.close();
-        }
-      }
-    });
   }
 
   /// Get token balance of [address].
@@ -220,7 +168,7 @@ class Web3ApiClient {
         "_contract is null. You must get deployed contract.");
     assert(_contractFunctions[ContractFunctionEnum.balanceOf.index] != null,
         "${_contractFunctions[ContractFunctionEnum.balanceOf.index]} is null. You must get function, balanceOf.");
-    final balanceOf = await _client.call(
+    final balanceOf = await client.call(
         contract: _contract!,
         function: _contractFunctions[ContractFunctionEnum.balanceOf.index]!,
         params: [address]);
@@ -228,21 +176,30 @@ class Web3ApiClient {
     return balanceOf;
   }
 
-  void _subscribeContractTransactionWithCallback(Function() callback) {
-    // _client.socketConnector이 null이 되는 경우의 수는?
-    final resultSocket = _client.socketConnector?.call();
+  Stream<Map<String, bool?>> subscribeTransactionStatusByHash(
+      String transactionHash) async* {
+    TransactionReceipt? result;
+    bool isTransactionFinished = false;
 
-    assert(resultSocket != null, "Web3Client socket connector is null");
+    // TODO: 무한 반복문이 끝나지 않는 경우의 수는?
+    while (!isTransactionFinished) {
+      await Future.delayed(const Duration(seconds: 3));
 
-    resultSocket?.sink.add(
-        '{"jsonrpc":"2.0","method":"eth_subscribe","params":["logs", {"address":"$_contractAddress","topics":[]}],"id":1}');
-    resultSocket?.stream.listen((event) async {
-      final log = json.decode(event);
-      if (log['result']['transactionHash'] == _transactionHash) {
-        callback();
-        // TODO: fix Warning: Operand of null-aware operation '?.' has type 'StreamChannel<String>' which excludes null.
-        await resultSocket?.sink.close();
+      result = await client.getTransactionReceipt(transactionHash);
+      if (result != null) {
+        if (result.status == true) {
+          isTransactionFinished = true;
+        } else if (result.status == false) {
+          isTransactionFinished = true;
+        } else {
+          isTransactionFinished = false;
+        }
       }
-    });
+
+      Map<String, bool?> data = <String, bool?>{
+        transactionHash: result?.status
+      };
+      yield data;
+    }
   }
 }

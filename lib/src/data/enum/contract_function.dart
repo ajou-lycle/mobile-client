@@ -11,4 +11,9 @@ enum ContractFunctionEnum {
   factory ContractFunctionEnum.getByIndex(int index) =>
       ContractFunctionEnum.values.firstWhere((value) => value.index == index,
           orElse: () => ContractFunctionEnum.unknownMethod);
+
+  factory ContractFunctionEnum.getByFunctionName(String functionName) =>
+      ContractFunctionEnum.values.firstWhere(
+          (value) => value.functionName == functionName,
+          orElse: () => ContractFunctionEnum.unknownMethod);
 }

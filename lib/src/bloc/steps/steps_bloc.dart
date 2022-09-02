@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 
-import 'package:lycle/src/bloc/steps/steps_events.dart';
+import 'package:lycle/src/bloc/steps/steps_event.dart';
 import 'package:lycle/src/bloc/steps/steps_state.dart';
 
 import 'package:lycle/src/data/model/steps.dart';

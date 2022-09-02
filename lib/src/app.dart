@@ -6,6 +6,7 @@ import 'package:lycle/src/ui/home/home.dart';
 import 'package:lycle/src/utils/health_kit_helper.dart';
 
 import 'bloc/steps/steps_bloc.dart';
+import 'bloc/wallet/wallet_bloc.dart';
 
 class MyApp extends StatelessWidget {
   MyApp({Key? key}) : super(key: key);
@@ -17,11 +18,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: BlocProvider<QuestStepsBloc>(
+      home: MultiBlocProvider(providers: [
+        BlocProvider<WalletBloc>(
+          create: (BuildContext context) => WalletBloc(),
+        ),
+        BlocProvider<QuestStepsBloc>(
           create: (BuildContext context) => QuestStepsBloc(
               healthHelper: QuantityHealthHelper(
                   readTypes: readTypes, writeTypes: writeTypes)),
-          child: HomePage()),
+        )
+      ], child: HomePage()),
     );
   }
 }

@@ -69,7 +69,7 @@ class ErrorQuestSteps extends QuestStepsEvent {
   ErrorQuestSteps({this.error});
 
   @override
-  String toString() => 'ErrorTodaySteps { error: $error }';
+  String toString() => 'ErrorQuestSteps { error: $error }';
 
   @override
   // TODO: implement props
