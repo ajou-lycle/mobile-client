@@ -50,6 +50,19 @@ class ReplacementQuestSteps extends QuestStepsEvent {
   List<Object?> get props => [questSteps];
 }
 
+class AchieveQuestSteps extends QuestStepsEvent {
+  final QuestSteps questSteps;
+
+  AchieveQuestSteps({required this.questSteps});
+
+  @override
+  String toString() => 'AchieveQuestSteps : $questSteps';
+
+  @override
+  // TODO: implement props
+  List<Object?> get props => [questSteps];
+}
+
 class DeniedQuestSteps extends QuestStepsEvent {
   final int count;
 

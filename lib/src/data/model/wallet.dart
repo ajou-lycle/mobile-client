@@ -5,6 +5,5 @@ class UserWallet {
   EthereumAddress? address;
   EtherAmount ethereumBalance = EtherAmount.zero();
   BigInt tokenBalance = BigInt.zero;
-
-  UserWallet();
+  int nonce = 0;
 }

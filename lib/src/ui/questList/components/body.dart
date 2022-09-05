@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -11,9 +9,9 @@ import 'package:lycle/src/bloc/wallet/wallet_bloc.dart';
 import 'package:lycle/src/bloc/wallet/wallet_event.dart';
 import 'package:lycle/src/bloc/wallet/wallet_state.dart';
 import 'package:lycle/src/ui/questList/components/steps.dart';
-import 'package:web3dart/web3dart.dart';
 
-import '../../../repository/web3/web3_api_client.dart';
+import '../../../bloc/write_contract/write_contract_bloc.dart';
+
 import '../../../utils/balance_to_string.dart';
 
 class QuestListBody extends StatefulWidget {
@@ -22,21 +20,25 @@ class QuestListBody extends StatefulWidget {
 }
 
 class QuestListBodyState extends State<QuestListBody> {
-  Web3ApiClient web3apiClient = Web3ApiClient();
-
   final readTypes = [QuantityType.stepCount];
   final writeTypes = [QuantityType.stepCount];
 
   num steps = 0;
 
+  late WriteContractBloc _writeContractBloc;
   late WalletBloc _walletBloc;
-  late QuestStepsBloc _todayStepsBloc;
 
   @override
   void initState() {
     super.initState();
+
+    _writeContractBloc = BlocProvider.of<WriteContractBloc>(context);
     _walletBloc = BlocProvider.of<WalletBloc>(context);
-    _todayStepsBloc = BlocProvider.of<QuestStepsBloc>(context);
+  }
+
+  @override
+  void didChangeDependencies() async {
+    super.didChangeDependencies();
   }
 
   @override
@@ -48,7 +50,7 @@ class QuestListBodyState extends State<QuestListBody> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           TextButton(
-              onPressed: () {
+              onPressed: () async {
                 _walletBloc.add(ConnectWallet(walletAddress: null));
               },
               child: Text("로그인하기")),
@@ -62,7 +64,7 @@ class QuestListBodyState extends State<QuestListBody> {
             if (state is WalletEmpty) {
               return Text("지갑이 연결되지 않았습니다.");
             } else if (state is WalletConnected || state is WalletUpdated) {
-              return Column(
+              return Center(child: Column(
                 children: [
                   Text("지갑 주소 : ${_walletBloc.web3Repository.wallet.address}"),
                   Text(
@@ -72,7 +74,7 @@ class QuestListBodyState extends State<QuestListBody> {
                   QuestListSteps(
                       address: _walletBloc.web3Repository.wallet.address!)
                 ],
-              );
+              ));
             } else if (state is WalletDisconnected) {
               return Text("지갑 연결이 끊어졌습니다.");
             } else if (state is WalletError) {

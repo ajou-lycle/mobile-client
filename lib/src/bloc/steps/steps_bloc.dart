@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:geolocator/geolocator.dart';
 
 import 'package:lycle/src/bloc/steps/steps_event.dart';
 import 'package:lycle/src/bloc/steps/steps_state.dart';
@@ -15,14 +14,19 @@ class QuestStepsBloc extends Bloc<QuestStepsEvent, QuestStepsState> {
   late QuantityHealthHelper healthHelper;
   GeolocationHelper geolocationHelper = GeolocationHelper();
 
-  QuestStepsBloc({required this.healthHelper}) : super(QuestStepsEmpty()) {
+  QuestStepsBloc._internal({required this.healthHelper})
+      : super(QuestStepsEmpty()) {
     on<GetQuestSteps>(_mapGetQuestStepsToState);
     on<CreateQuestSteps>(_mapCreateQuestStepsToState);
     on<IncrementQuestSteps>(_mapIncrementQuestStepsToState);
     on<ReplacementQuestSteps>(_mapReplacementQuestStepsToState);
+    on<AchieveQuestSteps>(_mapAchieveQuestStepsToState);
     on<DeniedQuestSteps>(_mapDeniedQuestStepsToState);
     on<ErrorQuestSteps>(_mapErrorQuestStepsToState);
   }
+
+  factory QuestStepsBloc({required QuantityHealthHelper healthHelper}) =>
+      QuestStepsBloc._internal(healthHelper: healthHelper);
 
   void handleStepCount(num acceptCount) {
     if (state is! QuestStepsDenied) {
@@ -46,8 +50,8 @@ class QuestStepsBloc extends Bloc<QuestStepsEvent, QuestStepsState> {
 
       final questSteps = QuestSteps.byTodaySteps(goal);
 
-      healthHelper.observerQueryForQuantityQuery(
-          questSteps.startAt, questSteps.finishAt, handleStepCount, deniedStepCount);
+      healthHelper.observerQueryForQuantityQuery(questSteps.startAt,
+          questSteps.finishAt, handleStepCount, deniedStepCount);
 
       emit(QuestStepsLoaded(questSteps: questSteps));
     } catch (e) {
@@ -60,10 +64,11 @@ class QuestStepsBloc extends Bloc<QuestStepsEvent, QuestStepsState> {
     try {
       emit(QuestStepsLoading());
 
+      print("questBloc Create");
       int goal = 0;
       final questSteps = QuestSteps.byTodaySteps(0);
-      healthHelper.observerQueryForQuantityQuery(
-          questSteps.startAt, questSteps.finishAt, handleStepCount, deniedStepCount);
+      healthHelper.observerQueryForQuantityQuery(questSteps.startAt,
+          questSteps.finishAt, handleStepCount, deniedStepCount);
 
       emit(QuestStepsLoaded(questSteps: event.questSteps));
     } catch (e) {
@@ -75,6 +80,10 @@ class QuestStepsBloc extends Bloc<QuestStepsEvent, QuestStepsState> {
       IncrementQuestSteps event, Emitter<QuestStepsState> emit) async {
     try {
       final questSteps = state.props[0] as QuestSteps;
+
+      if (questSteps.goal <= event.count) {
+        return;
+      }
 
       emit(QuestStepsUpdated(questSteps: questSteps));
 
@@ -96,6 +105,19 @@ class QuestStepsBloc extends Bloc<QuestStepsEvent, QuestStepsState> {
       QuestSteps questSteps = QuestSteps.byTodaySteps(0);
 
       emit(QuestStepsLoaded(questSteps: questSteps));
+    } catch (e) {
+      emit(QuestStepsError(error: "replacement error"));
+    }
+  }
+
+  Future<void> _mapAchieveQuestStepsToState(
+      AchieveQuestSteps event, Emitter<QuestStepsState> emit) async {
+    try {
+      emit(QuestStepsLoading());
+
+      // TODO: local db에 저장하기
+
+      emit(QuestStepsEmpty());
     } catch (e) {
       emit(QuestStepsError(error: "replacement error"));
     }

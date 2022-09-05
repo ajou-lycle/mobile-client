@@ -13,13 +13,13 @@ import 'package:web3dart/credentials.dart';
 import '../../repository/web3/web3_repository.dart';
 
 class WalletBloc extends Bloc<WalletEvent, WalletState> {
-  final Web3Repository web3Repository =
-      Web3Repository(web3apiClient: Web3ApiClient());
+  final Web3Repository web3Repository;
 
-  WalletBloc() : super(WalletEmpty()) {
+  WalletBloc({required this.web3Repository}) : super(WalletEmpty()) {
     subscribeConnectorEvent();
     on<ConnectWallet>(_mapConnectWalletToState);
     on<UpdateWallet>(_mapUpdateWalletToState);
+    on<UpdateSessionWallet>(_mapUpdateSessionWalletToState);
     on<DisconnectWallet>(_mapDisconnectedWalletToState);
     on<ErrorWallet>(_mapErrorWalletToState);
   }
@@ -34,10 +34,16 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
       if (web3Repository.wallet.address == null) {
         await web3Repository.init();
       } else {
-        web3Repository.wallet.address = event.walletAddress;
+        if (event.walletAddress != null) {
+          web3Repository.wallet.address = event.walletAddress;
+        }
       }
 
-      emit(WalletConnected(wallet: web3Repository.wallet));
+      if (web3Repository.connector.connected) {
+        emit(WalletConnected(wallet: web3Repository.wallet));
+      } else {
+        emit(WalletEmpty());
+      }
     } catch (e) {
       emit(WalletError(error: "connect error"));
     }
@@ -48,12 +54,35 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     try {
       emit(WalletLoading());
 
+      web3Repository.wallet = await web3Repository.getUserWallet(
+          EthereumAddress.fromHex(
+              web3Repository.connector.session.accounts[0]));
+
+      if (web3Repository.connector.connected) {
+        emit(WalletConnected(wallet: web3Repository.wallet));
+      } else {
+        emit(WalletEmpty());
+      }
+    } catch (e) {
+      emit(WalletError(error: "update error"));
+    }
+  }
+
+  Future<void> _mapUpdateSessionWalletToState(
+      UpdateSessionWallet event, Emitter<WalletState> emit) async {
+    try {
+      emit(WalletLoading());
+
       await web3Repository.connector.updateSession(event.session);
       web3Repository.wallet = await web3Repository.getUserWallet(
           EthereumAddress.fromHex(
               web3Repository.connector.session.accounts[0]));
 
-      emit(WalletConnected(wallet: web3Repository.wallet));
+      if (web3Repository.connector.connected) {
+        emit(WalletConnected(wallet: web3Repository.wallet));
+      } else {
+        emit(WalletEmpty());
+      }
     } catch (e) {
       emit(WalletError(error: "update error"));
     }
@@ -85,7 +114,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     web3Repository.connector.on('session_update', (session) {
       debugPrint("session_update");
       if (session.runtimeType == SessionStatus) {
-        add(UpdateWallet(session: session as SessionStatus));
+        add(UpdateSessionWallet(session: session as SessionStatus));
       }
     });
     web3Repository.connector.on('disconnect', (session) {

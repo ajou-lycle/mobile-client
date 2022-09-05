@@ -49,6 +49,8 @@ abstract class HealthHelper {
             ArgumentError(
                 "You must declare same type for readTypes and writeTypes"));
 
+  bool get hasPermissions => _hasPermissions;
+
   /// Request this permissions of this types to HealthKit.
   Future<void> requestPermission() async {
     bool requested = await HealthKitReporter.requestAuthorization(

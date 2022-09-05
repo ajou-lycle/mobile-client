@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:lycle/src/data/enum/ethereum_network.dart';
@@ -38,9 +39,18 @@ class Web3ApiClient {
   factory Web3ApiClient() => Web3ApiClient._internal();
 
   Future<void> init() async {
-    await getCredentials();
-    await getAbi();
-    await getDeployedContract();
+    if (_ownAddress == null) {
+      debugPrint("Credentials init");
+      await getCredentials();
+    }
+    if (_contractAddress == null) {
+      debugPrint("Abi init");
+      await getAbi();
+    }
+    if (_contract == null) {
+      debugPrint("Contract init");
+      await getDeployedContract();
+    }
   }
 
   /// Get owner wallet.
@@ -129,8 +139,6 @@ class Web3ApiClient {
         contract: _contract!,
         function: _contractFunctions[ContractFunctionEnum.mint.index]!,
         parameters: [to, amount],
-        maxGas: 10000000,
-        gasPrice: EtherAmount.fromUnitAndValue(EtherUnit.gwei, 25),
         from: _ownAddress);
 
     return await client.sendTransaction(_credentials!, transaction,
@@ -150,10 +158,7 @@ class Web3ApiClient {
       contract: _contract!,
       function: _contractFunctions[ContractFunctionEnum.burn.index]!,
       parameters: [to, amount],
-      maxGas: 10000000,
-      gasPrice: EtherAmount.fromUnitAndValue(EtherUnit.gwei, 25),
       from: _ownAddress,
-      // value: EtherAmount.fromUnitAndValue(EtherUnit.wei, amount),
     );
 
     return await client.sendTransaction(_credentials!, transaction,

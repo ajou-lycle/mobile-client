@@ -1,17 +1,20 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lycle/src/bloc/steps/steps_event.dart';
+import 'package:lycle/src/bloc/steps/steps_state.dart';
 
 import 'package:lycle/src/bloc/write_contract/write_contract_event.dart';
 import 'package:lycle/src/bloc/write_contract/write_contract_state.dart';
 import 'package:lycle/src/repository/web3/web3_repository.dart';
 
 import '../../data/enum/contract_function.dart';
+import '../../data/model/steps.dart';
 
 class WriteContractBloc extends Bloc<WriteContractEvent, WriteContractState> {
-  final Web3Repository web3repository;
+  final Web3Repository web3Repository;
 
-  WriteContractBloc({required this.web3repository})
+  WriteContractBloc({required this.web3Repository})
       : super(WriteContractEmpty()) {
     on<SendTransaction>(_mapSendTransactionToState);
     on<SuccessTransaction>(_mapSuccessTransactionToState);
@@ -24,22 +27,28 @@ class WriteContractBloc extends Bloc<WriteContractEvent, WriteContractState> {
   Future<void> _mapSendTransactionToState(
       SendTransaction event, Emitter<WriteContractState> emit) async {
     try {
+      // TODO: callback before send transaction.
       Map<int, dynamic>? result = await _isWriteContractFunction(event);
 
       if (result != null) {
         final Stream<Map<String, bool?>> stream =
             (result.values.first as Stream<Map<String, bool?>>);
 
-        stream.listen((event) => event.forEach((key, value) {
+        stream.listen((data) => data.forEach((key, value) {
               if (value != null) {
-                final int index = web3repository.transactionHashes
+                final int index = web3Repository.transactionHashes
                     .indexWhere((element) => element == key);
-                web3repository.transactionHashes
+                web3Repository.transactionHashes
                     .removeWhere((element) => element == key);
 
                 if (value) {
-                  add(SuccessTransaction(index: index));
+                  // TODO: callback after send transaction is succeed.
+                  add(SuccessTransaction(
+                      contractFunctionEnum: event.contractFunctionEnum,
+                      questStepsBloc: event.questStepsBloc,
+                      index: index));
                 } else {
+                  // TODO: callback after send transaction is failed.
                   add(FailTransaction(index: index));
                 }
               }
@@ -56,8 +65,28 @@ class WriteContractBloc extends Bloc<WriteContractEvent, WriteContractState> {
   }
 
   void _mapSuccessTransactionToState(
-      SuccessTransaction event, Emitter<WriteContractState> emit) {
+      SuccessTransaction event, Emitter<WriteContractState> emit) async {
     try {
+      final questStepsBloc = event.questStepsBloc;
+
+      if (questStepsBloc != null) {
+        switch (event.contractFunctionEnum) {
+          case ContractFunctionEnum.burn:
+            if (!questStepsBloc.healthHelper.hasPermissions) {
+              await questStepsBloc.healthHelper.requestPermission();
+            }
+
+            final questSteps = QuestSteps.byTodaySteps(1000);
+            questStepsBloc.add(CreateQuestSteps(questSteps: questSteps));
+            emit(TransactionSucceed(index: event.index));
+
+            return;
+
+          default:
+            emit(WriteContractError(error: "SuccessTransactionError"));
+            break;
+        }
+      }
       emit(TransactionSucceed(index: event.index));
     } catch (e) {
       emit(WriteContractError(error: "SuccessTransactionError"));
@@ -91,7 +120,7 @@ class WriteContractBloc extends Bloc<WriteContractEvent, WriteContractState> {
         assert(event.amount! > BigInt.zero,
             "The parameter amount can't be negative when call contract function mint.");
 
-        result = await web3repository.mint(event.to!, event.amount!);
+        result = await web3Repository.mint(event.to!, event.amount!);
 
         break;
       case ContractFunctionEnum.burn:
@@ -102,7 +131,7 @@ class WriteContractBloc extends Bloc<WriteContractEvent, WriteContractState> {
         assert(event.amount! > BigInt.zero,
             "The parameter amount can't be negative when call contract function burn.");
 
-        result = await web3repository.burn(event.to!, event.amount!);
+        result = await web3Repository.burn(event.to!, event.amount!);
 
         break;
       default:

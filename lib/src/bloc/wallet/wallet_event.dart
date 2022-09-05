@@ -8,6 +8,7 @@ class ConnectWallet extends WalletEvent {
   final EthereumAddress? walletAddress;
 
   ConnectWallet({required this.walletAddress});
+
   @override
   String toString() => 'ConnectWallet';
 
@@ -16,12 +17,23 @@ class ConnectWallet extends WalletEvent {
 }
 
 class UpdateWallet extends WalletEvent {
-  final SessionStatus session;
-
-  UpdateWallet({required this.session});
+  UpdateWallet();
 
   @override
-  String toString() => 'UpdateWallet { address : ${session.accounts[0]} }';
+  String toString() => 'UpdateWallet';
+
+  @override
+  List<Object?> get props => [];
+}
+
+class UpdateSessionWallet extends WalletEvent {
+  final SessionStatus session;
+
+  UpdateSessionWallet({required this.session});
+
+  @override
+  String toString() =>
+      'UpdateSessionWallet { address : ${session.accounts[0]} }';
 
   @override
   List<Object?> get props => [];
