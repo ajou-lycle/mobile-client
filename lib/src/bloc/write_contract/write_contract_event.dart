@@ -2,27 +2,34 @@ import 'package:equatable/equatable.dart';
 import 'package:web3dart/credentials.dart';
 
 import '../../data/enum/contract_function.dart';
-import '../steps/steps_bloc.dart';
+import '../current_quest/current_quest_bloc.dart';
 
 abstract class WriteContractEvent extends Equatable {}
 
 class SendTransaction extends WriteContractEvent {
-  final QuestStepsBloc? questStepsBloc;
   final ContractFunctionEnum contractFunctionEnum;
   final EthereumAddress? from;
   final EthereumAddress? to;
   final BigInt? amount;
+  final CurrentQuestBloc? currentQuestBloc;
+  final String? category;
+  final int? level;
 
   SendTransaction(
       {required this.contractFunctionEnum,
-      this.questStepsBloc,
       this.from,
       this.to,
-      this.amount});
+      this.amount,
+      this.currentQuestBloc,
+      this.category,
+      this.level});
 
   @override
-  String toString() =>
-      'SendTransaction {contractFunctionEnum: ${contractFunctionEnum.name}, questStepsBloc: $questStepsBloc from: $from, to: $to, amount: $amount}';
+  String toString() => '''SendTransaction {
+      contractFunctionEnum: ${contractFunctionEnum.name}, 
+      from: $from, to: $to, amount: $amount
+      questStepsBloc: $currentQuestBloc, category: $category, level: $level
+      }''';
 
   @override
   List<Object?> get props => [contractFunctionEnum, from, to, amount];
@@ -31,16 +38,20 @@ class SendTransaction extends WriteContractEvent {
 class SuccessTransaction extends WriteContractEvent {
   final ContractFunctionEnum contractFunctionEnum;
   final int index;
-  final QuestStepsBloc? questStepsBloc;
+  final CurrentQuestBloc? questStepsBloc;
+  final String? category;
+  final int? level;
 
   SuccessTransaction(
       {required this.contractFunctionEnum,
       required this.index,
-      this.questStepsBloc});
+      this.questStepsBloc,
+      this.category,
+      this.level});
 
   @override
   String toString() =>
-      'SuccessTransaction { index : $index, questStepsBloc: $questStepsBloc }';
+      'SuccessTransaction { index : $index, questStepsBloc: $questStepsBloc, category: $category, level: $level }';
 
   @override
   List<Object?> get props => [contractFunctionEnum, index, questStepsBloc];

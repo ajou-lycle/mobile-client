@@ -1,14 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lycle/src/bloc/steps/steps_event.dart';
-import 'package:lycle/src/bloc/steps/steps_state.dart';
+import 'package:lycle/src/bloc/current_quest/current_quest_event.dart';
 
 import 'package:lycle/src/bloc/write_contract/write_contract_event.dart';
 import 'package:lycle/src/bloc/write_contract/write_contract_state.dart';
+import 'package:lycle/src/data/enum/quest_data_type.dart';
 import 'package:lycle/src/repository/web3/web3_repository.dart';
 
 import '../../data/enum/contract_function.dart';
+import '../../data/model/quest.dart';
 import '../../data/model/steps.dart';
 
 class WriteContractBloc extends Bloc<WriteContractEvent, WriteContractState> {
@@ -27,7 +28,6 @@ class WriteContractBloc extends Bloc<WriteContractEvent, WriteContractState> {
   Future<void> _mapSendTransactionToState(
       SendTransaction event, Emitter<WriteContractState> emit) async {
     try {
-      // TODO: callback before send transaction.
       Map<int, dynamic>? result = await _isWriteContractFunction(event);
 
       if (result != null) {
@@ -45,8 +45,10 @@ class WriteContractBloc extends Bloc<WriteContractEvent, WriteContractState> {
                   // TODO: callback after send transaction is succeed.
                   add(SuccessTransaction(
                       contractFunctionEnum: event.contractFunctionEnum,
-                      questStepsBloc: event.questStepsBloc,
-                      index: index));
+                      index: index,
+                      questStepsBloc: event.currentQuestBloc,
+                      category: event.category,
+                      level: event.level));
                 } else {
                   // TODO: callback after send transaction is failed.
                   add(FailTransaction(index: index));
@@ -70,14 +72,34 @@ class WriteContractBloc extends Bloc<WriteContractEvent, WriteContractState> {
       final questStepsBloc = event.questStepsBloc;
 
       if (questStepsBloc != null) {
+        // TODO: 삭제
+        print(questStepsBloc);
         switch (event.contractFunctionEnum) {
           case ContractFunctionEnum.burn:
             if (!questStepsBloc.healthHelper.hasPermissions) {
               await questStepsBloc.healthHelper.requestPermission();
             }
 
-            final questSteps = QuestSteps.byTodaySteps(1000);
-            questStepsBloc.add(CreateQuestSteps(questSteps: questSteps));
+            int index = QuestDataType.getByCategory(event.category!).index;
+            for (Quest quest
+                in questStepsBloc.questRepository.availableQuests[index]) {
+              bool isThisQuest =
+                  quest.category == event.category && quest.level == event.level
+                      ? true
+                      : false;
+
+              if (isThisQuest) {
+                // TODO: 삭제
+                print(quest);
+                Quest temp = Quest.clone(quest);
+                temp.finishDate = DateTime.now()
+                    .add(quest.finishDate.difference(quest.startDate));
+                temp.startDate = DateTime.now();
+
+                questStepsBloc.add(CreateCurrentQuest(quest: temp));
+              }
+            }
+
             emit(TransactionSucceed(index: event.index));
 
             return;

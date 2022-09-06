@@ -3,14 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:health_kit_reporter/model/type/quantity_type.dart';
 
-import 'package:lycle/src/bloc/steps/steps_bloc.dart';
-
 import 'package:lycle/src/bloc/wallet/wallet_bloc.dart';
 import 'package:lycle/src/bloc/wallet/wallet_event.dart';
 import 'package:lycle/src/bloc/wallet/wallet_state.dart';
-import 'package:lycle/src/ui/questList/components/steps.dart';
-
-import '../../../bloc/write_contract/write_contract_bloc.dart';
+import 'package:lycle/src/ui/questList/components/card.dart';
 
 import '../../../utils/balance_to_string.dart';
 
@@ -23,29 +19,22 @@ class QuestListBodyState extends State<QuestListBody> {
   final readTypes = [QuantityType.stepCount];
   final writeTypes = [QuantityType.stepCount];
 
-  num steps = 0;
-
-  late WriteContractBloc _writeContractBloc;
   late WalletBloc _walletBloc;
 
   @override
   void initState() {
     super.initState();
 
-    _writeContractBloc = BlocProvider.of<WriteContractBloc>(context);
     _walletBloc = BlocProvider.of<WalletBloc>(context);
-  }
-
-  @override
-  void didChangeDependencies() async {
-    super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Center(
-          child: Column(
+      child: SingleChildScrollView(
+          child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -64,17 +53,16 @@ class QuestListBodyState extends State<QuestListBody> {
             if (state is WalletEmpty) {
               return Text("지갑이 연결되지 않았습니다.");
             } else if (state is WalletConnected || state is WalletUpdated) {
-              return Center(child: Column(
+              return Column(
                 children: [
                   Text("지갑 주소 : ${_walletBloc.web3Repository.wallet.address}"),
                   Text(
                       "지갑 잔고 : ${ethereumBalanceToString(_walletBloc.web3Repository.wallet.ethereumBalance)}"),
                   Text(
                       "토큰 잔고 : ${tokenBalanceToString(_walletBloc.web3Repository.wallet.tokenBalance)}"),
-                  QuestListSteps(
-                      address: _walletBloc.web3Repository.wallet.address!)
+                  QuestListCard()
                 ],
-              ));
+              );
             } else if (state is WalletDisconnected) {
               return Text("지갑 연결이 끊어졌습니다.");
             } else if (state is WalletError) {
@@ -83,7 +71,7 @@ class QuestListBodyState extends State<QuestListBody> {
             return CircularProgressIndicator();
           }),
         ],
-      )),
+      ))),
     );
   }
 }

@@ -41,7 +41,6 @@ class Web3Repository {
 
       if (!connector.connected) {
         try {
-          debugPrint("Wallet connector init");
           print(await connector.createSession(onDisplayUri: (uri) async {
             await launchUrlString(uri, mode: LaunchMode.externalApplication);
           }));
@@ -55,7 +54,6 @@ class Web3Repository {
       }
 
       if (connector.connected && wallet.address == null) {
-        debugPrint("User wallet init");
         wallet = await getUserWallet(
             EthereumAddress.fromHex(connector.session.accounts[0]));
       }

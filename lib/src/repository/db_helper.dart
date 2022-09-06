@@ -9,18 +9,38 @@ class DBHelper {
 
   get isInitialized => _isInitialized;
 
-  Future<void> init(String statement) async {
+  DBHelper._internal();
+
+  factory DBHelper() => DBHelper._internal();
+
+  Future<void> init(List<String> statements) async {
     if (!isInitialized) {
       String databasesPath = await getDatabasesPath();
-      String path = join(databasesPath, 'lycle.db');
+      String path = join(databasesPath, _dbName);
 
-      _db = await openDatabase(path,
-          version: 4,
-          onCreate: (Database db, int version) async => await db
-              .execute(statement..trim().replaceAll(RegExp(r'[\s]{2,}'), ' ')));
-
+      _db = await openDatabase(path, version: 4,
+          onCreate: (Database db, int version) async {
+        for (String statement in statements) {
+          await db
+              .execute(statement..trim().replaceAll(RegExp(r'[\s]{2,}'), ' '));
+        }
+      });
       _isInitialized = true;
     }
+  }
+
+  Future<bool?> execute(String statement) async {
+    if (!isInitialized) {
+      try {
+        await _db?.execute(statement);
+        return true;
+      } catch (e) {
+        print(e);
+        return false;
+      }
+    }
+
+    return null;
   }
 
   Future<int?> insert(String table, Map<String, dynamic> data) async {
@@ -67,13 +87,14 @@ class DBHelper {
     return result;
   }
 
-  Future<List<Map<String, dynamic>>?> rawSelect(String selectSql) async {
-    List<Map<String, dynamic>>? result;
+  Future<List<Map<String, dynamic>>> rawSelect(String selectSql) async {
+    late List<Map<String, dynamic>> result;
 
     if (_isInitialized) {
       try {
         result = await _db!.rawQuery(selectSql);
       } catch (e) {
+        // TODO: 에러 처리
         print(e);
       }
     }
@@ -108,6 +129,7 @@ class DBHelper {
       }
     }
 
+    print(result);
     return result;
   }
 
@@ -137,6 +159,7 @@ class DBHelper {
       }
     }
 
+    print(result);
     return result;
   }
 }

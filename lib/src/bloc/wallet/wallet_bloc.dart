@@ -104,7 +104,6 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
 
   void subscribeConnectorEvent() {
     web3Repository.connector.on('connect', (session) {
-      debugPrint("connect");
       if (session.runtimeType == SessionStatus) {
         add(ConnectWallet(
             walletAddress: EthereumAddress.fromHex(
@@ -112,14 +111,11 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
       }
     });
     web3Repository.connector.on('session_update', (session) {
-      debugPrint("session_update");
       if (session.runtimeType == SessionStatus) {
         add(UpdateSessionWallet(session: session as SessionStatus));
       }
     });
     web3Repository.connector.on('disconnect', (session) {
-      debugPrint('disconnect');
-
       Map<String, dynamic> data = session as Map<String, dynamic>;
 
       bool isSessionDisconnected = data['message'] != null &&

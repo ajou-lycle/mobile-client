@@ -8,7 +8,8 @@ import 'package:health_kit_reporter/model/payload/quantity.dart';
 import 'package:health_kit_reporter/model/predicate.dart';
 import 'package:health_kit_reporter/model/type/quantity_type.dart';
 import 'package:health_kit_reporter/model/update_frequency.dart';
-import 'package:permission_handler/permission_handler.dart';
+
+import '../data/model/quest.dart';
 
 /// Helper for health kit reporter.
 ///
@@ -69,9 +70,9 @@ abstract class HealthHelper {
   /// [predicate.startDate] is *not* before [predicate.endDate].
   /// The parameter of [onUpdate] is identifier of HealthKit data type.
   void _observerQuery(Predicate predicate, Function(String) onUpdate) async {
-    assert(_hasPermissions, AssertionError("You don't have permissions"));
+    assert(_hasPermissions, "You don't have permissions");
     assert(predicate.startDate.isBefore(predicate.endDate),
-        AssertionError("The start time must be before end time."));
+        "The start time must be before end time.");
 
     HealthKitReporter.observerQuery(_readTypesIdentifiers, predicate,
         onUpdate: onUpdate);
@@ -128,8 +129,12 @@ class QuantityHealthHelper extends HealthHelper {
   ///
   /// Throws an [AssertionError] if the DateTime [start] is *not* before [end].
   /// The parameter of [acceptCallback] is the quantity, num, of HealthKit data updated.
-  void observerQueryForQuantityQuery(DateTime start, DateTime end,
-      void Function(num) acceptCallback, void Function(int) deniedCallback) {
+  void observerQueryForQuantityQuery(
+      DateTime start,
+      DateTime end,
+      List<Quest> questList,
+      void Function(int, num) acceptCallback,
+      void Function(QuantityType, int) deniedCallback) {
     Predicate predicate = Predicate(start, end);
 
     _observerQuery(predicate, (identifier) async {
@@ -142,6 +147,16 @@ class QuantityHealthHelper extends HealthHelper {
           final identifier = preferredUnit.identifier;
           final unit = preferredUnit.unit;
           final type = QuantityTypeFactory.from(identifier);
+
+          int? index;
+          for (int i = 0; i < questList.length; i++) {
+            if (questList[i].type == type) {
+              index = i;
+              break;
+            }
+          }
+
+          if (index == null) return;
 
           try {
             final quantities =
@@ -168,7 +183,7 @@ class QuantityHealthHelper extends HealthHelper {
                   _timeStamp = data.startTimestamp;
                   _deniedCount += 1;
 
-                  deniedCallback(_deniedCount);
+                  deniedCallback(type, _deniedCount);
 
                   if (int.parse(dotenv.env['DENIED_COUNT']!) == _deniedCount) {
                     _deniedCount = 0;
@@ -179,7 +194,7 @@ class QuantityHealthHelper extends HealthHelper {
               }
             }
 
-            acceptCallback(result);
+            acceptCallback(index, result);
           } catch (e) {
             // TODO: Error type 정하기
             print(e);

@@ -40,15 +40,12 @@ class Web3ApiClient {
 
   Future<void> init() async {
     if (_ownAddress == null) {
-      debugPrint("Credentials init");
       await getCredentials();
     }
     if (_contractAddress == null) {
-      debugPrint("Abi init");
       await getAbi();
     }
     if (_contract == null) {
-      debugPrint("Contract init");
       await getDeployedContract();
     }
   }
