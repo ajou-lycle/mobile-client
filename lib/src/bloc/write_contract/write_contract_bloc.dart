@@ -10,7 +10,6 @@ import 'package:lycle/src/repository/web3/web3_repository.dart';
 
 import '../../data/enum/contract_function.dart';
 import '../../data/model/quest.dart';
-import '../../data/model/steps.dart';
 
 class WriteContractBloc extends Bloc<WriteContractEvent, WriteContractState> {
   final Web3Repository web3Repository;
@@ -44,11 +43,11 @@ class WriteContractBloc extends Bloc<WriteContractEvent, WriteContractState> {
                 if (value) {
                   // TODO: callback after send transaction is succeed.
                   add(SuccessTransaction(
-                      contractFunctionEnum: event.contractFunctionEnum,
-                      index: index,
-                      questStepsBloc: event.currentQuestBloc,
-                      category: event.category,
-                      level: event.level));
+                    contractFunctionEnum: event.contractFunctionEnum,
+                    index: index,
+                    callbackParameter: event.successCallbackParameter,
+                    callback: event.successCallback,
+                  ));
                 } else {
                   // TODO: callback after send transaction is failed.
                   add(FailTransaction(index: index));
@@ -69,46 +68,16 @@ class WriteContractBloc extends Bloc<WriteContractEvent, WriteContractState> {
   void _mapSuccessTransactionToState(
       SuccessTransaction event, Emitter<WriteContractState> emit) async {
     try {
-      final questStepsBloc = event.questStepsBloc;
+      if(event.callback != null && event.callbackParameter != null) {
+        bool isSucceedCallback = await event.callback!(event.contractFunctionEnum, event.callbackParameter!);
 
-      if (questStepsBloc != null) {
-        // TODO: 삭제
-        print(questStepsBloc);
-        switch (event.contractFunctionEnum) {
-          case ContractFunctionEnum.burn:
-            if (!questStepsBloc.healthHelper.hasPermissions) {
-              await questStepsBloc.healthHelper.requestPermission();
-            }
-
-            int index = QuestDataType.getByCategory(event.category!).index;
-            for (Quest quest
-                in questStepsBloc.questRepository.availableQuests[index]) {
-              bool isThisQuest =
-                  quest.category == event.category && quest.level == event.level
-                      ? true
-                      : false;
-
-              if (isThisQuest) {
-                // TODO: 삭제
-                print(quest);
-                Quest temp = Quest.clone(quest);
-                temp.finishDate = DateTime.now()
-                    .add(quest.finishDate.difference(quest.startDate));
-                temp.startDate = DateTime.now();
-
-                questStepsBloc.add(CreateCurrentQuest(quest: temp));
-              }
-            }
-
-            emit(TransactionSucceed(index: event.index));
-
-            return;
-
-          default:
-            emit(WriteContractError(error: "SuccessTransactionError"));
-            break;
+        if(isSucceedCallback) {
+          emit(TransactionSucceed(index: event.index));
+        } else {
+          emit(WriteContractError(error: "SuccessTransactionError"));
         }
       }
+
       emit(TransactionSucceed(index: event.index));
     } catch (e) {
       emit(WriteContractError(error: "SuccessTransactionError"));

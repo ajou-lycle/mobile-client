@@ -4,3 +4,6 @@ const kLargePadding = 32.0;
 
 // radius
 const kDefaultRadius = 16.0;
+
+// snackBar
+bool isSnackbarActive = false;

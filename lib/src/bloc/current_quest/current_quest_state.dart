@@ -42,16 +42,29 @@ class CurrentQuestLoaded extends CurrentQuestState {
 }
 
 class CurrentQuestUpdated extends CurrentQuestState {
-  final List<Quest> questLsit;
+  final List<Quest> questList;
 
-  CurrentQuestUpdated({required this.questLsit});
+  CurrentQuestUpdated({required this.questList});
 
   @override
-  String toString() => 'UpdatedState { quest: $questLsit }';
+  String toString() => 'UpdatedState { quest: $questList }';
 
   @override
   // TODO: implement props
-  List<Object?> get props => [questLsit];
+  List<Object?> get props => [questList];
+}
+
+class CurrentQuestAchieved extends CurrentQuestState {
+  final List<Quest> questList;
+
+  CurrentQuestAchieved({required this.questList});
+
+  @override
+  String toString() => 'AchievedState { quest: $questList }';
+
+  @override
+  // TODO: implement props
+  List<Object?> get props => [questList];
 }
 
 class CurrentQuestDenied extends CurrentQuestState {

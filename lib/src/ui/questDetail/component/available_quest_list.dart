@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lycle/src/bloc/current_quest/current_quest_event.dart';
+import 'package:lycle/src/bloc/current_quest/current_quest_state.dart';
 import 'package:lycle/src/data/enum/quest_data_type.dart';
 import 'package:web3dart/web3dart.dart';
 
@@ -35,6 +37,20 @@ class AvailableQuestListState extends State<AvailableQuestList> {
     _currentQuestBloc = BlocProvider.of<CurrentQuestBloc>(context);
     _walletBloc = BlocProvider.of<WalletBloc>(context);
     _writeContractBloc = BlocProvider.of<WriteContractBloc>(context);
+  }
+
+  void requestQuest(Quest quest) {
+    if (quest.needToken > 0) {
+      _writeContractBloc.add(SendTransaction(
+          contractFunctionEnum: ContractFunctionEnum.getByFunctionName('burn'),
+          to: _walletBloc.web3Repository.wallet.address,
+          amount: EtherAmount.fromUnitAndValue(EtherUnit.ether, quest.needToken)
+              .getInWei,
+          successCallback: _currentQuestBloc.callbackWhenRequestQuestSucceed,
+          successCallbackParameter: [quest, _walletBloc]));
+    } else {
+      _currentQuestBloc.add(CreateCurrentQuest(quest: quest));
+    }
   }
 
   String goalText(String category) {
@@ -74,11 +90,11 @@ class AvailableQuestListState extends State<AvailableQuestList> {
               Column(
                 children: [
                   Text(
-                      "${quest.category} ${quest.level + 1} 단계 : ${quest.goal} ${goalText(quest.category)} ${quest.times}회"),
+                      "${quest.category} ${quest.level + 1} 단계 : ${quest.goal} ${goalText(quest.category)} ${quest.needTimes}회"),
                   Row(
                     children: [
                       Text(
-                          "시간제한 : ${timeLimitText(quest.finishDate.difference(quest.startDate))}"),
+                          "시간제한 : ${timeLimitText(quest.finishDate.difference(quest.startDate))} "),
                       Text("${quest.needToken}개 필요"),
                       Text("보상 ${quest.rewardToken}개"),
                     ],
@@ -87,6 +103,41 @@ class AvailableQuestListState extends State<AvailableQuestList> {
               ),
               TextButton(
                   onPressed: () async {
+                    if (_currentQuestBloc.state is CurrentQuestLoaded ||
+                        _currentQuestBloc.state is CurrentQuestUpdated) {
+                      List<Quest> currentQuestList =
+                          _currentQuestBloc.state.props[0] as List<Quest>;
+
+                      for (int i = 0; i < currentQuestList.length; i++) {
+                        if (quest.category == currentQuestList[i].category) {
+                          showDialog(
+                              context: context,
+                              builder: (context) => CupertinoAlertDialog(
+                                    title: Text("진행 중인 퀘스트가 있습니다."),
+                                    content: Text(
+                                        "이 퀘스트를 등록할 시, 현재 진행 중인 퀘스트는 중도 취소됩니다."),
+                                    actions: [
+                                      TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                          child: Text("취소")),
+                                      TextButton(
+                                          onPressed: () async {
+                                            Navigator.pop(context);
+                                            requestQuest(quest);
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text(
+                                            "확인",
+                                            style: TextStyle(color: Colors.red),
+                                          )),
+                                    ],
+                                  ));
+                          return;
+                        }
+                      }
+                    }
+
                     showDialog(
                         context: context,
                         builder: (context) => CupertinoAlertDialog(
@@ -100,18 +151,8 @@ class AvailableQuestListState extends State<AvailableQuestList> {
                                 TextButton(
                                     onPressed: () async {
                                       Navigator.pop(context);
-                                      _writeContractBloc.add(SendTransaction(
-                                          contractFunctionEnum:
-                                              ContractFunctionEnum
-                                                  .getByFunctionName('burn'),
-                                          to: _walletBloc
-                                              .web3Repository.wallet.address,
-                                          amount: EtherAmount.fromUnitAndValue(
-                                                  EtherUnit.ether, 1)
-                                              .getInWei,
-                                          currentQuestBloc: _currentQuestBloc,
-                                          category: quest.category,
-                                          level: 0));
+                                      requestQuest(quest);
+                                      Navigator.pop(context);
                                     },
                                     child: Text(
                                       "확인",

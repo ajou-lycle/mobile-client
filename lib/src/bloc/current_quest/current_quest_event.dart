@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:health_kit_reporter/model/type/quantity_type.dart';
 
 import '../../data/model/quest.dart';
 
@@ -7,7 +6,7 @@ abstract class CurrentQuestEvent extends Equatable {}
 
 class GetCurrentQuest extends CurrentQuestEvent {
   @override
-  String toString() => 'GetQuest ';
+  String toString() => 'GetCurrentQuest';
 
   @override
   List<Object?> get props => [];
@@ -19,7 +18,19 @@ class CreateCurrentQuest extends CurrentQuestEvent {
   CreateCurrentQuest({required this.quest});
 
   @override
-  String toString() => 'CreateToday { quest : $quest}';
+  String toString() => 'CreateCurrentQuest { quest : $quest}';
+
+  @override
+  List<Object?> get props => [quest];
+}
+
+class ReplaceCurrentQuest extends CurrentQuestEvent {
+  final Quest quest;
+
+  ReplaceCurrentQuest({required this.quest});
+
+  @override
+  String toString() => 'ReplaceCurrentQuest { quest : $quest}';
 
   @override
   List<Object?> get props => [quest];
@@ -32,7 +43,8 @@ class IncrementCurrentQuest extends CurrentQuestEvent {
   IncrementCurrentQuest({required this.index, required this.count});
 
   @override
-  String toString() => 'IncrementToday { index: $index, count : $count }';
+  String toString() =>
+      'IncrementCurrentQuest { index: $index, count : $count }';
 
   @override
   // TODO: implement props
@@ -45,7 +57,7 @@ class AchieveCurrentQuest extends CurrentQuestEvent {
   AchieveCurrentQuest({required this.quest});
 
   @override
-  String toString() => 'AchieveQuest : $quest';
+  String toString() => 'AchieveCurrentQuest : $quest';
 
   @override
   // TODO: implement props
@@ -58,7 +70,7 @@ class DeniedCurrentQuest extends CurrentQuestEvent {
   DeniedCurrentQuest({required this.count});
 
   @override
-  String toString() => 'DeniedToday { count: $count }';
+  String toString() => 'DeniedCurrentQuest { count: $count }';
 
   @override
   // TODO: implement props
@@ -71,7 +83,7 @@ class ErrorCurrentQuest extends CurrentQuestEvent {
   ErrorCurrentQuest({this.error});
 
   @override
-  String toString() => 'ErrorQuest { error: $error }';
+  String toString() => 'ErrorCurrentQuest { error: $error }';
 
   @override
   // TODO: implement props

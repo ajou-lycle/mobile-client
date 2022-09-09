@@ -7,6 +7,7 @@ import 'package:lycle/src/ui/questList/components/body.dart';
 
 import '../../bloc/quest/quest_bloc.dart';
 import '../../bloc/quest/quest_event.dart';
+import '../widgets/transaction_snack_bar.dart';
 
 class QuestListPage extends StatefulWidget {
   @override

@@ -18,7 +18,7 @@ List<List<Quest>> availableQuest = [
         startDate: DateTime.now(),
         finishDate: DateTime.now().add(const Duration(days: 1)),
         goal: 100,
-        times: 1,
+        needTimes: 1,
         achievement: 0),
     Quest(
         category: "walking",
@@ -28,7 +28,7 @@ List<List<Quest>> availableQuest = [
         startDate: DateTime.now(),
         finishDate: DateTime.now().add(const Duration(days: 1)),
         goal: 1000,
-        times: 1,
+        needTimes: 1,
         achievement: 0),
     Quest(
         category: "walking",
@@ -38,7 +38,7 @@ List<List<Quest>> availableQuest = [
         startDate: DateTime.now(),
         finishDate: DateTime.now().add(const Duration(days: 1)),
         goal: 2000,
-        times: 1,
+        needTimes: 1,
         achievement: 0),
     Quest(
         category: "walking",
@@ -48,7 +48,7 @@ List<List<Quest>> availableQuest = [
         startDate: DateTime.now(),
         finishDate: DateTime.now().add(const Duration(days: 1)),
         goal: 3000,
-        times: 1,
+        needTimes: 1,
         achievement: 0),
     Quest(
         category: "walking",
@@ -58,7 +58,7 @@ List<List<Quest>> availableQuest = [
         startDate: DateTime.now(),
         finishDate: DateTime.now().add(const Duration(days: 1)),
         goal: 5000,
-        times: 1,
+        needTimes: 1,
         achievement: 0),
   ],
   [
@@ -70,7 +70,7 @@ List<List<Quest>> availableQuest = [
         startDate: DateTime.now(),
         finishDate: DateTime.now().add(const Duration(minutes: 30)),
         goal: 3,
-        times: 1,
+        needTimes: 1,
         achievement: 0),
     Quest(
         category: "running",
@@ -80,7 +80,7 @@ List<List<Quest>> availableQuest = [
         startDate: DateTime.now(),
         finishDate: DateTime.now().add(const Duration(minutes: 30)),
         goal: 5,
-        times: 1,
+        needTimes: 1,
         achievement: 0),
     Quest(
         category: "running",
@@ -90,7 +90,7 @@ List<List<Quest>> availableQuest = [
         startDate: DateTime.now(),
         finishDate: DateTime.now().add(const Duration(minutes: 30)),
         goal: 7,
-        times: 1,
+        needTimes: 1,
         achievement: 0),
     Quest(
         category: "running",
@@ -100,7 +100,7 @@ List<List<Quest>> availableQuest = [
         startDate: DateTime.now(),
         finishDate: DateTime.now().add(const Duration(minutes: 30)),
         goal: 10,
-        times: 1,
+        needTimes: 1,
         achievement: 0),
     Quest(
         category: "running",
@@ -110,7 +110,7 @@ List<List<Quest>> availableQuest = [
         startDate: DateTime.now(),
         finishDate: DateTime.now().add(const Duration(minutes: 30)),
         goal: 15,
-        times: 1,
+        needTimes: 1,
         achievement: 0),
   ]
 ];

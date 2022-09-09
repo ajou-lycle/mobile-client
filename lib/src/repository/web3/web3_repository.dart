@@ -41,10 +41,6 @@ class Web3Repository {
 
       if (!connector.connected) {
         try {
-          print(await connector.createSession(onDisplayUri: (uri) async {
-            await launchUrlString(uri, mode: LaunchMode.externalApplication);
-          }));
-
           await connector.updateSession(await connector.createSession(onDisplayUri: (uri) async {
             await launchUrlString(uri, mode: LaunchMode.externalApplication);
           }));

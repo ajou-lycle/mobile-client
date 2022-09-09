@@ -3,7 +3,7 @@ import 'package:path/path.dart';
 
 class DBHelper {
   final String _dbName = 'lycle.db';
-  Database? _db;
+  Database? db;
 
   bool _isInitialized = false;
 
@@ -13,34 +13,35 @@ class DBHelper {
 
   factory DBHelper() => DBHelper._internal();
 
-  Future<void> init(List<String> statements) async {
+  Future<void> init(String tableName, List columns) async {
     if (!isInitialized) {
+      String statement = 'CREATE TABLE IF NOT EXISTS $tableName (';
+
+      for (Map<String, dynamic> column in columns) {
+        if (column == columns.last) {
+          column.forEach((key, value) {
+            statement += ' $key $value)';
+          });
+        } else {
+          column.forEach((key, value) {
+            statement += ' $key $value,';
+          });
+        }
+      }
+
       String databasesPath = await getDatabasesPath();
       String path = join(databasesPath, _dbName);
 
-      _db = await openDatabase(path, version: 4,
+      db = await openDatabase(path, version: 1,
           onCreate: (Database db, int version) async {
-        for (String statement in statements) {
-          await db
-              .execute(statement..trim().replaceAll(RegExp(r'[\s]{2,}'), ' '));
-        }
+        await db
+            .execute(statement..trim().replaceAll(RegExp(r'[\s]{2,}'), ' '));
+      }, onOpen: (Database db) async {
+        await db
+            .execute(statement..trim().replaceAll(RegExp(r'[\s]{2,}'), ' '));
       });
       _isInitialized = true;
     }
-  }
-
-  Future<bool?> execute(String statement) async {
-    if (!isInitialized) {
-      try {
-        await _db?.execute(statement);
-        return true;
-      } catch (e) {
-        print(e);
-        return false;
-      }
-    }
-
-    return null;
   }
 
   Future<int?> insert(String table, Map<String, dynamic> data) async {
@@ -48,22 +49,7 @@ class DBHelper {
 
     if (_isInitialized) {
       try {
-        result = await _db!
-            .insert(table, data, conflictAlgorithm: ConflictAlgorithm.replace);
-      } catch (e) {
-        print(e);
-      }
-    }
-
-    return result;
-  }
-
-  Future<int?> rawInsert(String insertSql) async {
-    int? result;
-
-    if (_isInitialized) {
-      try {
-        result = await _db!.rawInsert(insertSql);
+        result = await db!.insert(table, data, conflictAlgorithm: ConflictAlgorithm.replace);
       } catch (e) {
         print(e);
       }
@@ -78,23 +64,8 @@ class DBHelper {
 
     if (_isInitialized) {
       try {
-        result = await _db!.query(table, where: where, whereArgs: whereArgs);
+        result = await db!.query(table, where: where, whereArgs: whereArgs);
       } catch (e) {
-        print(e);
-      }
-    }
-
-    return result;
-  }
-
-  Future<List<Map<String, dynamic>>> rawSelect(String selectSql) async {
-    late List<Map<String, dynamic>> result;
-
-    if (_isInitialized) {
-      try {
-        result = await _db!.rawQuery(selectSql);
-      } catch (e) {
-        // TODO: 에러 처리
         print(e);
       }
     }
@@ -109,7 +80,7 @@ class DBHelper {
     if (_isInitialized) {
       try {
         result =
-            await _db!.update(table, data, where: where, whereArgs: whereArgs);
+            await db!.update(table, data, where: where, whereArgs: whereArgs);
       } catch (e) {
         print(e);
       }
@@ -118,48 +89,17 @@ class DBHelper {
     return result;
   }
 
-  Future<int?> rawUpdate(String updateSql) async {
+  Future<int?> delete(String table, {String? where, List? whereArgs}) async {
     int? result;
 
     if (_isInitialized) {
       try {
-        result = await _db!.rawUpdate(updateSql);
+        result = await db!.delete(table, where: where, whereArgs: whereArgs);
       } catch (e) {
         print(e);
       }
     }
 
-    print(result);
-    return result;
-  }
-
-  Future<int?> delete(String table, Map<String, dynamic> data,
-      {String? where, List? whereArgs}) async {
-    int? result;
-
-    if (_isInitialized) {
-      try {
-        result = await _db!.delete(table, where: where, whereArgs: whereArgs);
-      } catch (e) {
-        print(e);
-      }
-    }
-
-    return result;
-  }
-
-  Future<int?> rawDelete(String deleteSql) async {
-    int? result;
-
-    if (_isInitialized) {
-      try {
-        result = await _db!.rawDelete(deleteSql);
-      } catch (e) {
-        print(e);
-      }
-    }
-
-    print(result);
     return result;
   }
 }

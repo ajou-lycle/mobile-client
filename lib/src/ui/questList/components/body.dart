@@ -7,6 +7,7 @@ import 'package:lycle/src/bloc/wallet/wallet_bloc.dart';
 import 'package:lycle/src/bloc/wallet/wallet_event.dart';
 import 'package:lycle/src/bloc/wallet/wallet_state.dart';
 import 'package:lycle/src/ui/questList/components/card.dart';
+import 'package:lycle/src/ui/questList/components/receive_reward_button.dart';
 
 import '../../../utils/balance_to_string.dart';
 
@@ -60,7 +61,8 @@ class QuestListBodyState extends State<QuestListBody> {
                       "지갑 잔고 : ${ethereumBalanceToString(_walletBloc.web3Repository.wallet.ethereumBalance)}"),
                   Text(
                       "토큰 잔고 : ${tokenBalanceToString(_walletBloc.web3Repository.wallet.tokenBalance)}"),
-                  QuestListCard()
+                  QuestListCard(),
+                  ReceiveRewardButton()
                 ],
               );
             } else if (state is WalletDisconnected) {

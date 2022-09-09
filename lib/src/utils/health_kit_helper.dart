@@ -130,12 +130,15 @@ class QuantityHealthHelper extends HealthHelper {
   /// Throws an [AssertionError] if the DateTime [start] is *not* before [end].
   /// The parameter of [acceptCallback] is the quantity, num, of HealthKit data updated.
   void observerQueryForQuantityQuery(
-      DateTime start,
-      DateTime end,
       List<Quest> questList,
       void Function(int, num) acceptCallback,
       void Function(QuantityType, int) deniedCallback) {
-    Predicate predicate = Predicate(start, end);
+    if (questList.isEmpty) {
+      return;
+    }
+
+    Predicate predicate =
+        Predicate(DateTime.now(), DateTime.now().add(const Duration(days: 1)));
 
     _observerQuery(predicate, (identifier) async {
       try {
@@ -159,8 +162,10 @@ class QuantityHealthHelper extends HealthHelper {
           if (index == null) return;
 
           try {
-            final quantities =
-                await HealthKitReporter.quantityQuery(type, unit, predicate);
+            Predicate questPredicate = Predicate(
+                questList[index].startDate, questList[index].finishDate);
+            final quantities = await HealthKitReporter.quantityQuery(
+                type, unit, questPredicate);
 
             num result = 0;
 

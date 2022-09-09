@@ -1,8 +1,9 @@
+import 'dart:async';
+
 import 'package:equatable/equatable.dart';
 import 'package:web3dart/credentials.dart';
 
 import '../../data/enum/contract_function.dart';
-import '../current_quest/current_quest_bloc.dart';
 
 abstract class WriteContractEvent extends Equatable {}
 
@@ -11,50 +12,56 @@ class SendTransaction extends WriteContractEvent {
   final EthereumAddress? from;
   final EthereumAddress? to;
   final BigInt? amount;
-  final CurrentQuestBloc? currentQuestBloc;
-  final String? category;
-  final int? level;
+  final List? successCallbackParameter;
+  final Future<bool> Function(ContractFunctionEnum, List)? successCallback;
 
-  SendTransaction(
-      {required this.contractFunctionEnum,
-      this.from,
-      this.to,
-      this.amount,
-      this.currentQuestBloc,
-      this.category,
-      this.level});
+  SendTransaction({
+    required this.contractFunctionEnum,
+    this.from,
+    this.to,
+    this.amount,
+    this.successCallbackParameter,
+    this.successCallback,
+  });
 
   @override
   String toString() => '''SendTransaction {
       contractFunctionEnum: ${contractFunctionEnum.name}, 
-      from: $from, to: $to, amount: $amount
-      questStepsBloc: $currentQuestBloc, category: $category, level: $level
+      from: $from, to: $to, amount: $amount,
+      successCallbackParameter: $successCallbackParameter, successCallback: $successCallback
       }''';
 
   @override
-  List<Object?> get props => [contractFunctionEnum, from, to, amount];
+  List<Object?> get props => [
+        contractFunctionEnum,
+        from,
+        to,
+        amount,
+        successCallbackParameter,
+        successCallback
+      ];
 }
 
 class SuccessTransaction extends WriteContractEvent {
   final ContractFunctionEnum contractFunctionEnum;
   final int index;
-  final CurrentQuestBloc? questStepsBloc;
-  final String? category;
-  final int? level;
+  final List? callbackParameter;
+  final Future<bool> Function(ContractFunctionEnum, List)? callback;
 
-  SuccessTransaction(
-      {required this.contractFunctionEnum,
-      required this.index,
-      this.questStepsBloc,
-      this.category,
-      this.level});
+  SuccessTransaction({
+    required this.contractFunctionEnum,
+    required this.index,
+    required this.callbackParameter,
+    required this.callback,
+  });
 
   @override
   String toString() =>
-      'SuccessTransaction { index : $index, questStepsBloc: $questStepsBloc, category: $category, level: $level }';
+      'SuccessTransaction { contractFunctionEnum: $contractFunctionEnum, index : $index, callbackParameter: $callbackParameter, callback: $callback}';
 
   @override
-  List<Object?> get props => [contractFunctionEnum, index, questStepsBloc];
+  List<Object?> get props =>
+      [contractFunctionEnum, index, callbackParameter, callback];
 }
 
 class FailTransaction extends WriteContractEvent {

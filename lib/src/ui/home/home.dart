@@ -6,6 +6,8 @@ import 'package:cupertino_icons/cupertino_icons.dart';
 import 'package:lycle/src/ui/nftCardList/nft_card_list.dart';
 import 'package:lycle/src/ui/questList/quest_list.dart';
 
+import '../widgets/transaction_snack_bar.dart';
+
 class HomePage extends StatefulWidget {
   @override
   State<HomePage> createState() => HomePageState();
@@ -39,13 +41,14 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return TransactionSnackBar(
+        child: Scaffold(
       body: _widgetOptions.elementAt(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
         items: _bottomNavigationBarOptions,
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
       ),
-    );
+    ));
   }
 }
