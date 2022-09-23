@@ -45,6 +45,7 @@ class QuestRepository {
       await dbHelper.delete(_tableName,
           where: "category = ? AND achieve_date IS NULL",
           whereArgs: [quest.category]);
+
     } else {
       // TODO : 에러 처리
       await dbHelper.delete(_tableName,
