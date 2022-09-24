@@ -75,7 +75,15 @@ class LoginFormState extends State<LoginForm> {
                   height: LoginPageConstant.submitButtonHeight,
                   child: ElevatedButton(
                     child: const Text('Submit'),
+                    style: ButtonStyle(
+                        backgroundColor: _formKey.currentState == null
+                            ? MaterialStateProperty.all(Colors.grey)
+                            : _formKey.currentState!.isValid
+                                ? MaterialStateProperty.all(Colors.green)
+                                : MaterialStateProperty.all(Colors.grey)),
                     onPressed: () async {
+                      FocusScope.of(context).unfocus();
+
                       if (_formKey.currentState == null) {
                         return;
                       }
@@ -90,6 +98,9 @@ class LoginFormState extends State<LoginForm> {
                               LoginPageConstant.textFormFieldErrorTextHeight;
                         }
                       });
+
+                      _scrollFormWithKeyboardBloc.errorTextHeight =
+                          scrollHeight;
 
                       if (_scrollFormWithKeyboardBloc.state
                           is ScrollFormWithKeyboardVisible) {

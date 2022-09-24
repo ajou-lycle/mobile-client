@@ -65,7 +65,10 @@ dependencies:
   shimmer: ^2.0.0
   flutter_form_builder: ^7.6.0
   form_builder_validators: ^8.3.0
+
+  # keyboard
   flutter_keyboard_visibility: ^5.3.0
+  keyboard_actions: ^4.0.1
 
   # http
   dio: ^4.0.6

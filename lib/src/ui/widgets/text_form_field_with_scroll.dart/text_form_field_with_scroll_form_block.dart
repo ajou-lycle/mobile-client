@@ -81,6 +81,7 @@ class RoundedTextFormFieldState
         padding: EdgeInsets.symmetric(vertical: widget.verticalPadding),
         child: FormBuilderTextField(
             name: widget.name,
+            onEditingComplete: () => widget.formKey.currentState?.save(),
             validator: widget.validator,
             decoration: widget.decoration,
             onChanged: onChanged));
