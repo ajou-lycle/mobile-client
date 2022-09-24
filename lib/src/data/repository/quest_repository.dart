@@ -1,10 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:lycle/src/repository/db_helper.dart';
-import 'package:lycle/src/repository/quest/quest_api.dart';
 
-import '../../data/model/quest.dart';
+import '../api/quest_api.dart';
+import '../model/quest.dart';
+
+import 'db_helper.dart';
 
 class QuestRepository {
   final QuestApi _questApi = QuestApi();

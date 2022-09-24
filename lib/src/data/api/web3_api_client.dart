@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:lycle/src/data/enum/ethereum_network.dart';
@@ -10,7 +9,7 @@ import 'package:web3dart/web3dart.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:web_socket_channel/io.dart';
 
-import '../../data/enum/contract_function.dart';
+import '../enum/contract_function.dart';
 
 /// HTTP API & WebSocket for web3 api with infura. Currently use ropsten testnet.
 class Web3ApiClient {

@@ -1,16 +1,14 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:lycle/src/bloc/wallet/wallet_event.dart';
-import 'package:lycle/src/bloc/wallet/wallet_state.dart';
-import 'package:lycle/src/repository/web3/web3_api_client.dart';
-
-import 'package:walletconnect_dart/walletconnect_dart.dart';
 import 'package:web3dart/credentials.dart';
+import 'package:walletconnect_dart/walletconnect_dart.dart';
 
-import '../../repository/web3/web3_repository.dart';
+import '../../data/repository/web3_repository.dart';
+
+import 'wallet_event.dart';
+import 'wallet_state.dart';
 
 class WalletBloc extends Bloc<WalletEvent, WalletState> {
   final Web3Repository web3Repository;

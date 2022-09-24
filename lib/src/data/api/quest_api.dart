@@ -1,4 +1,4 @@
-import '../../data/model/quest.dart';
+import '../model/quest.dart';
 
 class QuestApi {
   // TODO: 현재 이용 가능한 퀘스트 가져오기 & 완료한 퀘스트 목록 전송하기

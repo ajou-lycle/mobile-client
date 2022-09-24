@@ -1,10 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:lycle/src/bloc/quest/quest_event.dart';
-import 'package:lycle/src/bloc/quest/quest_state.dart';
-
 import '../../data/model/quest.dart';
-import '../../repository/quest/quest_repository.dart';
+import '../../data/repository/quest_repository.dart';
+
+import 'quest_event.dart';
+import 'quest_state.dart';
 
 class QuestBloc extends Bloc<QuestEvent, QuestState> {
   final QuestRepository questRepository;

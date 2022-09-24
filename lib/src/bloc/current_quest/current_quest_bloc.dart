@@ -3,17 +3,17 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:health_kit_reporter/model/type/quantity_type.dart';
 
-import 'package:lycle/src/bloc/current_quest/current_quest_event.dart';
-import 'package:lycle/src/bloc/current_quest/current_quest_state.dart';
-import 'package:lycle/src/bloc/wallet/wallet_bloc.dart';
-import 'package:lycle/src/bloc/wallet/wallet_event.dart';
-
-import 'package:lycle/src/repository/quest/quest_repository.dart';
-
 import '../../data/enum/contract_function.dart';
-
 import '../../data/model/quest.dart';
+import '../../data/repository/quest_repository.dart';
+
 import '../../utils/health_kit_helper.dart';
+
+import '../wallet/wallet_bloc.dart';
+import '../wallet/wallet_event.dart';
+
+import 'current_quest_event.dart';
+import 'current_quest_state.dart';
 
 class CurrentQuestBloc extends Bloc<CurrentQuestEvent, CurrentQuestState> {
   late QuantityHealthHelper healthHelper;

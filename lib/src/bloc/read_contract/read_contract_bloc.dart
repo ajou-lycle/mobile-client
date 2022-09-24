@@ -1,12 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lycle/src/bloc/read_contract/read_contract_event.dart';
-import 'package:lycle/src/bloc/read_contract/read_contract_state.dart';
 
-import 'package:lycle/src/repository/web3/web3_repository.dart';
+import '../../data/repository/web3_repository.dart';
 
-import '../../data/enum/contract_function.dart';
+import 'read_contract_event.dart';
+import 'read_contract_state.dart';
 
 class ReadContractBloc extends Bloc<ReadContractEvent, ReadContractState> {
   final Web3Repository web3repository;

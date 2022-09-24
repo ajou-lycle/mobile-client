@@ -1,15 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lycle/src/bloc/current_quest/current_quest_event.dart';
 
-import 'package:lycle/src/bloc/write_contract/write_contract_event.dart';
-import 'package:lycle/src/bloc/write_contract/write_contract_state.dart';
-import 'package:lycle/src/data/enum/quest_data_type.dart';
-import 'package:lycle/src/repository/web3/web3_repository.dart';
+import 'write_contract_event.dart';
+import 'write_contract_state.dart';
 
 import '../../data/enum/contract_function.dart';
-import '../../data/model/quest.dart';
+import '../../data/repository/web3_repository.dart';
 
 class WriteContractBloc extends Bloc<WriteContractEvent, WriteContractState> {
   final Web3Repository web3Repository;

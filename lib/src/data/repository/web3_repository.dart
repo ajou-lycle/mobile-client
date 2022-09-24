@@ -1,13 +1,11 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:walletconnect_dart/walletconnect_dart.dart';
 import 'package:web3dart/credentials.dart';
 
-import 'package:lycle/src/repository/web3/web3_api_client.dart';
-
-import '../../data/model/wallet.dart';
+import '../api/web3_api_client.dart';
+import '../model/wallet.dart';
 
 class Web3Repository {
   final Web3ApiClient web3apiClient;

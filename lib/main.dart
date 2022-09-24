@@ -4,15 +4,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:health_kit_reporter/model/type/quantity_type.dart';
 
-import 'package:lycle/src/app.dart';
-import 'package:lycle/src/bloc/current_quest/current_quest_bloc.dart';
-import 'package:lycle/src/bloc/quest/quest_bloc.dart';
-import 'package:lycle/src/bloc/wallet/wallet_bloc.dart';
-import 'package:lycle/src/bloc/write_contract/write_contract_bloc.dart';
-import 'package:lycle/src/repository/quest/quest_repository.dart';
-import 'package:lycle/src/repository/web3/web3_api_client.dart';
-import 'package:lycle/src/repository/web3/web3_repository.dart';
-import 'package:lycle/src/utils/health_kit_helper.dart';
+import 'src/app.dart';
+
+import 'src/bloc/current_quest/current_quest_bloc.dart';
+import 'src/bloc/quest/quest_bloc.dart';
+import 'src/bloc/wallet/wallet_bloc.dart';
+import 'src/bloc/write_contract/write_contract_bloc.dart';
+import 'src/bloc/scroll_form_with_keyboard/scroll_form_with_keyboard_bloc.dart';
+
+import 'src/data/api/web3_api_client.dart';
+import 'src/data/repository/quest_repository.dart';
+import 'src/data/repository/web3_repository.dart';
+
+import 'src/utils/health_kit_helper.dart';
 
 Future main() async {
   await dotenv.load(fileName: ".env");
@@ -37,5 +41,7 @@ Future main() async {
     BlocProvider<QuestBloc>(
         create: (BuildContext context) =>
             QuestBloc(questRepository: QuestRepository())),
+    BlocProvider<ScrollFormWithKeyboardBloc>(
+        create: (BuildContext context) => ScrollFormWithKeyboardBloc()),
   ], child: MyApp()));
 }

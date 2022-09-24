@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:lycle/src/constants/ui.dart';
 import 'package:lycle/src/ui/widgets/row_widget_list_with_divider.dart';
 
+import '../constant.dart';
+
 class OptionTextButtons extends StatelessWidget {
   final fontSize = kSmallFontSize;
 
@@ -23,13 +25,15 @@ class OptionTextButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(height: 44, child: RowWidgetListWithDivider(
-        widgetList: optionTextButtons,
-        verticalDivider: VerticalDivider(
-          indent: fontSize * 1.25,
-          endIndent: fontSize * 1.25,
-          thickness: 2,
-          color: Colors.grey,
-        )));
+    return SizedBox(
+        height: LoginPageConstant.optionTextButtonsHeight,
+        child: RowWidgetListWithDivider(
+            widgetList: optionTextButtons,
+            verticalDivider: VerticalDivider(
+              indent: fontSize * 1.25,
+              endIndent: fontSize * 1.25,
+              thickness: 2,
+              color: Colors.grey,
+            )));
   }
 }
