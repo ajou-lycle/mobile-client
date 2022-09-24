@@ -5,7 +5,7 @@ import 'package:card_swiper/card_swiper.dart';
 
 import 'package:lycle/src/constants/ui.dart';
 import 'package:lycle/src/controller/nft_card.dart';
-import 'package:lycle/src/ui/nftDetail/nft_card.dart';
+import 'package:lycle/src/ui/nft_detail/nft_card.dart';
 import 'package:lycle/src/ui/widgets/rounded_image.dart';
 
 import '../../data/hero_tag.dart';

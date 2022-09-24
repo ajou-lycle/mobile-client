@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lycle/src/bloc/current_quest/current_quest_bloc.dart';
-import 'package:lycle/src/bloc/current_quest/current_quest_state.dart';
+
 import 'package:lycle/src/bloc/quest/quest_state.dart';
-import 'package:lycle/src/bloc/wallet/wallet_bloc.dart';
-import 'package:lycle/src/bloc/write_contract/write_contract_bloc.dart';
-import 'package:lycle/src/ui/questList/components/achieve_bar.dart';
+
+import 'package:lycle/src/ui/quest_list/components/achieve_bar.dart';
 
 import '../../../bloc/quest/quest_bloc.dart';
 import '../../../data/model/quest.dart';
-import '../../questDetail/quest_detail.dart';
+import '../../quest_detail/quest_detail.dart';
 
 class QuestListCard extends StatefulWidget {
   @override

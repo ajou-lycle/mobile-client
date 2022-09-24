@@ -3,8 +3,8 @@ import 'package:flutter/cupertino.dart';
 
 import 'package:cupertino_icons/cupertino_icons.dart';
 
-import 'package:lycle/src/ui/nftCardList/nft_card_list.dart';
-import 'package:lycle/src/ui/questList/quest_list.dart';
+import 'package:lycle/src/ui/nft_card_list/nft_card_list.dart';
+import 'package:lycle/src/ui/quest_list/quest_list.dart';
 
 import '../widgets/transaction_snack_bar.dart';
 

@@ -3,11 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:lycle/src/bloc/current_quest/current_quest_bloc.dart';
 import 'package:lycle/src/bloc/current_quest/current_quest_event.dart';
-import 'package:lycle/src/ui/questList/components/body.dart';
+import 'package:lycle/src/ui/quest_list/components/body.dart';
 
 import '../../bloc/quest/quest_bloc.dart';
 import '../../bloc/quest/quest_event.dart';
-import '../widgets/transaction_snack_bar.dart';
 
 class QuestListPage extends StatefulWidget {
   @override

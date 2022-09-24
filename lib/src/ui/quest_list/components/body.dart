@@ -6,8 +6,8 @@ import 'package:health_kit_reporter/model/type/quantity_type.dart';
 import 'package:lycle/src/bloc/wallet/wallet_bloc.dart';
 import 'package:lycle/src/bloc/wallet/wallet_event.dart';
 import 'package:lycle/src/bloc/wallet/wallet_state.dart';
-import 'package:lycle/src/ui/questList/components/card.dart';
-import 'package:lycle/src/ui/questList/components/receive_reward_button.dart';
+import 'package:lycle/src/ui/quest_list/components/card.dart';
+import 'package:lycle/src/ui/quest_list/components/receive_reward_button.dart';
 
 import '../../../utils/balance_to_string.dart';
 

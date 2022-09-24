@@ -24,10 +24,9 @@ class RowWidgetListWithDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IntrinsicHeight(
-        child: Row(
+    return Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
-            children: generateWidgetList()));
+            children: generateWidgetList());
   }
 }

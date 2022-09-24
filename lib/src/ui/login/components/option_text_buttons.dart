@@ -23,13 +23,13 @@ class OptionTextButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RowWidgetListWithDivider(
+    return SizedBox(height: 44, child: RowWidgetListWithDivider(
         widgetList: optionTextButtons,
         verticalDivider: VerticalDivider(
           indent: fontSize * 1.25,
           endIndent: fontSize * 1.25,
           thickness: 2,
           color: Colors.grey,
-        ));
+        )));
   }
 }
