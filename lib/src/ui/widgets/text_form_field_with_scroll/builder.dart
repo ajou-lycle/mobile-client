@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
-import 'package:keyboard_actions/keyboard_actions.dart';
-
 import '../../../bloc/scroll_form_with_keyboard/scroll_form_with_keyboard_bloc.dart';
 import '../../../bloc/scroll_form_with_keyboard/scroll_form_with_keyboard_event.dart';
 import '../../../bloc/scroll_form_with_keyboard/scroll_form_with_keyboard_state.dart';

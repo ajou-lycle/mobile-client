@@ -83,6 +83,7 @@ class RoundedTextFormFieldState
             name: widget.name,
             onEditingComplete: () {
               widget.formKey.currentState?.save();
+              widget.formKey.currentState?.validate();
               FocusScope.of(context).unfocus();
             },
             validator: widget.validator,
