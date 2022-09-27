@@ -7,7 +7,6 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: SafeArea(child:  LoginBody()));
+    return Scaffold(body: LoginBody());
   }
 }

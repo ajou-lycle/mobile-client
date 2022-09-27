@@ -73,6 +73,9 @@ dependencies:
   # http
   dio: ^4.0.6
 
+  # security
+  jwt_decoder: ^2.0.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

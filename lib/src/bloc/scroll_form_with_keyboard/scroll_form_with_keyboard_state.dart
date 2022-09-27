@@ -7,20 +7,6 @@ class ScrollFormWithKeyboardEmpty extends ScrollFormWithKeyboardState {
   List<Object?> get props => [];
 }
 
-class ScrollFormWithKeyboardErrorTextExist extends ScrollFormWithKeyboardState {
-  final double scrollHeight;
-
-  ScrollFormWithKeyboardErrorTextExist({required this.scrollHeight});
-
-  @override
-  String toString() =>
-      'ScrollFormWithKeyboardErrorTextExist { scrollHeight: $scrollHeight }';
-
-  @override
-  // TODO: implement props
-  List<Object?> get props => [];
-}
-
 class ScrollFormWithKeyboardUpdated extends ScrollFormWithKeyboardState {
   final double scrollHeight;
 

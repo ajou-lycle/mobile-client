@@ -6,6 +6,7 @@ import 'text_form_field_with_scroll_form_block.dart';
 
 class RoundedTextFormFieldWithScrollFormBlock extends StatefulWidget {
   final GlobalKey<FormBuilderState> formKey;
+  final String? title;
   final String name;
   final String? Function(String?)? validator;
   final double? errorTextFontSize;
@@ -18,6 +19,7 @@ class RoundedTextFormFieldWithScrollFormBlock extends StatefulWidget {
       required this.formKey,
       required this.name,
       required this.borderRadius,
+      this.title,
       this.validator,
       this.errorTextFontSize,
       this.fillColor,
@@ -39,6 +41,7 @@ class RoundedTextFormFieldWithScrollFormBlockState
   Widget build(BuildContext context) {
     return TextFormFieldWithScrollFormBlock(
         formKey: widget.formKey,
+        title: widget.title,
         name: widget.name,
         validator: widget.validator,
         errorTextFontSize: widget.errorTextFontSize,

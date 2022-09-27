@@ -21,15 +21,3 @@ class KeyboardUnVisible extends ScrollFormWithKeyboardEvent {
   @override
   List<Object?> get props => [];
 }
-
-class ErrorTextVisible extends ScrollFormWithKeyboardEvent {
-  final double scrollHeight;
-
-  ErrorTextVisible({required this.scrollHeight});
-
-  @override
-  String toString() => 'ErrorTextVisible { scrollHeight: $scrollHeight }';
-
-  @override
-  List<Object?> get props => [scrollHeight];
-}

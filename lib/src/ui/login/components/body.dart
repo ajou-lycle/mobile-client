@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-  import '../../../bloc/scroll_form_with_keyboard/scroll_form_with_keyboard_bloc.dart';
+import '../../../bloc/scroll_form_with_keyboard/scroll_form_with_keyboard_bloc.dart';
 
 import '../../../constants/ui.dart';
 
-import '../../widgets/text_form_field_with_scroll.dart/builder.dart';
+import '../../widgets/text_form_field_with_scroll/builder.dart';
 import '../constant.dart';
 import 'form.dart';
 import 'option_text_buttons.dart';
@@ -19,15 +19,16 @@ class LoginBody extends StatefulWidget {
 
 class LoginBodyState extends State<LoginBody> {
   late ScrollFormWithKeyboardBloc _scrollFormWithKeyboardBloc;
-  late double _leftHeightForScrollWhenKeyboardIsVisible;
   late ScrollController _scrollController;
-  final double defaultScrollHeight = LoginPageConstant.textFormFieldHeight +
-      LoginPageConstant.optionTextButtonsHeight;
+  final double scrollHeight = LoginPageConstant.textFormFieldHeight +
+      LoginPageConstant.optionTextButtonsHeight +
+      LoginPageConstant.textFormFieldErrorTextHeight * 2;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+
     _scrollFormWithKeyboardBloc =
         BlocProvider.of<ScrollFormWithKeyboardBloc>(context);
     _scrollController = ScrollController();
@@ -46,16 +47,12 @@ class LoginBodyState extends State<LoginBody> {
     LoginPageConstant.bannerImageSize = size.height * 0.45 -
         (LoginPageConstant.textFormFieldHeight + kDefaultPadding * 2);
     double topPadding = size.height * 0.05;
-    _leftHeightForScrollWhenKeyboardIsVisible = size.height -
-        (topPadding +
-            LoginPageConstant.bannerImageSize +
-            LoginPageConstant.loginFormHeight +
-            LoginPageConstant.optionTextButtonsHeight);
 
     return BuilderTextFormFieldWithScrollFormBlock(
         scrollController: _scrollController,
-        defaultScrollHeight: defaultScrollHeight,
+        scrollHeight: scrollHeight,
         child: Container(
+            height: size.height,
             color: Colors.white,
             child: Padding(
                 padding: EdgeInsets.only(
@@ -78,14 +75,14 @@ class LoginBodyState extends State<LoginBody> {
                       LoginForm(
                           isKeyboardVisible:
                               _scrollFormWithKeyboardBloc.isKeyboardVisible),
-                      OptionTextButtons(),
+                      const OptionTextButtons(),
                       AnimatedContainer(
-                        duration: const Duration(milliseconds: 100),
+                        duration: const Duration(milliseconds: 0),
                         height: _scrollFormWithKeyboardBloc.isKeyboardVisible
-                            ? _leftHeightForScrollWhenKeyboardIsVisible +
-                                LoginPageConstant.textFormFieldHeight +
+                            ? LoginPageConstant.textFormFieldHeight +
                                 LoginPageConstant.optionTextButtonsHeight +
-                                _scrollFormWithKeyboardBloc.errorTextHeight
+                                LoginPageConstant.textFormFieldErrorTextHeight *
+                                    2
                             : 0,
                       )
                     ],

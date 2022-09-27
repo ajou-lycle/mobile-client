@@ -5,11 +5,12 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import '../../../bloc/scroll_form_with_keyboard/scroll_form_with_keyboard_bloc.dart';
 import '../../../bloc/scroll_form_with_keyboard/scroll_form_with_keyboard_event.dart';
 import '../../../bloc/scroll_form_with_keyboard/scroll_form_with_keyboard_state.dart';
+import '../../../constants/ui.dart';
 
 class TextFormFieldWithScrollFormBlock extends StatefulWidget {
   final GlobalKey<FormBuilderState> formKey;
+  final String? title;
   final String name;
-  final double verticalPadding;
   final String? Function(String?)? validator;
   final double? errorTextFontSize;
   final InputDecoration decoration;
@@ -19,7 +20,7 @@ class TextFormFieldWithScrollFormBlock extends StatefulWidget {
     required this.formKey,
     required this.name,
     required this.decoration,
-    this.verticalPadding = 0,
+    this.title,
     this.validator,
     this.errorTextFontSize,
   })  : assert((validator != null &&
@@ -30,13 +31,38 @@ class TextFormFieldWithScrollFormBlock extends StatefulWidget {
 
   @override
   State<TextFormFieldWithScrollFormBlock> createState() =>
-      RoundedTextFormFieldState();
+      TextFormFieldWithScrollFormBlockState();
 }
 
-class RoundedTextFormFieldState
+class TextFormFieldWithScrollFormBlockState
     extends State<TextFormFieldWithScrollFormBlock> {
   late ScrollFormWithKeyboardBloc _scrollFormWithKeyboardBloc;
+  late FocusNode focusNode;
   void Function(String? value)? onChanged;
+
+  void emitScrollEventForShowingButtonWhenKeyboardVisible() {
+    if (_scrollFormWithKeyboardBloc.state is ScrollFormWithKeyboardEmpty ||
+        _scrollFormWithKeyboardBloc.state is ScrollFormWithKeyboardVisible) {
+      String? label = FocusScope.of(context).focusedChild?.debugLabel;
+
+      if (label == null) {
+        return;
+      }
+
+      int? length = widget.formKey.currentState?.fields.keys.toList().length;
+      int? index =
+          widget.formKey.currentState?.fields.keys.toList().indexOf(label);
+
+      if (index == null || length == null) {
+        return;
+      }
+
+      if (index == length - 2 || index == length - 1) {
+        _scrollFormWithKeyboardBloc.add(KeyboardVisible(
+            scrollHeight: _scrollFormWithKeyboardBloc.scrollHeight));
+      }
+    }
+  }
 
   @override
   void initState() {
@@ -44,50 +70,89 @@ class RoundedTextFormFieldState
     super.initState();
     _scrollFormWithKeyboardBloc =
         BlocProvider.of<ScrollFormWithKeyboardBloc>(context);
+    focusNode = FocusNode(debugLabel: widget.name);
+  }
 
-    if (widget.validator != null) {
-      onChanged = (String? value) {
-        if (value == null) {
-          return;
-        }
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    focusNode.addListener(() {
+      if (focusNode.hasFocus) {
+        emitScrollEventForShowingButtonWhenKeyboardVisible();
+      }
+    });
+  }
 
-        if (value.isEmpty) {
-          return;
-        }
+  @override
+  void dispose() {
+    focusNode.dispose();
 
-        if (widget.formKey.currentState?.fields[widget.name]?.errorText !=
-            null) {
-          widget.formKey.currentState?.fields[widget.name]?.validate();
-
-          if (widget.formKey.currentState!.fields[widget.name]!.isValid) {
-            if (_scrollFormWithKeyboardBloc.state
-                is ScrollFormWithKeyboardVisible) {
-              double scrollHeight = (_scrollFormWithKeyboardBloc.state
-                          as ScrollFormWithKeyboardVisible)
-                      .scrollHeight -
-                  widget.errorTextFontSize!;
-              _scrollFormWithKeyboardBloc
-                  .add(ErrorTextVisible(scrollHeight: scrollHeight));
-            }
-          }
-        }
-      };
-    }
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-        padding: EdgeInsets.symmetric(vertical: widget.verticalPadding),
-        child: FormBuilderTextField(
+    return widget.title == null
+        ? FormBuilderTextField(
             name: widget.name,
+            focusNode: focusNode,
             onEditingComplete: () {
               widget.formKey.currentState?.save();
-              widget.formKey.currentState?.validate();
-              FocusScope.of(context).unfocus();
+              bool? isValid =
+                  widget.formKey.currentState?.fields[widget.name]?.validate();
+
+              if (isValid == null) return;
+              if (isValid == false) return;
+              FocusScope.of(context).nextFocus();
             },
+            textInputAction:
+                widget.formKey.currentState?.fields[widget.name]?.isValid ==
+                        null
+                    ? TextInputAction.next
+                    : widget.formKey.currentState!.fields[widget.name]!.isValid
+                        ? TextInputAction.done
+                        : TextInputAction.next,
             validator: widget.validator,
             decoration: widget.decoration,
-            onChanged: onChanged));
+            onChanged: onChanged)
+        : Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+                Text(
+                  widget.title!,
+                  style: const TextStyle(
+                      fontSize: kDefaultTextFormFieldTitleFontSize),
+                ),
+                const SizedBox(
+                  height: kDefaultLetterSpacingBetweenTitleAndForm,
+                ),
+                FormBuilderTextField(
+                    name: widget.name,
+                    onEditingComplete: () {
+                      widget.formKey.currentState?.save();
+
+                      bool? isValid = widget
+                          .formKey.currentState?.fields[widget.name]
+                          ?.validate();
+
+                      if (isValid == null) return;
+                      if (isValid == false) return;
+
+                      FocusScope.of(context).nextFocus();
+                    },
+                    textInputAction: widget.formKey.currentState
+                                ?.fields[widget.name]?.isValid ==
+                            null
+                        ? TextInputAction.next
+                        : widget.formKey.currentState!.fields[widget.name]!
+                                .isValid
+                            ? TextInputAction.done
+                            : TextInputAction.next,
+                    validator: widget.validator,
+                    decoration: widget.decoration,
+                    onChanged: onChanged)
+              ]);
   }
 }
