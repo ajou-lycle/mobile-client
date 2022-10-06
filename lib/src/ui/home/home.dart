@@ -6,7 +6,7 @@ import 'package:cupertino_icons/cupertino_icons.dart';
 import 'package:lycle/src/ui/nft_card_list/nft_card_list.dart';
 import 'package:lycle/src/ui/quest_list/quest_list.dart';
 
-import '../widgets/transaction_snack_bar.dart';
+import '../widgets/snack_bar/transaction_snack_bar.dart';
 
 class HomePage extends StatefulWidget {
   @override

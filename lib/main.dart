@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:health_kit_reporter/model/type/quantity_type.dart';
 
 import 'src/app.dart';
@@ -20,6 +22,9 @@ import 'src/utils/health_kit_helper.dart';
 
 Future main() async {
   await dotenv.load(fileName: ".env");
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   final Web3Repository web3repository =
       Web3Repository(web3apiClient: Web3ApiClient());

@@ -14,6 +14,7 @@ class ValidTextFormFieldWithScrollFormBlock extends StatefulWidget {
   final String name;
 
   final String? Function(String?)? validator;
+  final String? Function(String?)? onChanged;
   final double? errorTextFontSize;
   final InputDecoration decoration;
 
@@ -29,6 +30,7 @@ class ValidTextFormFieldWithScrollFormBlock extends StatefulWidget {
       required this.buttonTitle,
       this.title,
       this.validator,
+      this.onChanged,
       this.errorTextFontSize,
       this.buttonStyle,
       this.onPressed})
@@ -66,9 +68,13 @@ class ValidTextFormFieldWithScrollFormBlockState
         return;
       }
 
+      if (index == 0) {
+        return;
+      }
+
+      print("index $index, length $length");
       if (index == length - 2 || index == length - 1) {
-        _scrollFormWithKeyboardBloc.add(KeyboardVisible(
-            scrollHeight: _scrollFormWithKeyboardBloc.scrollHeight));
+        _scrollFormWithKeyboardBloc.add(KeyboardVisible());
       }
     }
   }
@@ -107,29 +113,30 @@ class ValidTextFormFieldWithScrollFormBlockState
             children: [
                 Expanded(
                     child: FormBuilderTextField(
-                        name: widget.name,
-                        focusNode: focusNode,
-                        onEditingComplete: () {
-                          widget.formKey.currentState?.save();
-                          bool? isValid = widget
-                              .formKey.currentState?.fields[widget.name]
-                              ?.validate();
-                          if (isValid == null) return;
-                          if (isValid == false) return;
+                  name: widget.name,
+                  focusNode: focusNode,
+                  onChanged: widget.onChanged,
+                  onEditingComplete: () {
+                    widget.formKey.currentState?.save();
+                    bool? isValid = widget
+                        .formKey.currentState?.fields[widget.name]
+                        ?.validate();
+                    if (isValid == null) return;
+                    if (isValid == false) return;
 
-                          FocusScope.of(context).nextFocus();
-                        },
-                        textInputAction: widget.formKey.currentState
-                                    ?.fields[widget.name]?.isValid ==
-                                null
-                            ? TextInputAction.next
-                            : widget.formKey.currentState!.fields[widget.name]!
-                                    .isValid
-                                ? TextInputAction.done
-                                : TextInputAction.next,
-                        validator: widget.validator,
-                        decoration: widget.decoration,
-                        onChanged: (value) {})),
+                    FocusScope.of(context).nextFocus();
+                  },
+                  textInputAction: widget.formKey.currentState
+                              ?.fields[widget.name]?.isValid ==
+                          null
+                      ? TextInputAction.next
+                      : widget.formKey.currentState!.fields[widget.name]!
+                              .isValid
+                          ? TextInputAction.done
+                          : TextInputAction.next,
+                  validator: widget.validator,
+                  decoration: widget.decoration,
+                )),
                 const SizedBox(
                   width: kDefaultPadding / 2,
                 ),
@@ -156,30 +163,31 @@ class ValidTextFormFieldWithScrollFormBlockState
                     children: [
                       Expanded(
                           child: FormBuilderTextField(
-                              name: widget.name,
-                              focusNode: focusNode,
-                              onEditingComplete: () {
-                                widget.formKey.currentState?.save();
-                                bool? isValid = widget
-                                    .formKey.currentState?.fields[widget.name]
-                                    ?.validate();
+                        name: widget.name,
+                        focusNode: focusNode,
+                        onChanged: widget.onChanged,
+                        onEditingComplete: () {
+                          widget.formKey.currentState?.save();
+                          bool? isValid = widget
+                              .formKey.currentState?.fields[widget.name]
+                              ?.validate();
 
-                                if (isValid == null) return;
-                                if (isValid == false) return;
+                          if (isValid == null) return;
+                          if (isValid == false) return;
 
-                                FocusScope.of(context).nextFocus();
-                              },
-                              textInputAction: widget.formKey.currentState
-                                          ?.fields[widget.name]?.isValid ==
-                                      null
-                                  ? TextInputAction.next
-                                  : widget.formKey.currentState!
-                                          .fields[widget.name]!.isValid
-                                      ? TextInputAction.done
-                                      : TextInputAction.next,
-                              validator: widget.validator,
-                              decoration: widget.decoration,
-                              onChanged: onChanged)),
+                          FocusScope.of(context).nextFocus();
+                        },
+                        textInputAction: widget.formKey.currentState
+                                    ?.fields[widget.name]?.isValid ==
+                                null
+                            ? TextInputAction.next
+                            : widget.formKey.currentState!.fields[widget.name]!
+                                    .isValid
+                                ? TextInputAction.done
+                                : TextInputAction.next,
+                        validator: widget.validator,
+                        decoration: widget.decoration,
+                      )),
                       const SizedBox(
                         width: kDefaultPadding / 2,
                       ),

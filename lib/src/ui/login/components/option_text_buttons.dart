@@ -25,13 +25,14 @@ class OptionTextButtons extends StatelessWidget {
           },
           child: const Text(
             "회원가입",
-            style: TextStyle(fontSize: kSmallFontSize),
+            style: TextStyle(color: kDisableColor, fontSize: kSmallFontSize + 1),
           )),
       TextButton(
           onPressed: () => Navigator.of(context)
               .pushReplacement(MaterialPageRoute(builder: (_) => HomePage())),
           child: const Text("ID 또는 비밀번호 찾기",
-              style: TextStyle(fontSize: kSmallFontSize))),
+              style:
+                  TextStyle(color: kDisableColor, fontSize: kSmallFontSize + 1))),
     ];
 
     return SizedBox(

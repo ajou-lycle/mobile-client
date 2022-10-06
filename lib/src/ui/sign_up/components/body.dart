@@ -18,10 +18,10 @@ class SignUpBody extends StatefulWidget {
 class SignUpBodyState extends State<SignUpBody> {
   late ScrollFormWithKeyboardBloc _scrollFormWithKeyboardBloc;
   late ScrollController _scrollController;
-  final double scrollHeight = (SignUpPageConstant.textFormFieldHeight +
-              SignUpPageConstant.textFormFieldErrorTextHeight) *
-          2 +
-      kDefaultPadding;
+  final double scrollHeight = SignUpPageConstant.textFormFieldHeight * 2+
+      SignUpPageConstant.textFormFieldErrorTextHeight *
+          3 +
+      SignUpPageConstant.submitButtonHeight + kDefaultPadding;
 
   @override
   void initState() {
@@ -64,7 +64,7 @@ class SignUpBodyState extends State<SignUpBody> {
                           isKeyboardVisible:
                               _scrollFormWithKeyboardBloc.isKeyboardVisible),
                       AnimatedContainer(
-                        duration: const Duration(milliseconds: 100),
+                        duration: const Duration(milliseconds: 0),
                         height: _scrollFormWithKeyboardBloc.isKeyboardVisible
                             ? scrollHeight
                             : 0,

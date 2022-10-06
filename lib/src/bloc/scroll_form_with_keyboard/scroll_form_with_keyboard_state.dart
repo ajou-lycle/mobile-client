@@ -8,13 +8,9 @@ class ScrollFormWithKeyboardEmpty extends ScrollFormWithKeyboardState {
 }
 
 class ScrollFormWithKeyboardUpdated extends ScrollFormWithKeyboardState {
-  final double scrollHeight;
-
-  ScrollFormWithKeyboardUpdated({required this.scrollHeight});
-
   @override
   String toString() =>
-      'ScrollFormWithKeyboardUpdatedState { scrollHeight: $scrollHeight }';
+      'ScrollFormWithKeyboardUpdatedState';
 
   @override
   // TODO: implement props
@@ -22,13 +18,9 @@ class ScrollFormWithKeyboardUpdated extends ScrollFormWithKeyboardState {
 }
 
 class ScrollFormWithKeyboardVisible extends ScrollFormWithKeyboardState {
-  final double scrollHeight;
-
-  ScrollFormWithKeyboardVisible({required this.scrollHeight});
-
   @override
   String toString() =>
-      'ScrollFormWithKeyboardVisibleState { scrollHeight: $scrollHeight }';
+      'ScrollFormWithKeyboardVisibleState';
 
   @override
   // TODO: implement props

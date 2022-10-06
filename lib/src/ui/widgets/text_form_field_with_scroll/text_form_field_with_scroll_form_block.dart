@@ -12,6 +12,7 @@ class TextFormFieldWithScrollFormBlock extends StatefulWidget {
   final String? title;
   final String name;
   final String? Function(String?)? validator;
+  final void Function(String? value)? onChanged;
   final double? errorTextFontSize;
   final InputDecoration decoration;
 
@@ -22,6 +23,7 @@ class TextFormFieldWithScrollFormBlock extends StatefulWidget {
     required this.decoration,
     this.title,
     this.validator,
+    this.onChanged,
     this.errorTextFontSize,
   })  : assert((validator != null &&
                 errorTextFontSize != null &&
@@ -38,7 +40,6 @@ class TextFormFieldWithScrollFormBlockState
     extends State<TextFormFieldWithScrollFormBlock> {
   late ScrollFormWithKeyboardBloc _scrollFormWithKeyboardBloc;
   late FocusNode focusNode;
-  void Function(String? value)? onChanged;
 
   void emitScrollEventForShowingButtonWhenKeyboardVisible() {
     if (_scrollFormWithKeyboardBloc.state is ScrollFormWithKeyboardEmpty ||
@@ -57,9 +58,16 @@ class TextFormFieldWithScrollFormBlockState
         return;
       }
 
+      if (length == 2) {
+        _scrollFormWithKeyboardBloc.add(KeyboardVisible());
+        return;
+      }
+
+      if (index == 0) {
+        return;
+      }
       if (index == length - 2 || index == length - 1) {
-        _scrollFormWithKeyboardBloc.add(KeyboardVisible(
-            scrollHeight: _scrollFormWithKeyboardBloc.scrollHeight));
+        _scrollFormWithKeyboardBloc.add(KeyboardVisible());
       }
     }
   }
@@ -97,6 +105,7 @@ class TextFormFieldWithScrollFormBlockState
         ? FormBuilderTextField(
             name: widget.name,
             focusNode: focusNode,
+            onChanged: widget.onChanged,
             onEditingComplete: () {
               widget.formKey.currentState?.save();
               bool? isValid =
@@ -115,7 +124,7 @@ class TextFormFieldWithScrollFormBlockState
                         : TextInputAction.next,
             validator: widget.validator,
             decoration: widget.decoration,
-            onChanged: onChanged)
+          )
         : Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -129,30 +138,32 @@ class TextFormFieldWithScrollFormBlockState
                   height: kDefaultLetterSpacingBetweenTitleAndForm,
                 ),
                 FormBuilderTextField(
-                    name: widget.name,
-                    onEditingComplete: () {
-                      widget.formKey.currentState?.save();
+                  name: widget.name,
+                  focusNode: focusNode,
+                  onChanged: widget.onChanged,
+                  onEditingComplete: () {
+                    widget.formKey.currentState?.save();
 
-                      bool? isValid = widget
-                          .formKey.currentState?.fields[widget.name]
-                          ?.validate();
+                    bool? isValid = widget
+                        .formKey.currentState?.fields[widget.name]
+                        ?.validate();
 
-                      if (isValid == null) return;
-                      if (isValid == false) return;
+                    if (isValid == null) return;
+                    if (isValid == false) return;
 
-                      FocusScope.of(context).nextFocus();
-                    },
-                    textInputAction: widget.formKey.currentState
-                                ?.fields[widget.name]?.isValid ==
-                            null
-                        ? TextInputAction.next
-                        : widget.formKey.currentState!.fields[widget.name]!
-                                .isValid
-                            ? TextInputAction.done
-                            : TextInputAction.next,
-                    validator: widget.validator,
-                    decoration: widget.decoration,
-                    onChanged: onChanged)
+                    FocusScope.of(context).nextFocus();
+                  },
+                  textInputAction: widget.formKey.currentState
+                              ?.fields[widget.name]?.isValid ==
+                          null
+                      ? TextInputAction.next
+                      : widget.formKey.currentState!.fields[widget.name]!
+                              .isValid
+                          ? TextInputAction.done
+                          : TextInputAction.next,
+                  validator: widget.validator,
+                  decoration: widget.decoration,
+                )
               ]);
   }
 }

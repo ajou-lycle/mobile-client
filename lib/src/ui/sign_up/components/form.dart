@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:lycle/src/data/api/user/auth_api.dart';
-
-import '../../../bloc/scroll_form_with_keyboard/scroll_form_with_keyboard_bloc.dart';
 
 import '../../../constants/ui.dart';
+
+import '../../../data/api/certification/auth_api.dart';
+import '../../../data/api/certification/valid_api.dart';
 import '../../../data/repository/user_repository.dart';
-import '../../login/constant.dart';
 import '../../widgets/text_form_field_with_scroll/rounded_text_form_field_with_scroll_form_block.dart';
 import '../../widgets/text_form_field_with_scroll/rounded_valid_text_form_field_with_scroll_form.dart';
+
+import '../constant.dart';
+import '../enum.dart';
 
 class SignUpForm extends StatefulWidget {
   final bool isKeyboardVisible;
@@ -24,73 +24,10 @@ class SignUpForm extends StatefulWidget {
 }
 
 class SignUpFormState extends State<SignUpForm> {
-  late ScrollFormWithKeyboardBloc _scrollFormWithKeyboardBloc;
+  List signUpFormInfoList = SignUpFormInfo.generateInfo();
 
   final _formKey = GlobalKey<FormBuilderState>();
 
-  final String _accountNameField = 'accountName';
-  final String _passwordField = 'password';
-  final String _nicknameField = 'nickname';
-  final String _emailField = 'email';
-  final String _walletAddressField = 'walletAddress';
-
-  final List<Map<String, dynamic>> _fields =
-      List<Map<String, dynamic>>.empty(growable: true);
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    _scrollFormWithKeyboardBloc =
-        BlocProvider.of<ScrollFormWithKeyboardBloc>(context);
-
-    List<String> titles = <String>[
-      "아이디 *",
-      "비밀번호 *",
-      "닉네임 *",
-      "이메일 *",
-      "지갑주소 *",
-    ];
-    List<String> names = <String>[
-      _accountNameField,
-      _passwordField,
-      _nicknameField,
-      _emailField,
-      _walletAddressField
-    ];
-    List<String> errorTexts = <String>[
-      '아이디 입력은 필수입니다.',
-      '비밀번호 입력은 필수입니다.',
-      '닉네임 입력은 필수입니다.',
-      '이메일 입력은 필수입니다.',
-      '지갑주소 입력은 필수입니다.'
-    ];
-    List<String> hintTexts = <String>[
-      '아이디를 입력해주세요',
-      '비밀번호를 입력해주세요',
-      '닉네임을 입력해주세요',
-      '이메일을 입력해주세요',
-      '지갑 주소를 입력해주세요'
-    ];
-    List<bool> needValidList = <bool>[true, false, true, true, true];
-    List<String> validButtonTitles = <String>[
-      '중복확인',
-      '',
-      '중복확인',
-      '중복확인',
-      '중복확인'
-    ];
-    for (int index = 0; index < names.length; index++) {
-      _fields.add({
-        "title": titles[index],
-        "name": names[index],
-        "errorText": errorTexts[index],
-        "hintText": hintTexts[index],
-        "needValid": needValidList[index],
-        "validButtonTitle": validButtonTitles[index]
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,18 +37,25 @@ class SignUpFormState extends State<SignUpForm> {
           key: _formKey,
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            ..._fields.map((field) {
+            ...signUpFormInfoList.map((field) {
               return Column(children: [
                 field['needValid']
                     ? RoundedValidTextFormFieldWithScrollFormBlock(
+                        formKey: _formKey,
                         title: field['title'],
                         name: field['name']!,
+                        validator: field['validator'],
+                        onChanged: (value) {
+                          setState(() {
+                            field['isPassValidation'] = _formKey
+                                .currentState?.fields[field['name']]
+                                ?.validate();
+                          });
+                          return value;
+                        },
                         borderRadius: kDefaultRadius,
-                        formKey: _formKey,
-                        validator: FormBuilderValidators.required(
-                            errorText: field['errorText']),
                         errorTextFontSize:
-                            LoginPageConstant.textFormFieldErrorTextHeight,
+                            SignUpPageConstant.textFormFieldErrorTextHeight,
                         fillColor: Colors.grey[100],
                         hintText: field['hintText'],
                         buttonTitle: field['validButtonTitle'],
@@ -125,20 +69,28 @@ class SignUpFormState extends State<SignUpForm> {
                                 const EdgeInsets.symmetric(
                                     vertical: kDefaultPadding * 1.4,
                                     horizontal: kDefaultPadding * 1.5)),
-                            backgroundColor:
-                                MaterialStateProperty.all(kPrimaryColor),
+                            backgroundColor: field['isPassValidation']
+                                ? MaterialStateProperty.all(kPrimaryColor)
+                                : MaterialStateProperty.all(kDisableColor),
                             foregroundColor:
                                 MaterialStateProperty.all(kPrimaryTextColor)),
                       )
                     : RoundedTextFormFieldWithScrollFormBlock(
                         title: field['title'],
                         name: field['name']!,
+                        validator: field['validator'],
+                        onChanged: (value) {
+                          setState(() {
+                            field['isPassValidation'] = _formKey
+                                .currentState?.fields[field['name']]
+                                ?.validate();
+                          });
+                          return value;
+                        },
                         borderRadius: kDefaultRadius,
                         formKey: _formKey,
-                        validator: FormBuilderValidators.required(
-                            errorText: field['errorText']),
                         errorTextFontSize:
-                            LoginPageConstant.textFormFieldErrorTextHeight,
+                            SignUpPageConstant.textFormFieldErrorTextHeight,
                         fillColor: Colors.grey[100],
                         hintText: field['hintText'],
                       ),
@@ -148,9 +100,8 @@ class SignUpFormState extends State<SignUpForm> {
               ]);
             }).toList(),
             SizedBox(
-                height: LoginPageConstant.submitButtonHeight,
+                height: SignUpPageConstant.submitButtonHeight,
                 child: ElevatedButton(
-                  child: const Text('회원가입'),
                   style: ButtonStyle(
                       backgroundColor: _formKey.currentState == null
                           ? MaterialStateProperty.all(Colors.grey)
@@ -158,31 +109,31 @@ class SignUpFormState extends State<SignUpForm> {
                               ? MaterialStateProperty.all(Colors.green)
                               : MaterialStateProperty.all(Colors.grey)),
                   onPressed: () async {
-                    double scrollHeight =
-                        LoginPageConstant.textFormFieldHeight +
-                            LoginPageConstant.optionTextButtonsHeight;
-
-                    bool? result = _scrollFormWithKeyboardBloc.submit(
-                        _formKey,
-                        LoginPageConstant.textFormFieldErrorTextHeight,
-                        scrollHeight);
-
-                    if (result == null) {
+                    bool? isValid = _formKey.currentState?.validate();
+                    if (isValid == null || !isValid) {
                       return;
                     }
 
-                    if (result) {
-                      UserRepository userRepository =
-                          UserRepository(authApi: AuthApi());
+                    UserRepository userRepository = UserRepository(
+                        authApi: AuthApi(), validApi: ValidApi());
 
-                      final response = await userRepository.login(
+                    final response = await userRepository.signUp(
                         accountName: _formKey
-                            .currentState?.fields[_accountNameField]?.value,
-                        password: _formKey
-                            .currentState?.fields[_passwordField]?.value,
-                      );
-                    }
+                            .currentState
+                            ?.fields[SignUpFormFieldEnum.accountName.name]
+                            ?.value,
+                        password: _formKey.currentState
+                            ?.fields[SignUpFormFieldEnum.password.name]?.value,
+                        nickname: _formKey.currentState
+                            ?.fields[SignUpFormFieldEnum.nickname.name]?.value,
+                        email: _formKey.currentState
+                            ?.fields[SignUpFormFieldEnum.email.name]?.value,
+                        walletAddress: _formKey
+                            .currentState
+                            ?.fields[SignUpFormFieldEnum.walletAddress.name]
+                            ?.value);
                   },
+                  child: const Text('회원가입'),
                 )),
             const SizedBox(
               height: kDefaultPadding,

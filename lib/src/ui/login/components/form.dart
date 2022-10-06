@@ -3,11 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:lycle/src/data/api/user/auth_api.dart';
+import 'package:lycle/src/data/enum/http_status.dart';
 
 import '../../../bloc/scroll_form_with_keyboard/scroll_form_with_keyboard_bloc.dart';
 
 import '../../../constants/ui.dart';
+import '../../../data/api/certification/auth_api.dart';
+import '../../../data/api/certification/valid_api.dart';
 import '../../../data/repository/user_repository.dart';
 import '../../widgets/text_form_field_with_scroll/rounded_text_form_field_with_scroll_form_block.dart';
 import '../constant.dart';
@@ -74,50 +76,43 @@ class LoginFormState extends State<LoginForm> {
                   hintText: field['hintText'],
                 ),
                 const SizedBox(
-                  height: kDefaultPadding,
+                  height: kDefaultPadding + kHalfPadding,
                 ),
               ]);
             }).toList(),
             SizedBox(
                 height: LoginPageConstant.submitButtonHeight,
                 child: ElevatedButton(
-                  child: const Text('로그인'),
                   style: ButtonStyle(
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(kDefaultRadius))),
                       backgroundColor: _formKey.currentState == null
                           ? MaterialStateProperty.all(Colors.grey)
                           : _formKey.currentState!.isValid
                               ? MaterialStateProperty.all(Colors.green)
-                              : MaterialStateProperty.all(Colors.grey)),
+                              : MaterialStateProperty.all(Colors.grey),
+                      elevation:
+                          MaterialStateProperty.all<double>(kDefaultPadding)),
                   onPressed: () async {
-                    double scrollHeight =
-                        LoginPageConstant.textFormFieldHeight +
-                            LoginPageConstant.optionTextButtonsHeight;
+                    bool? isValid = _formKey.currentState?.validate();
 
-                    bool? result = _scrollFormWithKeyboardBloc.submit(
-                        _formKey,
-                        LoginPageConstant.textFormFieldErrorTextHeight,
-                        scrollHeight);
-
-                    if (result == null) {
+                    if (isValid == null || !isValid) {
                       return;
                     }
+                    UserRepository userRepository = UserRepository(
+                        authApi: AuthApi(), validApi: ValidApi());
 
-                    if (result) {
-                      UserRepository userRepository =
-                          UserRepository(authApi: AuthApi());
-
-                      final response = await userRepository.login(
-                        accountName: _formKey
-                            .currentState?.fields[_accountNameField]?.value,
-                        password: _formKey
-                            .currentState?.fields[_passwordField]?.value,
-                      );
-                    }
+                    final response = await userRepository.login(
+                      accountName: _formKey
+                          .currentState?.fields[_accountNameField]?.value,
+                      password:
+                          _formKey.currentState?.fields[_passwordField]?.value,
+                    );
                   },
+                  child: const Text('로그인'),
                 )),
-            const SizedBox(
-              height: kDefaultPadding,
-            ),
           ]),
         ));
   }

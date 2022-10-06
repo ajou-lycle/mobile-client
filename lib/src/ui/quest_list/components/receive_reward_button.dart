@@ -5,7 +5,7 @@ import 'package:lycle/src/bloc/current_quest/current_quest_bloc.dart';
 import 'package:lycle/src/bloc/wallet/wallet_bloc.dart';
 import 'package:lycle/src/bloc/write_contract/write_contract_bloc.dart';
 import 'package:lycle/src/data/enum/quest_data_type.dart';
-import 'package:lycle/src/ui/widgets/transaction_snack_bar.dart';
+import 'package:lycle/src/ui/widgets/snack_bar/transaction_snack_bar.dart';
 import 'package:web3dart/web3dart.dart';
 
 import '../../../bloc/write_contract/write_contract_event.dart';

@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:form_builder_validators/localization/l10n.dart';
 
-import 'ui/home/home.dart';
-import 'ui/login/login.dart';
+import 'ui/loading/loading.dart';
 
 class MyApp extends StatelessWidget {
   MyApp({Key? key}) : super(key: key);
@@ -15,6 +14,6 @@ class MyApp extends StatelessWidget {
         localizationsDelegates: const [
           FormBuilderLocalizations.delegate,
         ],
-        home: LoginPage());
+        home: LoadingPage());
   }
 }

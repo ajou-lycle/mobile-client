@@ -61,6 +61,7 @@ dependencies:
   stream_channel: ^2.1.0
 
   # ui
+  flutter_native_splash: ^2.2.9
   card_swiper: ^2.0.0
   shimmer: ^2.0.0
   flutter_form_builder: ^7.6.0

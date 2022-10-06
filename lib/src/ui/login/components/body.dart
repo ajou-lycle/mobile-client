@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lycle/src/constants/assets.dart';
 
 import '../../../bloc/scroll_form_with_keyboard/scroll_form_with_keyboard_bloc.dart';
 
@@ -35,6 +36,11 @@ class LoginBodyState extends State<LoginBody> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
+
+  @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
@@ -44,9 +50,9 @@ class LoginBodyState extends State<LoginBody> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
 
-    LoginPageConstant.bannerImageSize = size.height * 0.45 -
+    LoginPageConstant.bannerImageSize = size.height * 0.425 -
         (LoginPageConstant.textFormFieldHeight + kDefaultPadding * 2);
-    double topPadding = size.height * 0.05;
+    double topPadding = size.height * 0.075;
 
     return BuilderTextFormFieldWithScrollFormBlock(
         scrollController: _scrollController,
@@ -66,23 +72,21 @@ class LoginBodyState extends State<LoginBody> {
                     children: [
                       Padding(
                           padding: const EdgeInsets.symmetric(
-                              vertical: kDefaultPadding),
+                              vertical: kDefaultPadding * 2),
                           child: Image.asset(
-                            'assets/images/login_banner.jpeg',
+                            loginBannerPng,
                             height: LoginPageConstant.bannerImageSize,
                             width: LoginPageConstant.bannerImageSize,
                           )),
                       LoginForm(
                           isKeyboardVisible:
                               _scrollFormWithKeyboardBloc.isKeyboardVisible),
+                      const SizedBox(height: kDefaultPadding,),
                       const OptionTextButtons(),
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 0),
                         height: _scrollFormWithKeyboardBloc.isKeyboardVisible
-                            ? LoginPageConstant.textFormFieldHeight +
-                                LoginPageConstant.optionTextButtonsHeight +
-                                LoginPageConstant.textFormFieldErrorTextHeight *
-                                    2
+                            ? scrollHeight
                             : 0,
                       )
                     ],

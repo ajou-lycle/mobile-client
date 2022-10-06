@@ -1,0 +1,10 @@
+flutter_native_splash:
+  fullscreen: true
+  color: "#ffffff"
+  image: assets/images/loading_banner.png
+  android: true
+  ios: true
+  ios_content_mode: center
+  info_plist_files:
+    - 'ios/Runner/Info-Debug.plist'
+    - 'ios/Runner/Info-Release.plist'

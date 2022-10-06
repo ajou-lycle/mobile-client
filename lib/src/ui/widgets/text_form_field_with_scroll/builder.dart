@@ -11,12 +11,12 @@ class BuilderTextFormFieldWithScrollFormBlock extends StatefulWidget {
   final ScrollController scrollController;
   final double scrollHeight;
 
-  const BuilderTextFormFieldWithScrollFormBlock({
-    Key? key,
-    required this.child,
-    required this.scrollController,
-    required this.scrollHeight,
-  }) : super(key: key);
+  const BuilderTextFormFieldWithScrollFormBlock(
+      {Key? key,
+      required this.child,
+      required this.scrollController,
+      required this.scrollHeight})
+      : super(key: key);
 
   @override
   State<BuilderTextFormFieldWithScrollFormBlock> createState() =>
@@ -26,6 +26,7 @@ class BuilderTextFormFieldWithScrollFormBlock extends StatefulWidget {
 class BuilderTextFormFieldWithScrollFormBlockState
     extends State<BuilderTextFormFieldWithScrollFormBlock> {
   late ScrollFormWithKeyboardBloc _scrollFormWithKeyboardBloc;
+  bool isInit = false;
 
   void _scroll(double height) {
     _scrollFormWithKeyboardBloc.isOnAnimation = true;
@@ -40,12 +41,20 @@ class BuilderTextFormFieldWithScrollFormBlockState
     super.initState();
     _scrollFormWithKeyboardBloc =
         BlocProvider.of<ScrollFormWithKeyboardBloc>(context);
-    _scrollFormWithKeyboardBloc.init(context, widget.scrollHeight);
+  }
+
+  @override
+  void didChangeDependencies() {
+    if(!isInit) {
+      isInit = true;
+      _scrollFormWithKeyboardBloc.init(context, widget.scrollHeight);
+    }
+    super.didChangeDependencies();
   }
 
   @override
   void dispose() {
-    _scrollFormWithKeyboardBloc.pages.removeLast();
+    _scrollFormWithKeyboardBloc.pageInfoList.removeLast();
     super.dispose();
   }
 
@@ -55,18 +64,23 @@ class BuilderTextFormFieldWithScrollFormBlockState
         child: BlocListener<ScrollFormWithKeyboardBloc,
                 ScrollFormWithKeyboardState>(
             listener: (blocContext, state) {
-              bool isCurrentPage =
-                  context == _scrollFormWithKeyboardBloc.pages.last
-                      ? true
-                      : false;
+              bool isCurrentPage = context ==
+                      _scrollFormWithKeyboardBloc.pageInfoList.last['context']
+                  ? true
+                  : false;
 
               if (!isCurrentPage) {
                 return;
               }
 
+              int index = _scrollFormWithKeyboardBloc.pageInfoList
+                  .indexWhere((element) => element['context'] == context);
+              double scrollHeight = _scrollFormWithKeyboardBloc
+                  .pageInfoList[index]['scrollHeight'];
+
               if (state is ScrollFormWithKeyboardVisible &&
                   !_scrollFormWithKeyboardBloc.isOnAnimation) {
-                _scroll(state.scrollHeight);
+                _scroll(scrollHeight);
               }
             },
             child: widget.child));

@@ -17,7 +17,7 @@ class SignUpPage extends StatelessWidget {
           backButtonOnPressed: () => Navigator.of(context).pop(
                 AnimatedNavigator.defaultNavigator(const LoginPage()),
               )),
-      body: SignUpBody(),
+      body: const SignUpBody(),
     );
   }
 }

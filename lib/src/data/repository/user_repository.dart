@@ -1,14 +1,16 @@
 import 'package:dio/dio.dart';
 
-import '../api/user/auth_api.dart';
+import '../api/certification/auth_api.dart';
+import '../api/certification/valid_api.dart';
 import '../enum/http_status.dart';
 import '../model/user.dart';
 
 class UserRepository {
   final AuthApi authApi;
+  final ValidApi validApi;
   User? user;
 
-  UserRepository({required this.authApi});
+  UserRepository({required this.authApi, required this.validApi});
 
   Future<HttpStatusEnum> login(
       {required String accountName, required String password}) async {
@@ -24,10 +26,8 @@ class UserRepository {
       return HttpStatusEnum.Unknown;
     }
 
-    print(response.data);
     try {
       user = User.fromJson(response.data);
-      print(user.toString());
     } catch (e) {
       print(e);
     }
@@ -36,13 +36,20 @@ class UserRepository {
   }
 
   Future<Map<String, dynamic>> signUp(
-      {required String accountName, required String password}) async {
+      {required String accountName,
+      required String password,
+      required String nickname,
+      required String email,
+      required String walletAddress}) async {
     Map<String, dynamic> data = {
       'accountName': accountName,
-      'password': password
+      'password': password,
+      'nickname': nickname,
+      'email': email,
+      'walletAddress': walletAddress
     };
 
-    final Response? response = await authApi.login(data);
+    final Response? response = await authApi.signUp(data);
 
     if (response == null) {
       // TODO: Application error, application restart.

@@ -3,15 +3,11 @@ import 'package:equatable/equatable.dart';
 abstract class ScrollFormWithKeyboardEvent extends Equatable {}
 
 class KeyboardVisible extends ScrollFormWithKeyboardEvent {
-  final double scrollHeight;
-
-  KeyboardVisible({required this.scrollHeight});
+  @override
+  String toString() => 'KeyboardVisible';
 
   @override
-  String toString() => 'KeyboardVisible { scrollHeight: $scrollHeight }';
-
-  @override
-  List<Object?> get props => [scrollHeight];
+  List<Object?> get props => [];
 }
 
 class KeyboardUnVisible extends ScrollFormWithKeyboardEvent {

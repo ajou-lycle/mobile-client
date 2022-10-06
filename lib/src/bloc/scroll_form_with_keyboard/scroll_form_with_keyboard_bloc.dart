@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
+
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
 import 'scroll_form_with_keyboard_event.dart';
@@ -10,7 +10,7 @@ import 'scroll_form_with_keyboard_state.dart';
 
 class ScrollFormWithKeyboardBloc
     extends Bloc<ScrollFormWithKeyboardEvent, ScrollFormWithKeyboardState> {
-  final List<BuildContext> pages = List<BuildContext>.empty(growable: true);
+  final List<Map<String, dynamic>> pageInfoList = List<Map<String, dynamic>>.empty(growable: true);
 
   double scrollHeight = 0;
   bool isKeyboardVisible = false;
@@ -25,45 +25,19 @@ class ScrollFormWithKeyboardBloc
 
   ScrollFormWithKeyboardState get initialState => ScrollFormWithKeyboardEmpty();
 
-  void init(
-    BuildContext context,
-    double scrollHeight,
-  ) {
-    pages.add(context);
-    this.scrollHeight = scrollHeight;
+  void init(BuildContext context, double scrollHeight) {
+    Map<String, dynamic> data = {
+      'context': context,
+      'scrollHeight': scrollHeight
+    };
+    pageInfoList.add(data);
+    print(data);
     var keyboardVisibilityController = KeyboardVisibilityController();
 
     keyboardSubscription =
         keyboardVisibilityController.onChange.listen((bool visible) {
       isKeyboardVisible = visible;
     });
-  }
-
-  bool? submit(GlobalKey<FormBuilderState> formKey, double errorHeight,
-      double scrollHeight) {
-    if (formKey.currentState == null) {
-      return null;
-    }
-
-    FocusScope.of(formKey.currentContext!).unfocus();
-
-    if (formKey.currentState!.validate()) {
-      return true;
-    } else {
-      double height = 0;
-
-      formKey.currentState?.fields.forEach((key, value) {
-        if (!value.isValid) {
-          height += errorHeight;
-        }
-      });
-
-      if (state is ScrollFormWithKeyboardVisible) {
-        height += scrollHeight;
-      }
-
-      return false;
-    }
   }
 
   @override
@@ -75,13 +49,11 @@ class ScrollFormWithKeyboardBloc
   Future<void> _mapKeyboardVisibleToState(
       KeyboardVisible event, Emitter<ScrollFormWithKeyboardState> emit) async {
     try {
-      double scrollHeight = event.scrollHeight;
-
       if (state is ScrollFormWithKeyboardVisible) {
-        emit(ScrollFormWithKeyboardUpdated(scrollHeight: scrollHeight));
+        emit(ScrollFormWithKeyboardUpdated());
       }
 
-      emit(ScrollFormWithKeyboardVisible(scrollHeight: scrollHeight));
+      emit(ScrollFormWithKeyboardVisible());
     } catch (e) {
       emit(ScrollFormWithKeyboardError(error: "visible error"));
     }

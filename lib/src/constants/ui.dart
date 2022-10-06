@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 // Color
 const Color kPrimaryColor = Colors.green;
+const Color kDisableColor = Colors.grey;
 
 // Text
 const kPrimaryTextColor = Colors.white;
@@ -11,6 +12,7 @@ const kSmallFontSize = 12.0;
 // padding
 const kDefaultPadding = 16.0;
 const kLargePadding = 32.0;
+const kHalfPadding = 8.0;
 
 // radius
 const kDefaultRadius = 16.0;

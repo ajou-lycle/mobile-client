@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lycle/src/ui/widgets/transaction_snack_bar.dart';
+import 'package:lycle/src/ui/widgets/snack_bar/transaction_snack_bar.dart';
 
 import 'component/body.dart';
 

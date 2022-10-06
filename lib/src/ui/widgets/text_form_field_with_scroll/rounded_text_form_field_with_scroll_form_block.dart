@@ -9,6 +9,7 @@ class RoundedTextFormFieldWithScrollFormBlock extends StatefulWidget {
   final String? title;
   final String name;
   final String? Function(String?)? validator;
+  final String? Function(String?)? onChanged;
   final double? errorTextFontSize;
   final double borderRadius;
   final Color? fillColor;
@@ -21,6 +22,7 @@ class RoundedTextFormFieldWithScrollFormBlock extends StatefulWidget {
       required this.borderRadius,
       this.title,
       this.validator,
+      this.onChanged,
       this.errorTextFontSize,
       this.fillColor,
       this.hintText})
@@ -44,6 +46,7 @@ class RoundedTextFormFieldWithScrollFormBlockState
         title: widget.title,
         name: widget.name,
         validator: widget.validator,
+        onChanged: widget.onChanged,
         errorTextFontSize: widget.errorTextFontSize,
         decoration: InputDecoration(
           border: OutlineInputBorder(

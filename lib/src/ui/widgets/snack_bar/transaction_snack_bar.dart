@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lycle/src/bloc/wallet/wallet_bloc.dart';
 
-import '../../bloc/wallet/wallet_event.dart';
-import '../../bloc/write_contract/write_contract_bloc.dart';
-import '../../bloc/write_contract/write_contract_state.dart';
-import '../../constants/ui.dart';
+import '../../../bloc/wallet/wallet_event.dart';
+import '../../../bloc/write_contract/write_contract_bloc.dart';
+import '../../../bloc/write_contract/write_contract_state.dart';
+import '../../../constants/ui.dart';
 
 class TransactionSnackBar extends StatefulWidget {
-  Widget child;
+  final Widget child;
 
-  TransactionSnackBar({required this.child});
+  const TransactionSnackBar({Key? key, required this.child}) : super(key: key);
 
   @override
   State<TransactionSnackBar> createState() => TransactionSnackBarState();
@@ -44,7 +44,7 @@ class TransactionSnackBarState extends State<TransactionSnackBar> {
               ScaffoldMessenger.of(context)
                   .showSnackBar(SnackBar(
                       content: Row(
-                    children: [
+                    children: const [
                       CircularProgressIndicator(),
                       Text("요청을 처리 중입니다.")
                     ],
@@ -58,7 +58,7 @@ class TransactionSnackBarState extends State<TransactionSnackBar> {
               ScaffoldMessenger.of(context)
                   .showSnackBar(SnackBar(
                       content: Row(
-                    children: [
+                    children: const [
                       Icon(
                         Icons.check_circle_rounded,
                         color: Colors.green,
@@ -75,7 +75,7 @@ class TransactionSnackBarState extends State<TransactionSnackBar> {
               ScaffoldMessenger.of(context)
                   .showSnackBar(SnackBar(
                       content: Row(
-                    children: [
+                    children: const [
                       Icon(
                         Icons.close_rounded,
                         color: Colors.red,
