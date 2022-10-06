@@ -23,7 +23,7 @@ class LoadingPageState extends State<LoadingPage> {
       FlutterNativeSplash.remove();
       sloganAnimation();
     });
-    precacheImage(const AssetImage(loginBannerPng), context);
+    // precacheImage(const AssetImage(loginBannerPng), context);
   }
 
   Future<void> sloganAnimation() async {

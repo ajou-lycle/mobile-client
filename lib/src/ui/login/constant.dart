@@ -7,5 +7,5 @@ class LoginPageConstant {
   static const double loginFormHeight =
       textFormFieldHeight * 2 + submitButtonHeight + kDefaultPadding * 4;
   static const double optionTextButtonsHeight = 44;
-  static late double bannerImageSize;
+  static double? bannerImageSize;
 }

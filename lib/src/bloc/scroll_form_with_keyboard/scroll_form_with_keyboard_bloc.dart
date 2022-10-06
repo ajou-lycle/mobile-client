@@ -31,7 +31,7 @@ class ScrollFormWithKeyboardBloc
       'scrollHeight': scrollHeight
     };
     pageInfoList.add(data);
-    print(data);
+
     var keyboardVisibilityController = KeyboardVisibilityController();
 
     keyboardSubscription =

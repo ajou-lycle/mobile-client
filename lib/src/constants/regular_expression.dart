@@ -1,15 +1,16 @@
-/// Regular expression for matching id.
+/// Regular expression for matching account name.
 ///
 /// Only valid when input has numbers or letters.
 /// The length of id is above 3 or below 20.
-const String idMatch = r"^[0-9a-zA-Z]{3,20}$";
+const String accountNameMatch = r"^[0-9a-zA-Z]{3,20}$";
 
 /// Regular expression for matching password.
 ///
 /// Only valid when input has a small letter, a capital letter, special characters and a number.
 /// They must exist at least 1 in the input.
 /// The length of password is above 8.
-const String passwordMatch = r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?~^<>,.&+=])[A-Za-z\d$@$!%*#?~^<>,.&+=]{8,15}$";
+const String passwordMatch =
+    r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,15}";
 
 /// Regular expression for matching nickname.
 ///

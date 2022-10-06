@@ -10,7 +10,8 @@ class ValidRepository {
 
   ValidRepository({required this.validApi});
 
-  Future<HttpStatusEnum> accountNameExists(String accountName) async {
+  Future<HttpStatusEnum> accountNameExists(
+      String accountName, int index) async {
     Map<String, dynamic> data = {'accountName': accountName};
 
     final Response? response = await validApi.accountNameExists(data);
@@ -21,7 +22,7 @@ class ValidRepository {
     }
 
     try {
-      valid.isPassAccountName = response.data;
+      valid.isPassList[index] = !response.data['result'];
     } catch (e) {
       print(e);
     }
@@ -29,7 +30,7 @@ class ValidRepository {
     return HttpStatusEnum.getByCode(response.statusCode!);
   }
 
-  Future<HttpStatusEnum> nicknameExists(String nickname) async {
+  Future<HttpStatusEnum> nicknameExists(String nickname, int index) async {
     Map<String, dynamic> data = {'nickname': nickname};
 
     final Response? response = await validApi.nicknameExists(data);
@@ -40,7 +41,7 @@ class ValidRepository {
     }
 
     try {
-      valid.isPassNickname = response.data;
+      valid.isPassList[index] = !response.data['result'];
     } catch (e) {
       print(e);
     }
@@ -48,7 +49,8 @@ class ValidRepository {
     return HttpStatusEnum.getByCode(response.statusCode!);
   }
 
-  Future<HttpStatusEnum> walletAddressExists(String walletAddress) async {
+  Future<HttpStatusEnum> walletAddressExists(
+      String walletAddress, int index) async {
     Map<String, dynamic> data = {'walletAddress': walletAddress};
 
     final Response? response = await validApi.walletAddressExists(data);
@@ -59,7 +61,7 @@ class ValidRepository {
     }
 
     try {
-      valid.isPassWalletAddress = response.data;
+      valid.isPassList[index] = !response.data['result'];
     } catch (e) {
       print(e);
     }
@@ -67,7 +69,7 @@ class ValidRepository {
     return HttpStatusEnum.getByCode(response.statusCode!);
   }
 
-  Future<HttpStatusEnum> emailSend(String email) async {
+  Future<HttpStatusEnum> emailSend(String email, int index) async {
     Map<String, dynamic> data = {'email': email};
 
     final Response? response = await validApi.emailSend(data);
@@ -77,40 +79,16 @@ class ValidRepository {
       return HttpStatusEnum.Unknown;
     }
 
-    if (response.data.runtimeType is bool) {
-      try {
-        valid.isSendEmail = response.data;
-      } catch (e) {
-        print(e);
-      }
+    try {
+      valid.isPassList[index] = response.data['result'];
+    } catch (e) {
+      print(e);
     }
 
     return HttpStatusEnum.getByCode(response.statusCode!);
   }
 
-  // 머하는 거죠?
-  Future<HttpStatusEnum> emailConfirm(String email) async {
-    Map<String, dynamic> data = {'email': email};
-
-    final Response? response = await validApi.emailConfirm(data);
-
-    if (response == null) {
-      // TODO: Application error, application restart.
-      return HttpStatusEnum.Unknown;
-    }
-
-    if (response.data.runtimeType is bool) {
-      try {
-        valid.isPassEmail = response.data;
-      } catch (e) {
-        print(e);
-      }
-    }
-
-    return HttpStatusEnum.getByCode(response.statusCode!);
-  }
-
-  Future<HttpStatusEnum> emailCheck(String email) async {
+  Future<HttpStatusEnum> emailCheck(String email, int index) async {
     Map<String, dynamic> data = {'email': email};
 
     final Response? response = await validApi.emailCheck(data);
@@ -120,8 +98,10 @@ class ValidRepository {
       return HttpStatusEnum.Unknown;
     }
 
+    print(response);
+
     try {
-      valid.isPassEmail = response.data;
+      valid.isPassList[index] = response.data['result'];
     } catch (e) {
       print(e);
     }

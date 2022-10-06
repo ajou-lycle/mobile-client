@@ -126,6 +126,7 @@ class TextFormFieldWithScrollFormBlockState
             decoration: widget.decoration,
           )
         : Column(
+            mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

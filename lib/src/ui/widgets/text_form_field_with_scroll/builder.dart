@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
 import '../../../bloc/scroll_form_with_keyboard/scroll_form_with_keyboard_bloc.dart';
 
@@ -45,7 +44,7 @@ class BuilderTextFormFieldWithScrollFormBlockState
 
   @override
   void didChangeDependencies() {
-    if(!isInit) {
+    if (!isInit) {
       isInit = true;
       _scrollFormWithKeyboardBloc.init(context, widget.scrollHeight);
     }
@@ -60,29 +59,28 @@ class BuilderTextFormFieldWithScrollFormBlockState
 
   @override
   Widget build(BuildContext context) {
-    return KeyboardDismissOnTap(
-        child: BlocListener<ScrollFormWithKeyboardBloc,
-                ScrollFormWithKeyboardState>(
-            listener: (blocContext, state) {
-              bool isCurrentPage = context ==
-                      _scrollFormWithKeyboardBloc.pageInfoList.last['context']
-                  ? true
-                  : false;
+    return BlocListener<ScrollFormWithKeyboardBloc,
+            ScrollFormWithKeyboardState>(
+        listener: (blocContext, state) {
+          bool isCurrentPage = context ==
+                  _scrollFormWithKeyboardBloc.pageInfoList.last['context']
+              ? true
+              : false;
 
-              if (!isCurrentPage) {
-                return;
-              }
+          if (!isCurrentPage) {
+            return;
+          }
 
-              int index = _scrollFormWithKeyboardBloc.pageInfoList
-                  .indexWhere((element) => element['context'] == context);
-              double scrollHeight = _scrollFormWithKeyboardBloc
-                  .pageInfoList[index]['scrollHeight'];
+          int index = _scrollFormWithKeyboardBloc.pageInfoList
+              .indexWhere((element) => element['context'] == context);
+          double scrollHeight =
+              _scrollFormWithKeyboardBloc.pageInfoList[index]['scrollHeight'];
 
-              if (state is ScrollFormWithKeyboardVisible &&
-                  !_scrollFormWithKeyboardBloc.isOnAnimation) {
-                _scroll(scrollHeight);
-              }
-            },
-            child: widget.child));
+          if (state is ScrollFormWithKeyboardVisible &&
+              !_scrollFormWithKeyboardBloc.isOnAnimation) {
+            _scroll(scrollHeight);
+          }
+        },
+        child: widget.child);
   }
 }

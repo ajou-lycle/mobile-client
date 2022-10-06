@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
 import 'package:form_builder_validators/localization/l10n.dart';
 
@@ -9,11 +10,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        localizationsDelegates: const [
-          FormBuilderLocalizations.delegate,
-        ],
-        home: LoadingPage());
+    return const KeyboardDismissOnTap(
+        child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            localizationsDelegates: [
+              FormBuilderLocalizations.delegate,
+            ],
+            home: LoadingPage()));
   }
 }
