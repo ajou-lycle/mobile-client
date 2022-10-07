@@ -14,15 +14,17 @@ class SnackBarEmpty extends SnackBarState {
 
 class SnackBarShow extends SnackBarState {
   final List<Widget> children;
+  final void Function()? closedCallback;
 
-  SnackBarShow({required this.children});
+  SnackBarShow({required this.children, this.closedCallback});
 
   @override
-  String toString() => 'SnackBarShow { children : $children }';
+  String toString() =>
+      'SnackBarShow { children : $children, closedCallback : $closedCallback }';
 
   @override
   // TODO: implement props
-  List<Object?> get props => [];
+  List<Object?> get props => [children, closedCallback];
 }
 
 class SnackBarUpdated extends SnackBarState {

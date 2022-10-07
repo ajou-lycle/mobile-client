@@ -4,6 +4,13 @@ import 'package:web3dart/credentials.dart';
 
 abstract class WalletEvent extends Equatable {}
 
+class EmptyWallet extends WalletEvent {
+  @override
+  String toString() => 'EmptyWallet';
+
+  @override
+  List<Object?> get props => [];
+}
 class ConnectWallet extends WalletEvent {
   final EthereumAddress? walletAddress;
 

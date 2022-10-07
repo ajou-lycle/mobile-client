@@ -5,14 +5,16 @@ abstract class SnackBarEvent extends Equatable {}
 
 class ShowSnackBar extends SnackBarEvent {
   final List<Widget> children;
+  final void Function()? closedCallback;
 
-  ShowSnackBar({required this.children});
-
-  @override
-  String toString() => 'ShowSnackBar { children : $children }';
+  ShowSnackBar({required this.children, this.closedCallback});
 
   @override
-  List<Object?> get props => [];
+  String toString() =>
+      'ShowSnackBar { children : $children, closedCallback $closedCallback }';
+
+  @override
+  List<Object?> get props => [children, closedCallback];
 }
 
 class HideSnackBar extends SnackBarEvent {

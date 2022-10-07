@@ -31,13 +31,18 @@ class SignUpInfoSubmitButtonState extends State<SignUpInfoSubmitButton> {
           content: const Text("로그인 하시겠습니까?"),
           actions: [
             TextButton(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () {
+                  isDialogShowing = false;
+                  Navigator.of(context).pop();
+                },
                 child: const Text(
                   "취소",
                 )),
             TextButton(
-                onPressed: () =>
-                    Navigator.of(context).popUntil((route) => route.isFirst),
+                onPressed: () {
+                  isDialogShowing = false;
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                },
                 child: const Text(
                   "로그인하러 가기",
                   style: TextStyle(fontWeight: FontWeight.bold),

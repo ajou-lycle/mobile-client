@@ -7,6 +7,7 @@ import 'package:walletconnect_dart/walletconnect_dart.dart';
 
 import '../../data/repository/web3_repository.dart';
 
+import 'wallet_error.dart';
 import 'wallet_event.dart';
 import 'wallet_state.dart';
 
@@ -15,6 +16,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
 
   WalletBloc({required this.web3Repository}) : super(WalletEmpty()) {
     subscribeConnectorEvent();
+    on<EmptyWallet>(_mapEmptyWalletToState);
     on<ConnectWallet>(_mapConnectWalletToState);
     on<UpdateWallet>(_mapUpdateWalletToState);
     on<UpdateSessionWallet>(_mapUpdateSessionWalletToState);
@@ -23,6 +25,10 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
   }
 
   WalletState get initialState => WalletEmpty();
+
+  void _mapEmptyWalletToState(EmptyWallet event, Emitter<WalletState> emit) {
+    emit(WalletEmpty());
+  }
 
   Future<void> _mapConnectWalletToState(
       ConnectWallet event, Emitter<WalletState> emit) async {
@@ -37,13 +43,13 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
         }
       }
 
-      if (web3Repository.connector.connected) {
+      if (web3Repository.wallet.address != null) {
         emit(WalletConnected(wallet: web3Repository.wallet));
       } else {
-        emit(WalletEmpty());
+        emit(WalletError(error: WalletErrorEnum.notConnected.errorMessage));
       }
     } catch (e) {
-      emit(WalletError(error: "connect error"));
+      emit(WalletError(error: WalletErrorEnum.notConnected.errorMessage));
     }
   }
 
@@ -62,7 +68,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
         emit(WalletEmpty());
       }
     } catch (e) {
-      emit(WalletError(error: "update error"));
+      emit(WalletError(error: WalletErrorEnum.notUpdated.errorMessage));
     }
   }
 
@@ -79,10 +85,10 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
       if (web3Repository.connector.connected) {
         emit(WalletConnected(wallet: web3Repository.wallet));
       } else {
-        emit(WalletEmpty());
+        emit(WalletError(error: WalletErrorEnum.notUpdated.errorMessage));
       }
     } catch (e) {
-      emit(WalletError(error: "update error"));
+      emit(WalletError(error: WalletErrorEnum.notUpdated.errorMessage));
     }
   }
 
@@ -91,13 +97,13 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     try {
       emit(WalletDisconnected());
     } catch (e) {
-      emit(WalletError(error: "disconnected error"));
+      emit(WalletError(error: WalletErrorEnum.notDisconnected.errorMessage));
     }
   }
 
   Future<void> _mapErrorWalletToState(
       ErrorWallet event, Emitter<WalletState> emit) async {
-    emit(WalletError(error: "wallet error"));
+    emit(WalletError(error: event.error));
   }
 
   void subscribeConnectorEvent() {

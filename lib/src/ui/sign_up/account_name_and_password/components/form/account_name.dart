@@ -158,6 +158,7 @@ class SignUpAccountNameFormState extends State<SignUpAccountNameForm> {
                   padding: MaterialStateProperty.all(const EdgeInsets.symmetric(
                       vertical: kDefaultPadding * 1.4,
                       horizontal: kDefaultPadding * 1.5)),
+                  elevation: MaterialStateProperty.all(kSecondButtonElevation),
                   backgroundColor: MaterialStateProperty.all(_isDone
                       ? kSecondButtonDoneBackgroundColor
                       : kSecondButtonValidBackgroundColor),

@@ -66,6 +66,7 @@ class Web3ApiClient {
 
     assert(
         _ownAddress != null, AssertionError("The private key must be correct"));
+    print(_ownAddress);
   }
 
   /// Get abi.

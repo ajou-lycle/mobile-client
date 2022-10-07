@@ -16,17 +16,17 @@ class SnackBarBloc extends Bloc<SnackBarEvent, SnackBarState> {
 
   SnackBarState get initialState => SnackBarEmpty();
 
-  void showLoadingSnackBar(String text) {
+  void showLoadingSnackBar(String text, {void Function()? closedCallback}) {
     add(ShowSnackBar(children: <Widget>[
       const CircularProgressIndicator(),
       const SizedBox(
         width: kDefaultPadding,
       ),
       Text(text)
-    ]));
+    ], closedCallback: closedCallback));
   }
 
-  void  showSuccessSnackBar(String text) {
+  void showSuccessSnackBar(String text, {void Function()? closedCallback}) {
     add(ShowSnackBar(children: <Widget>[
       const Icon(
         Icons.check_circle_rounded,
@@ -36,10 +36,10 @@ class SnackBarBloc extends Bloc<SnackBarEvent, SnackBarState> {
         width: kDefaultPadding,
       ),
       Text(text)
-    ]));
+    ], closedCallback: closedCallback));
   }
 
-  void showErrorSnackBar(String text) {
+  void showErrorSnackBar(String text, {void Function()? closedCallback}) {
     add(ShowSnackBar(children: <Widget>[
       const Icon(
         Icons.close_rounded,
@@ -49,14 +49,15 @@ class SnackBarBloc extends Bloc<SnackBarEvent, SnackBarState> {
         width: kDefaultPadding,
       ),
       Text(text)
-    ]));
+    ], closedCallback: closedCallback));
   }
 
   Future<void> _mapShowSnackBarToState(
       ShowSnackBar event, Emitter<SnackBarState> emit) async {
     try {
       emit(SnackBarUpdated(children: event.children));
-      emit(SnackBarShow(children: event.children));
+      emit(SnackBarShow(
+          children: event.children, closedCallback: event.closedCallback));
     } catch (e) {
       emit(SnackBarError(error: "show snack bar error"));
     }

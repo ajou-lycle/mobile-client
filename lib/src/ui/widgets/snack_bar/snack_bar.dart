@@ -43,6 +43,9 @@ class SnackBarBuilderState extends State<SnackBarBuilder> {
                 .then((value) {
               isSnackbarActive = false;
               widget.snackBarBloc.add(HideSnackBar());
+              if(state.closedCallback != null) {
+                state.closedCallback!();
+              }
             });
           }
         },

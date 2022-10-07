@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:walletconnect_dart/walletconnect_dart.dart';
 import 'package:web3dart/credentials.dart';
@@ -17,7 +18,7 @@ class Web3Repository {
       // This contains optional metadata about the client
       clientMeta: const PeerMeta(
           // Name of the application
-          name: 'Lycle',
+          name: 'WalletConnect',
           // A small description of the application
           description:
               'An app for keep health by receiving token when health quest completed',
@@ -27,6 +28,7 @@ class Web3Repository {
           icons: [
             'https://gblobscdn.gitbook.com/spaces%2F-LJJeCjcLrr53DcT1Ml7%2Favatar.png?alt=media'
           ]));
+  bool isCreateSession = false;
 
   Web3Repository._internal({required this.web3apiClient});
 
@@ -37,13 +39,36 @@ class Web3Repository {
     try {
       await web3apiClient.init();
 
+      connector.on('connect', (session) => print("session $session"));
+      connector.on('session_update', (payload) => print("payload $payload"));
+      connector.on('disconnect', (session) => print("session dis $session"));
+
       if (!connector.connected) {
-        try {
-          await connector.updateSession(await connector.createSession(onDisplayUri: (uri) async {
-            await launchUrlString(uri, mode: LaunchMode.externalApplication);
-          }));
-        } catch (exp) {
-          print(exp);
+        if (!isCreateSession) {
+          try {
+            final session = await connector.createSession(
+                chainId: 3,
+                onDisplayUri: (uri) async {
+                  await launchUrl(Uri.parse(uri),
+                      mode: LaunchMode.externalApplication);
+                });
+          } catch (exp) {
+            print("error ${exp}");
+          }
+          isCreateSession = true;
+        } else {
+          try {
+            connector.session.reset();
+
+            final session = await connector.createSession(
+                chainId: 3,
+                onDisplayUri: (uri) async {
+                  await launchUrl(Uri.parse(uri),
+                      mode: LaunchMode.externalApplication);
+                });
+          } catch (exp) {
+            print("error ${exp}");
+          }
         }
       }
 
@@ -60,8 +85,12 @@ class Web3Repository {
     UserWallet wallet = UserWallet();
 
     wallet.address = address;
-    wallet.ethereumBalance =
-        await web3apiClient.client.getBalance(wallet.address!);
+    print(await web3apiClient.client.getBlockNumber());
+    // final result =
+    // wallet.ethereumBalance =
+    await web3apiClient.client.getBalance(address);
+
+    // print("balance $result");
     await balanceOf(wallet);
 
     return wallet;
@@ -109,6 +138,7 @@ class Web3Repository {
 
   Future<void> balanceOf(UserWallet wallet) async {
     try {
+      print("here");
       final List result = await web3apiClient.balanceOf(wallet.address!);
 
       if (result.isNotEmpty) {
