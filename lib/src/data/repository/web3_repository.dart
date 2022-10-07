@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:lycle/src/data/enum/ethereum_network.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:walletconnect_dart/walletconnect_dart.dart';
@@ -39,15 +40,11 @@ class Web3Repository {
     try {
       await web3apiClient.init();
 
-      connector.on('connect', (session) => print("session $session"));
-      connector.on('session_update', (payload) => print("payload $payload"));
-      connector.on('disconnect', (session) => print("session dis $session"));
-
       if (!connector.connected) {
         if (!isCreateSession) {
           try {
             final session = await connector.createSession(
-                chainId: 3,
+                chainId: EthereumNetworkType.goreliTestnet.networkId,
                 onDisplayUri: (uri) async {
                   await launchUrl(Uri.parse(uri),
                       mode: LaunchMode.externalApplication);
@@ -85,12 +82,9 @@ class Web3Repository {
     UserWallet wallet = UserWallet();
 
     wallet.address = address;
-    print(await web3apiClient.client.getBlockNumber());
-    // final result =
-    // wallet.ethereumBalance =
-    await web3apiClient.client.getBalance(address);
 
-    // print("balance $result");
+    wallet.ethereumBalance = await web3apiClient.client.getBalance(address);
+
     await balanceOf(wallet);
 
     return wallet;
@@ -138,7 +132,6 @@ class Web3Repository {
 
   Future<void> balanceOf(UserWallet wallet) async {
     try {
-      print("here");
       final List result = await web3apiClient.balanceOf(wallet.address!);
 
       if (result.isNotEmpty) {

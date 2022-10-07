@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../bloc/snack_bar/snack_bar_bloc.dart';
-import '../../../bloc/valid_form/valid_form_bloc.dart';
 import '../../../constants/ui.dart';
-import '../../animations/animated_navigator.dart';
-import '../../home/home.dart';
-import '../../sign_up/account_name_and_password/account_name_and_password.dart';
+import '../../../routes/routes_enum.dart';
 import '../../widgets/row_widget_list_with_divider.dart';
 import '../constant.dart';
 
@@ -21,11 +16,8 @@ class OptionTextButtons extends StatelessWidget {
       TextButton(
           onPressed: () {
             FocusScope.of(context).unfocus();
-            Navigator.of(context).push(AnimatedNavigator.defaultNavigator(
-                MultiBlocProvider(providers: [
-              BlocProvider(create: (context) => ValidFormBloc()),
-              BlocProvider(create: (context) => SnackBarBloc())
-            ], child: const SignUpAccountNameAndPasswordPage())));
+            Navigator.of(context)
+                .pushNamed(PageRoutes.signUpAccountNameAndPassword.routeName);
           },
           child: const Text(
             "회원가입",
@@ -34,7 +26,7 @@ class OptionTextButtons extends StatelessWidget {
           )),
       TextButton(
           onPressed: () => Navigator.of(context)
-              .pushReplacement(MaterialPageRoute(builder: (_) => HomePage())),
+              .pushReplacementNamed(PageRoutes.home.routeName),
           child: const Text("ID 또는 비밀번호 찾기",
               style: TextStyle(
                   color: kDisableColor, fontSize: kSmallFontSize + 1))),

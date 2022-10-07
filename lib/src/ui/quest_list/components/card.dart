@@ -8,6 +8,7 @@ import 'package:lycle/src/ui/quest_list/components/achieve_bar.dart';
 
 import '../../../bloc/quest/quest_bloc.dart';
 import '../../../data/model/quest.dart';
+import '../../../routes/routes_enum.dart';
 import '../../quest_detail/quest_detail.dart';
 
 class QuestListCard extends StatefulWidget {
@@ -41,12 +42,9 @@ class QuestListCardState extends State<QuestListCard> {
               return Column(
                 children: [
                   OutlinedButton(
-                      onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => QuestDetailPage(
-                                    index: index,
-                                  ))),
+                      onPressed: () => Navigator.pushNamed(
+                          context, PageRoutes.questDetail.routeName,
+                          arguments: QuestDetailArguments(index: index)),
                       child: Text(quest.category)),
                   AchieveBar(quest: quest)
                 ],

@@ -15,7 +15,7 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
   final List<Widget> _widgetOptions = <Widget>[
-    NFTCardListPage(),
+    NftCardListPage(),
     QuestListPage(),
     Container()
   ];

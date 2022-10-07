@@ -1,8 +1,9 @@
 enum EthereumNetworkType {
   unknownChain(0, 'Unknown Chain'),
   ethereumMainnet(1, 'Ethereum Mainnet'),
-  ropstenTestnet(3, 'Ropsten Testnet'),
-  rinkebyTestnet(4, 'Rinkeby Testnet'),
+  // deprecated
+  // ropstenTestnet(3, 'Ropsten Testnet'),
+  // rinkebyTestnet(4, 'Rinkeby Testnet'),
   goreliTestnet(5, 'Goreli Testnet');
 
   final int networkId;

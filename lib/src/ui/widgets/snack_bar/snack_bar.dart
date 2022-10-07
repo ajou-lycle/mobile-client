@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lycle/src/bloc/snack_bar/snack_bar_event.dart';
 
 import '../../../bloc/snack_bar/snack_bar_bloc.dart';
+import '../../../bloc/snack_bar/snack_bar_event.dart';
 import '../../../bloc/snack_bar/snack_bar_state.dart';
 import '../../../constants/ui.dart';
+import '../../../utils/context_extension.dart';
 
 class SnackBarBuilder extends StatefulWidget {
   final SnackBarBloc snackBarBloc;
@@ -26,10 +27,15 @@ class SnackBarBuilderState extends State<SnackBarBuilder> {
     return BlocListener<SnackBarBloc, SnackBarState>(
         bloc: widget.snackBarBloc,
         listener: (context, state) {
+          if (context.isDeprecated()) {
+            return;
+          }
           if (state is SnackBarShow) {
             if (!isSnackbarActive) {
               ScaffoldMessenger.of(context).hideCurrentSnackBar();
-              HideSnackBar();
+              if (!widget.snackBarBloc.isClosed) {
+                widget.snackBarBloc.add(HideSnackBar());
+              }
             }
             isSnackbarActive = true;
 
@@ -42,8 +48,10 @@ class SnackBarBuilderState extends State<SnackBarBuilder> {
                 .closed
                 .then((value) {
               isSnackbarActive = false;
-              widget.snackBarBloc.add(HideSnackBar());
-              if(state.closedCallback != null) {
+              if (!widget.snackBarBloc.isClosed) {
+                widget.snackBarBloc.add(HideSnackBar());
+              }
+              if (state.closedCallback != null) {
                 state.closedCallback!();
               }
             });

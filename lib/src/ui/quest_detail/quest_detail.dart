@@ -3,6 +3,11 @@ import 'package:lycle/src/ui/widgets/snack_bar/transaction_snack_bar.dart';
 
 import 'component/body.dart';
 
+class QuestDetailArguments {
+  final int index;
+
+  QuestDetailArguments({required this.index});
+}
 class QuestDetailPage extends StatelessWidget {
   int index;
 

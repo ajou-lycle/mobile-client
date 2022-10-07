@@ -14,9 +14,9 @@ import '../enum/contract_function.dart';
 /// HTTP API & WebSocket for web3 api with infura. Currently use ropsten testnet.
 class Web3ApiClient {
   static final _rpcUrl =
-      "https://ropsten.infura.io/v3/${dotenv.env['INFURA_API_KEY']!}";
+      "https://goerli.infura.io/v3/${dotenv.env['INFURA_API_KEY']!}";
   static final _wsUrl =
-      "wss://ropsten.infura.io/ws/v3/${dotenv.env['INFURA_API_KEY']!}";
+      "wss://goerli.infura.io/ws/v3/${dotenv.env['INFURA_API_KEY']!}";
 
   // TODO: update to LYCLE Token
   static const _contractName = "StarDucksCappucinoToken";
@@ -86,7 +86,7 @@ class Web3ApiClient {
             "abi is empty; abi.json don't exists or wrong bundle path."));
 
     _contractAddress = EthereumAddress.fromHex(jsonAbi["networks"]
-        [EthereumNetworkType.ropstenTestnet.networkId.toString()]["address"]);
+        [EthereumNetworkType.goreliTestnet.networkId.toString()]["address"]);
 
     assert(
         _contractAddress != null,
@@ -139,7 +139,7 @@ class Web3ApiClient {
         from: _ownAddress);
 
     return await client.sendTransaction(_credentials!, transaction,
-        chainId: EthereumNetworkType.ropstenTestnet.networkId);
+        chainId: EthereumNetworkType.goreliTestnet.networkId);
   }
 
   /// Burn token.
@@ -159,7 +159,7 @@ class Web3ApiClient {
     );
 
     return await client.sendTransaction(_credentials!, transaction,
-        chainId: EthereumNetworkType.ropstenTestnet.networkId);
+        chainId: EthereumNetworkType.goreliTestnet.networkId);
   }
 
   /// Get token balance of [address].

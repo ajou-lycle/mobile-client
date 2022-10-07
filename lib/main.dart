@@ -48,5 +48,5 @@ Future main() async {
             QuestBloc(questRepository: QuestRepository())),
     BlocProvider<ScrollFormWithKeyboardBloc>(
         create: (BuildContext context) => ScrollFormWithKeyboardBloc()),
-  ], child: MyApp()));
+  ], child: const MyApp()));
 }

@@ -9,17 +9,18 @@ import 'package:lycle/src/ui/nft_detail/nft_card.dart';
 import 'package:lycle/src/ui/widgets/rounded_image.dart';
 
 import '../../data/hero_tag.dart';
+import '../../routes/routes_enum.dart';
 import '../widgets/background_gradient_animation_widget.dart';
 import '../widgets/hero_widget.dart';
 
-class NFTCardListPage extends StatefulWidget {
-  const NFTCardListPage({Key? key}) : super(key: key);
+class NftCardListPage extends StatefulWidget {
+  const NftCardListPage({Key? key}) : super(key: key);
 
   @override
-  State<NFTCardListPage> createState() => _NFTCardListPageState();
+  State<NftCardListPage> createState() => _NftCardListPageState();
 }
 
-class _NFTCardListPageState extends State<NFTCardListPage> {
+class _NftCardListPageState extends State<NftCardListPage> {
   List<String> _imageUrl = [
     "https://i.ytimg.com/vi/0q1muV-hOEc/maxresdefault.jpg",
     "https://img.freepik.com/premium-vector/cute-llama-vector-icon-illustration-alpaca-mascot-cartoon-character_461200-167.jpg?w=1060",
@@ -98,40 +99,11 @@ class _NFTCardListPageState extends State<NFTCardListPage> {
                                             const Duration(milliseconds: 5000),
                                         child: InkWell(
                                             // TODO: Navigator function 분리
-                                            onTap: () {
-                                              Navigator.of(context).push(
-                                                  PageRouteBuilder(
-                                                      transitionDuration:
-                                                          const Duration(
-                                                              seconds: 1),
-                                                      reverseTransitionDuration:
-                                                          const Duration(
-                                                              seconds: 1),
-                                                      pageBuilder: (context,
-                                                          animation,
-                                                          secondaryAnimation) {
-                                                        final curvedAnimation =
-                                                            CurvedAnimation(
-                                                                parent:
-                                                                    animation,
-                                                                curve: Interval(
-                                                                    0, 0.5));
-                                                        return FadeTransition(
-                                                            opacity:
-                                                                curvedAnimation,
-                                                            child:
-                                                                NFTDetailPage(
-                                                              imageUrl:
-                                                                  _imageUrl[
-                                                                      index],
-                                                              nftTitle:
-                                                                  _nftTitle[
-                                                                      index],
-                                                              animation:
-                                                                  animation,
-                                                            ));
-                                                      }));
-                                            },
+                                            onTap: () => Navigator.of(context).pushNamed(PageRoutes.nftDetail.routeName,
+                                                arguments: NftDetailArguments(
+                                                    imageUrl: _imageUrl[index],
+                                                    nftTitle:
+                                                        _nftTitle[index])),
                                             child: HeroWidget(
                                                 tag: HeroTag.image(
                                                     _imageUrl[index]),
@@ -141,21 +113,15 @@ class _NFTCardListPageState extends State<NFTCardListPage> {
                                                     height:
                                                         (size.width - 32) * 0.5,
                                                     radius: kDefaultRadius,
-                                                    decorationImage:
-                                                        DecorationImage(
-                                                            image: NetworkImage(
-                                                                _imageUrl[
-                                                                    index]),
-                                                            fit: BoxFit
-                                                                .cover)))))
+                                                    decorationImage: DecorationImage(
+                                                        image: NetworkImage(
+                                                            _imageUrl[index]),
+                                                        fit: BoxFit.cover)))))
                                     : RoundedImage(
                                         width: (size.width - 32) * 0.5,
                                         height: (size.width - 32) * 0.5,
                                         radius: kDefaultRadius,
-                                        decorationImage: DecorationImage(
-                                            image:
-                                                NetworkImage(_imageUrl[index]),
-                                            fit: BoxFit.cover)),
+                                        decorationImage: DecorationImage(image: NetworkImage(_imageUrl[index]), fit: BoxFit.cover)),
                                 Image.asset(
                                   'assets/medal.png',
                                   width: (size.width - 32) * 0.15,

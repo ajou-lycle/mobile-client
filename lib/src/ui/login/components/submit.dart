@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:async/async.dart';
 
 import '../../../bloc/snack_bar/snack_bar_bloc.dart';
 import '../../../bloc/valid_form/valid_form_bloc.dart';
@@ -9,10 +12,12 @@ import '../../../bloc/wallet/wallet_error.dart';
 import '../../../bloc/wallet/wallet_event.dart';
 import '../../../bloc/wallet/wallet_state.dart';
 import '../../../constants/ui.dart';
+import '../../../utils/context_extension.dart';
 import '../../../data/api/certification/auth_api.dart';
 import '../../../data/api/certification/valid_api.dart';
 import '../../../data/repository/user_repository.dart';
-import '../../home/home.dart';
+
+import '../../../routes/routes_enum.dart';
 import '../../widgets/dialog.dart';
 import '../constant.dart';
 
@@ -30,26 +35,55 @@ class LoginSubmitButtonState extends State<LoginSubmitButton> {
   late SnackBarBloc _snackBarBloc;
   late WalletBloc _walletBloc;
   bool isError = false;
+  CancelableOperation? _cancelableTimeOut;
+
+  Future<void> showWaitWalletConnectDialog() async {
+    String contentText = "지갑 연결을 시도 중입니다.";
+    showLoadingDialog(
+        context,
+        Text(
+          contentText,
+          textAlign: TextAlign.center,
+          style:
+              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        const Duration(seconds: 30),
+        (Route<dynamic> route) => route.isFirst, () {
+      if (!isError) {
+        _snackBarBloc.showErrorSnackBar("지갑 연결에 실패했습니다.",
+            closedCallback: () => _walletBloc.add(EmptyWallet()));
+      }
+    });
+
+    _cancelableTimeOut = CancelableOperation.fromFuture(
+      Future.delayed(const Duration(seconds: 20)).then((value) {
+        if (!context.isDeprecated()) {
+          setState(() => contentText = "블록체인 지갑 어플리케이션이\n설치되어 있는지 확인해주세요!");
+        }
+      }),
+      onCancel: () => {},
+    );
+  }
 
   void showRequestWalletConnectDialog() {
     showDialogByOS(
         context: context,
-        title: Text("블록체인 지갑 연결이 필요해요!"),
-        content: Text("Lycle은 블록체인 지갑이 연결되어야만 사용할 수 있답니다."),
+        title: const Text("블록체인 지갑 연결이 필요해요!"),
+        content: const Text("Lycle은 블록체인 지갑이 연결되어야만 사용할 수 있답니다."),
         actions: [
           TextButton(
               onPressed: () {
                 isDialogShowing = false;
                 Navigator.of(context).pop();
               },
-              child: Text("취소")),
+              child: const Text("취소")),
           TextButton(
               onPressed: () async {
                 _walletBloc.add(ConnectWallet(walletAddress: null));
                 isDialogShowing = false;
                 Navigator.of(context).pop();
               },
-              child: Text(
+              child: const Text(
                 "연결하기",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ))
@@ -62,7 +96,7 @@ class LoginSubmitButtonState extends State<LoginSubmitButton> {
     _snackBarBloc.showLoadingSnackBar("로그인 중 입니다.");
 
     for (var key in widget.formKey.currentState!.fields.keys) {
-      data['$key'] = widget.formKey.currentState!.fields[key]!.value;
+      data[key] = widget.formKey.currentState!.fields[key]!.value;
     }
 
     UserRepository userRepository =
@@ -76,8 +110,7 @@ class LoginSubmitButtonState extends State<LoginSubmitButton> {
       return;
     } else {
       _snackBarBloc.showSuccessSnackBar("로그인에 성공했습니다.");
-      Navigator.of(context)
-          .pushReplacement(MaterialPageRoute(builder: (_) => HomePage()));
+      Navigator.of(context).pushReplacementNamed(PageRoutes.home.routeName);
       return;
     }
   }
@@ -92,10 +125,22 @@ class LoginSubmitButtonState extends State<LoginSubmitButton> {
   }
 
   @override
+  void dispose() {
+    if (_cancelableTimeOut != null) {
+      _cancelableTimeOut?.cancel();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocListener<WalletBloc, WalletState>(
         bloc: _walletBloc,
-        listener: (context, state) {
+        listener: (context, state) async {
+          if (context.isDeprecated()) {
+            return;
+          }
+
           if (state is WalletError) {
             isError = true;
             if (state.error == WalletErrorEnum.notConnected.errorMessage) {
@@ -108,36 +153,14 @@ class LoginSubmitButtonState extends State<LoginSubmitButton> {
             }
           } else if (state is WalletConnected) {
             isError = false;
+            if (isDialogShowing) {
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            }
             _snackBarBloc.showSuccessSnackBar("지갑 연결에 성공했습니다.");
+            await login();
           } else if (state is WalletLoading) {
             isError = false;
-            showLoadingDialog(
-                context,
-                const Text(
-                  "지갑 연결을 시도 중입니다.",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold),
-                ),
-                const Duration(seconds: 10),
-                (Route<dynamic> route) => route.isFirst, () {
-              if (!isError) {
-                showLoadingDialog(
-                    context,
-                    const Text(
-                      "블록체인 지갑 어플리케이션이\n설치되어 있는지 확인해주세요!",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const Duration(seconds: 15),
-                    (Route<dynamic> route) => route.isFirst,
-                    () => _snackBarBloc.showErrorSnackBar("지갑 연결에 실패했습니다.",
-                        closedCallback: () => _walletBloc.add(EmptyWallet())));
-              }
-            });
+            showWaitWalletConnectDialog();
           } else {
             isError = false;
           }
@@ -152,10 +175,9 @@ class LoginSubmitButtonState extends State<LoginSubmitButton> {
                   backgroundColor: MaterialStateProperty.all(kPrimaryColor),
                   elevation: MaterialStateProperty.all<double>(
                       kPrimaryButtonElevation)),
-              onPressed: () async {
+              onPressed: () {
                 if (_validFormBloc.validRepository.valid.validate()) {
                   showRequestWalletConnectDialog();
-                  // await login();
                 } else {
                   if (widget.formKey.currentState == null) {
                     return;

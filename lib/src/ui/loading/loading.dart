@@ -3,7 +3,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 import 'package:lycle/src/constants/assets.dart';
 
-import '../login/login.dart';
+import '../../routes/routes_enum.dart';
 
 class LoadingPage extends StatefulWidget {
   const LoadingPage({Key? key}) : super(key: key);
@@ -31,8 +31,8 @@ class LoadingPageState extends State<LoadingPage> {
       setState(() => isSloganWide = !isSloganWide);
     }).then((value) => Future.delayed(sloganAnimationDuration).then((value) =>
         Future.delayed(const Duration(milliseconds: 1250)).then((value) =>
-            Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => LoginPage())))));
+            Navigator.of(context)
+                .pushReplacementNamed(PageRoutes.login.routeName))));
   }
 
   @override

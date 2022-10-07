@@ -8,12 +8,19 @@ import '../../data/hero_tag.dart';
 import '../widgets/background_gradient_animation_widget.dart';
 import '../widgets/rounded_image.dart';
 
-class NFTDetailPage extends StatelessWidget {
+class NftDetailArguments {
+  final String imageUrl;
+  final String nftTitle;
+
+  NftDetailArguments({required this.imageUrl, required this.nftTitle});
+}
+
+class NftDetailPage extends StatelessWidget {
   final String imageUrl;
   final String nftTitle;
   final Animation<double> animation;
 
-  const NFTDetailPage(
+  const NftDetailPage(
       {Key? key,
       required this.imageUrl,
       required this.nftTitle,

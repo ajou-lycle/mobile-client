@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:lycle/src/constants/ui.dart';
+
+import '../../constants/ui.dart';
+import '../../utils/context_extension.dart';
 
 bool isDialogShowing = false;
 
@@ -57,8 +59,12 @@ showLoadingDialog(BuildContext context, Widget child, Duration duration,
   );
   Future.delayed(duration, () {
     if (isDialogShowing) {
-      Navigator.popUntil(context, predicate);
       isDialogShowing = false;
+
+      if (context.isDeprecated()) {
+        return;
+      }
+
       timeoutHandler();
     }
   });
