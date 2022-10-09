@@ -3,9 +3,9 @@
 // import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:web3dart/web3dart.dart';
 //
-// import '../../../bloc/current_quest/current_quest_bloc.dart';
-// import '../../../bloc/current_quest/current_quest_event.dart';
-// import '../../../bloc/current_quest/current_quest_state.dart';
+// import '../../../bloc/current_quest/manager_current_quest_bloc.dart';
+// import '../../../bloc/current_quest/manager_current_quest_event.dart';
+// import '../../../bloc/current_quest/manager_current_quest_state.dart';
 // import '../../../bloc/write_contract/write_contract_bloc.dart';
 // import '../../../bloc/write_contract/write_contract_event.dart';
 // import '../../../constants/ui.dart';

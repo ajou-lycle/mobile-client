@@ -14,7 +14,9 @@ class Quest {
   int goal;
   int needTimes;
   int achievement;
-  QuantityType? type;
+  List<QuantityType> types = List<QuantityType>.empty(growable: true);
+
+  // QuantityType? type;
 
   Quest(
       {required this.category,
@@ -26,7 +28,7 @@ class Quest {
       required this.goal,
       required this.needTimes,
       required this.achievement}) {
-    type = QuestDataType.getByCategory(category).type;
+    types = QuestDataType.getByCategory(category).type;
   }
 
   Quest.clone(Quest quest)
@@ -39,7 +41,7 @@ class Quest {
         goal = quest.goal,
         needTimes = quest.needTimes,
         achievement = quest.achievement {
-    type = QuestDataType.getByCategory(category).type;
+    types = QuestDataType.getByCategory(category).type;
   }
 
   Quest.fromJson(Map<String, dynamic> json)
@@ -55,7 +57,7 @@ class Quest {
         goal = json['goal'],
         needTimes = json['needTimes'],
         achievement = json['achievement'] {
-    type = QuestDataType.getByCategory(category).type;
+    types = QuestDataType.getByCategory(category).type;
   }
 
   Quest.fromDB(Map<String, dynamic> tuple)
@@ -71,7 +73,7 @@ class Quest {
         goal = tuple['goal'],
         needTimes = tuple['need_times'],
         achievement = tuple['achievement'] {
-    type = QuestDataType.getByCategory(category).type;
+    types = QuestDataType.getByCategory(category).type;
   }
 
   Map<String, dynamic> toJson() => {

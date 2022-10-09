@@ -1,12 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lycle/src/bloc/current_quest/current_quest_event.dart';
-import 'package:lycle/src/bloc/current_quest/current_quest_state.dart';
+
 import 'package:lycle/src/data/enum/quest_data_type.dart';
 import 'package:web3dart/web3dart.dart';
 
-import '../../../bloc/current_quest/current_quest_bloc.dart';
+import '../../../bloc/current_quest/active/active_current_quest_bloc.dart';
+import '../../../bloc/current_quest/active/active_current_quest_event.dart';
+import '../../../bloc/current_quest/active/active_current_quest_state.dart';
 import '../../../bloc/quest/quest_bloc.dart';
 import '../../../bloc/wallet/wallet_bloc.dart';
 import '../../../bloc/write_contract/write_contract_bloc.dart';
@@ -25,7 +26,7 @@ class AvailableQuestList extends StatefulWidget {
 
 class AvailableQuestListState extends State<AvailableQuestList> {
   late QuestBloc _questBloc;
-  late CurrentQuestBloc _currentQuestBloc;
+  late ActiveCurrentQuestBloc _currentQuestBloc;
   late WalletBloc _walletBloc;
   late WriteContractBloc _writeContractBloc;
 
@@ -34,7 +35,7 @@ class AvailableQuestListState extends State<AvailableQuestList> {
     super.initState();
 
     _questBloc = BlocProvider.of<QuestBloc>(context);
-    _currentQuestBloc = BlocProvider.of<CurrentQuestBloc>(context);
+    _currentQuestBloc = BlocProvider.of<ActiveCurrentQuestBloc>(context);
     _walletBloc = BlocProvider.of<WalletBloc>(context);
     _writeContractBloc = BlocProvider.of<WriteContractBloc>(context);
   }
@@ -49,7 +50,7 @@ class AvailableQuestListState extends State<AvailableQuestList> {
           successCallback: _currentQuestBloc.callbackWhenRequestQuestSucceed,
           successCallbackParameter: [quest, _walletBloc]));
     } else {
-      _currentQuestBloc.add(CreateCurrentQuest(quest: quest));
+      _currentQuestBloc.add(CreateActiveCurrentQuest(quest: quest));
     }
   }
 
@@ -103,8 +104,8 @@ class AvailableQuestListState extends State<AvailableQuestList> {
               ),
               TextButton(
                   onPressed: () async {
-                    if (_currentQuestBloc.state is CurrentQuestLoaded ||
-                        _currentQuestBloc.state is CurrentQuestUpdated) {
+                    if (_currentQuestBloc.state is ActiveCurrentQuestLoaded ||
+                        _currentQuestBloc.state is ActiveCurrentQuestUpdated) {
                       List<Quest> currentQuestList =
                           _currentQuestBloc.state.props[0] as List<Quest>;
 

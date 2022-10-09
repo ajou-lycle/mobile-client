@@ -9,7 +9,7 @@ import 'package:health_kit_reporter/model/predicate.dart';
 import 'package:health_kit_reporter/model/type/quantity_type.dart';
 import 'package:health_kit_reporter/model/update_frequency.dart';
 
-import '../data/model/quest.dart';
+import '../../model/quest.dart';
 
 /// Helper for health kit reporter.
 ///
@@ -30,7 +30,7 @@ import '../data/model/quest.dart';
 /// Throws an [ArgumentError] if the list [_readTypes] is empty or
 /// the list [_writeTypes] is empty or the runtimeType of both are not equal.
 
-abstract class HealthHelper {
+abstract class IOSHealthHelper {
   late List _readTypes;
   late List _writeTypes;
   late List<String> _readTypesIdentifiers;
@@ -40,12 +40,8 @@ abstract class HealthHelper {
   int _deniedCount = 0;
   num _timeStamp = 0;
 
-  HealthHelper._internal(this._readTypes, this._writeTypes)
-      : assert(_readTypes.isNotEmpty,
-            ArgumentError("You must select health data types you wanna get.")),
-        assert(_writeTypes.isNotEmpty,
-            ArgumentError("You must select health data types you wanna write")),
-        assert(
+  IOSHealthHelper._internal(this._readTypes, this._writeTypes)
+      : assert(
             _readTypes.runtimeType == _writeTypes.runtimeType,
             ArgumentError(
                 "You must declare same type for readTypes and writeTypes"));
@@ -54,6 +50,8 @@ abstract class HealthHelper {
 
   /// Request this permissions of this types to HealthKit.
   Future<void> requestPermission() async {
+    assert(_readTypes.isNotEmpty || _writeTypes.isNotEmpty,
+        "The both of permission can *not* be empty.");
     bool requested = await HealthKitReporter.requestAuthorization(
         _readTypesIdentifiers, _writeTypesIdentifiers);
 
@@ -86,8 +84,8 @@ abstract class HealthHelper {
   }
 }
 
-class QuantityHealthHelper extends HealthHelper {
-  QuantityHealthHelper._internal(
+class QuantityIOSHealthHelper extends IOSHealthHelper {
+  QuantityIOSHealthHelper._internal(
       {required List<QuantityType> readTypes,
       required List<QuantityType> writeTypes})
       : super._internal(readTypes, writeTypes) {
@@ -101,26 +99,22 @@ class QuantityHealthHelper extends HealthHelper {
   ///
   /// Throws an [AssertionError] if the list of String [readTypes] is empty or
   /// the list of String [writeTypes] is empty. Returns the singleton instance.
-  factory QuantityHealthHelper(
+  factory QuantityIOSHealthHelper(
           {required List<QuantityType> readTypes,
           required List<QuantityType> writeTypes}) =>
-      QuantityHealthHelper._internal(
+      QuantityIOSHealthHelper._internal(
           readTypes: readTypes, writeTypes: writeTypes);
 
   set readTypes(List<QuantityType> value) {
-    assert(value.isNotEmpty, "You can't set empty list to readTypes");
-
     _readTypes = value;
     _readTypesIdentifiers = List<String>.generate(
         readTypes.length, (index) => readTypes[index].identifier);
   }
 
   set writeTypes(List<QuantityType> value) {
-    assert(value.isNotEmpty, "You can't set empty list to writeTypes");
-
     _writeTypes = value;
     _writeTypesIdentifiers = List<String>.generate(
-        _writeTypes.length, (index) => _writeTypes[index].identifier);
+        _writeTypes.length, (index) => writeTypes[index].identifier);
   }
 
   List<QuantityType> get readTypes => _readTypes as List<QuantityType>;
@@ -133,8 +127,8 @@ class QuantityHealthHelper extends HealthHelper {
   /// The parameter of [acceptCallback] is the quantity, num, of HealthKit data updated.
   void observerQueryForQuantityQuery(
       List<Quest> questList,
-      void Function(int, num) acceptCallback,
-      void Function(QuantityType, int) deniedCallback) {
+      List<void Function(num)> acceptCallbackList,
+      List<void Function(int)> deniedCallbackList) {
     if (questList.isEmpty) {
       return;
     }
@@ -153,58 +147,56 @@ class QuantityHealthHelper extends HealthHelper {
           final unit = preferredUnit.unit;
           final type = QuantityTypeFactory.from(identifier);
 
-          int? index;
-          for (int i = 0; i < questList.length; i++) {
-            if (questList[i].types[0] == type) {
-              index = i;
-              break;
-            }
-          }
+          for (int index = 0; index < questList.length; index++) {
+            for (QuantityType questType in questList[index].types) {
+              if (type == questType) {
+                try {
+                  Predicate questPredicate = Predicate(
+                      questList[index].startDate, questList[index].finishDate);
+                  final quantities = await HealthKitReporter.quantityQuery(
+                      type, unit, questPredicate);
 
-          if (index == null) return;
+                  num result = 0;
 
-          try {
-            Predicate questPredicate = Predicate(
-                questList[index].startDate, questList[index].finishDate);
-            final quantities = await HealthKitReporter.quantityQuery(
-                type, unit, questPredicate);
+                  for (Quantity data in quantities) {
+                    bool isDataAllowed =
+                        (data.startTimestamp != data.endTimestamp) &&
+                                (data.device?.name != null ||
+                                    data.device?.manufacturer != null)
+                            ? true
+                            : false;
 
-            num result = 0;
+                    if (isDataAllowed) {
+                      result += data.harmonized.value;
+                    } else {
+                      bool isAlreadyDenied =
+                          _timeStamp >= data.startTimestamp ? true : false;
 
-            for (Quantity data in quantities) {
-              bool isDataAllowed = (data.startTimestamp != data.endTimestamp) &&
-                      (data.device?.name != null ||
-                          data.device?.manufacturer != null)
-                  ? true
-                  : false;
+                      if (isAlreadyDenied) {
+                        continue;
+                      } else {
+                        _timeStamp = data.startTimestamp;
+                        _deniedCount += 1;
 
-              if (isDataAllowed) {
-                result += data.harmonized.value;
-              } else {
-                bool isAlreadyDenied =
-                    _timeStamp >= data.startTimestamp ? true : false;
+                        deniedCallbackList[index](_deniedCount);
 
-                if (isAlreadyDenied) {
-                  continue;
-                } else {
-                  _timeStamp = data.startTimestamp;
-                  _deniedCount += 1;
+                        if (int.parse(dotenv.env['DENIED_COUNT']!) ==
+                            _deniedCount) {
+                          _deniedCount = 0;
+                        }
 
-                  deniedCallback(type, _deniedCount);
-
-                  if (int.parse(dotenv.env['DENIED_COUNT']!) == _deniedCount) {
-                    _deniedCount = 0;
+                        return;
+                      }
+                    }
                   }
 
-                  return;
+                  acceptCallbackList[index](result);
+                } catch (e) {
+                  // TODO: Error type 정하기
+                  print(e);
                 }
               }
             }
-
-            acceptCallback(index, result);
-          } catch (e) {
-            // TODO: Error type 정하기
-            print(e);
           }
         });
       } catch (e) {

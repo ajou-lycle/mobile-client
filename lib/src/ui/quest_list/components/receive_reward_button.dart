@@ -1,13 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lycle/src/bloc/current_quest/current_quest_bloc.dart';
+
 import 'package:lycle/src/bloc/wallet/wallet_bloc.dart';
 import 'package:lycle/src/bloc/write_contract/write_contract_bloc.dart';
 import 'package:lycle/src/data/enum/quest_data_type.dart';
 import 'package:lycle/src/ui/widgets/snack_bar/transaction_snack_bar.dart';
 import 'package:web3dart/web3dart.dart';
 
+import '../../../bloc/current_quest/active/active_current_quest_bloc.dart';
+import '../../../bloc/current_quest/active/active_current_quest_event.dart';
 import '../../../bloc/write_contract/write_contract_event.dart';
 import '../../../data/enum/contract_function.dart';
 import '../../../data/model/quest.dart';
@@ -20,7 +22,7 @@ class ReceiveRewardButton extends StatefulWidget {
 class ReceiveRewardButtonState extends State<ReceiveRewardButton> {
   late WalletBloc _walletBloc;
   late WriteContractBloc _writeContractBloc;
-  late CurrentQuestBloc _currentQuestBloc;
+  late ActiveCurrentQuestBloc _currentQuestBloc;
 
   @override
   void initState() {
@@ -28,15 +30,19 @@ class ReceiveRewardButtonState extends State<ReceiveRewardButton> {
 
     _walletBloc = BlocProvider.of<WalletBloc>(context);
     _writeContractBloc = BlocProvider.of<WriteContractBloc>(context);
-    _currentQuestBloc = BlocProvider.of<CurrentQuestBloc>(context);
+    _currentQuestBloc = BlocProvider.of<ActiveCurrentQuestBloc>(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return OutlinedButton(
         onPressed: () async {
-          List<Quest> finishQuests =
-              await _currentQuestBloc.questRepository.getAllFinishQuest();
+          if (_currentQuestBloc.ethereumAddress == null) {
+            _currentQuestBloc.add(EmptyActiveCurrentQuest());
+            return;
+          }
+          List<Quest> finishQuests = await _currentQuestBloc.questRepository
+              .getAllFinishQuest(_currentQuestBloc.ethereumAddress.toString());
 
           showModalBottomSheet(
             context: context,
