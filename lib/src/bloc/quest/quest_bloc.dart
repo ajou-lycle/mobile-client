@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../data/enum/quest_data_type.dart';
 import '../../data/model/quest.dart';
 import '../../data/repository/quest_repository.dart';
 
@@ -8,6 +9,8 @@ import 'quest_state.dart';
 
 class QuestBloc extends Bloc<QuestEvent, QuestState> {
   final QuestRepository questRepository;
+  final List<QuestDataType> availableQuestDataTypeList =
+      List<QuestDataType>.empty(growable: true);
 
   QuestBloc({required this.questRepository}) : super(QuestEmpty()) {
     on<GetQuest>(_mapGetQuestToState);
@@ -21,6 +24,15 @@ class QuestBloc extends Bloc<QuestEvent, QuestState> {
       GetQuest event, Emitter<QuestState> emit) async {
     try {
       emit(QuestLoading());
+      for (List<Quest> availableQuest in questRepository.availableQuests) {
+        for (Quest quest in availableQuest) {
+          QuestDataType questDataType =
+              QuestDataType.getByCategory(quest.category);
+          if (!availableQuestDataTypeList.contains(questDataType)) {
+            availableQuestDataTypeList.add(questDataType);
+          }
+        }
+      }
       emit(QuestLoaded(questList: questRepository.availableQuests));
     } catch (e) {
       emit(QuestError(error: "get quest error"));

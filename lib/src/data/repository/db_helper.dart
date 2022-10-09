@@ -34,7 +34,6 @@ class DBHelper {
 
       db = await openDatabase(path, version: 1,
           onCreate: (Database db, int version) async {
-        await db.execute('DROP TABLE Quest');
         await db
             .execute(statement..trim().replaceAll(RegExp(r'[\s]{2,}'), ' '));
       }, onOpen: (Database db) async {

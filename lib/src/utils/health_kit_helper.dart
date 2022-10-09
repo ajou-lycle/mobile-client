@@ -57,8 +57,6 @@ abstract class HealthHelper {
     bool requested = await HealthKitReporter.requestAuthorization(
         _readTypesIdentifiers, _writeTypesIdentifiers);
 
-    print("request Permission $requested");
-
     // if use WorkOut, uncomment
     // await Permission.activityRecognition.request();
     // await Permission.location.request();
@@ -155,7 +153,7 @@ class QuantityHealthHelper extends HealthHelper {
 
           int? index;
           for (int i = 0; i < questList.length; i++) {
-            if (questList[i].types[0] == type) {
+            if (questList[i].readTypes[0] == type) {
               index = i;
               break;
             }

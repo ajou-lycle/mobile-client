@@ -14,7 +14,8 @@ class Quest {
   int goal;
   int needTimes;
   int achievement;
-  List<QuantityType> types = List<QuantityType>.empty(growable: true);
+  List<QuantityType> readTypes = List<QuantityType>.empty(growable: true);
+  List<QuantityType> writeTypes = List<QuantityType>.empty(growable: true);
 
   // QuantityType? type;
 
@@ -28,7 +29,8 @@ class Quest {
       required this.goal,
       required this.needTimes,
       required this.achievement}) {
-    types = QuestDataType.getByCategory(category).type;
+    readTypes = QuestDataType.getByCategory(category).readTypes;
+    writeTypes = QuestDataType.getByCategory(category).writeTypes;
   }
 
   Quest.clone(Quest quest)
@@ -41,7 +43,8 @@ class Quest {
         goal = quest.goal,
         needTimes = quest.needTimes,
         achievement = quest.achievement {
-    types = QuestDataType.getByCategory(category).type;
+    readTypes = QuestDataType.getByCategory(category).readTypes;
+    writeTypes = QuestDataType.getByCategory(category).writeTypes;
   }
 
   Quest.fromJson(Map<String, dynamic> json)
@@ -57,7 +60,8 @@ class Quest {
         goal = json['goal'],
         needTimes = json['needTimes'],
         achievement = json['achievement'] {
-    types = QuestDataType.getByCategory(category).type;
+    readTypes = QuestDataType.getByCategory(category).readTypes;
+    writeTypes = QuestDataType.getByCategory(category).writeTypes;
   }
 
   Quest.fromDB(Map<String, dynamic> tuple)
@@ -73,7 +77,8 @@ class Quest {
         goal = tuple['goal'],
         needTimes = tuple['need_times'],
         achievement = tuple['achievement'] {
-    types = QuestDataType.getByCategory(category).type;
+    readTypes = QuestDataType.getByCategory(category).readTypes;
+    writeTypes = QuestDataType.getByCategory(category).writeTypes;
   }
 
   Map<String, dynamic> toJson() => {
@@ -104,18 +109,7 @@ class Quest {
 
   @override
   String toString() {
-    return '''
-    $category, 
-    $level,
-    $needToken,
-    $rewardToken,
-    $startDate,
-    $finishDate,
-    $achieveDate,
-    $goal,
-    $needTimes,
-    $achievement
-    '''
+    return 'quest info : $category, $level, $needToken, $rewardToken, $startDate, $finishDate, $achieveDate, $goal, $needTimes, $achievement'
         .trim();
   }
 }

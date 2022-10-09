@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'package:lycle/src/bloc/quest/quest_state.dart';
-
 import 'package:lycle/src/ui/quest_list/components/achieve_bar.dart';
 
+import '../../../bloc/current_quest/active/active_current_quest_bloc.dart';
+import '../../../bloc/current_quest/manager/manager_current_quest_bloc.dart';
+import '../../../bloc/current_quest/manager/manager_current_quest_state.dart';
 import '../../../bloc/quest/quest_bloc.dart';
+import '../../../bloc/quest/quest_state.dart';
+import '../../../data/enum/quest_data_type.dart';
 import '../../../data/model/quest.dart';
 import '../../../routes/routes_enum.dart';
 import '../../quest_detail/quest_detail.dart';
@@ -18,12 +20,15 @@ class QuestListCard extends StatefulWidget {
 
 class QuestListCardState extends State<QuestListCard> {
   late QuestBloc _questBloc;
+  late ManagerCurrentQuestBloc _managerCurrentQuestBloc;
 
   @override
   void initState() {
     super.initState();
 
     _questBloc = BlocProvider.of<QuestBloc>(context);
+    _managerCurrentQuestBloc =
+        BlocProvider.of<ManagerCurrentQuestBloc>(context);
   }
 
   @override
@@ -46,7 +51,30 @@ class QuestListCardState extends State<QuestListCard> {
                           context, PageRoutes.questDetail.routeName,
                           arguments: QuestDetailArguments(index: index)),
                       child: Text(quest.category)),
-                  AchieveBar(quest: quest)
+                  BlocBuilder<ManagerCurrentQuestBloc,
+                      ManagerCurrentQuestState>(builder: (context, state) {
+                    if (state is ManagerCurrentQuestLoaded ||
+                        state is ManagerCurrentQuestUpdated) {
+                      List<Quest> questList = state.props[0] as List<Quest>;
+
+                      if (questList.isNotEmpty) {
+                        for (Quest currentQuest in questList) {
+                          if (currentQuest.category == quest.category) {
+                            return BlocProvider<ActiveCurrentQuestBloc>.value(
+                                value: _managerCurrentQuestBloc
+                                    .activeCurrentQuestBlocList
+                                    .singleWhere((activeCurrentQuestBloc) =>
+                                        activeCurrentQuestBloc.questDataType ==
+                                        QuestDataType.getByCategory(
+                                            quest.category)),
+                                child: AchieveBar(quest: currentQuest));
+                          }
+                        }
+                      }
+                    }
+
+                    return const SizedBox();
+                  })
                 ],
               );
             });

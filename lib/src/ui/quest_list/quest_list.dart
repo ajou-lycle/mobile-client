@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'package:lycle/src/ui/quest_list/components/body.dart';
+import 'package:lycle/src/data/enum/quest_data_type.dart';
 
 import '../../bloc/current_quest/active/active_current_quest_bloc.dart';
-import '../../bloc/current_quest/active/active_current_quest_event.dart';
+import '../../bloc/current_quest/manager/manager_current_quest_bloc.dart';
+import '../../bloc/current_quest/manager/manager_current_quest_event.dart';
 import '../../bloc/quest/quest_bloc.dart';
 import '../../bloc/quest/quest_event.dart';
-import '../../bloc/wallet/wallet_bloc.dart';
+import 'components/body.dart';
 
 class QuestListPage extends StatefulWidget {
   @override
@@ -15,32 +15,32 @@ class QuestListPage extends StatefulWidget {
 }
 
 class QuestListPageState extends State<QuestListPage> {
-  // late QuestBloc _questBloc;
-  // late WalletBloc _walletBloc;
-  // late ActiveCurrentQuestBloc _currentQuestBloc;
-  //
-  // @override
-  // void initState() {
-  //   super.initState();
-  //
-  //   _questBloc = BlocProvider.of<QuestBloc>(context);
-  //   _walletBloc = BlocProvider.of<WalletBloc>(context);
-  //   _currentQuestBloc = BlocProvider.of<ActiveCurrentQuestBloc>(context);
-  //   _currentQuestBloc.ethereumAddress =
-  //       _walletBloc.web3Repository.wallet.address;
-  // }
-  //
-  // @override
-  // void didChangeDependencies() async {
-  //   super.didChangeDependencies();
-  //
-  //   await _questBloc.questRepository.init();
-  //   await _currentQuestBloc.healthHelper.requestPermission();
-  //   await _currentQuestBloc.questRepository.init().then((value) {
-  //     _questBloc.add(GetQuest());
-  //     _currentQuestBloc.add(GetActiveCurrentQuest());
-  //   });
-  // }
+  late QuestBloc _questBloc;
+  late ManagerCurrentQuestBloc _managerCurrentQuestBloc;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _questBloc = BlocProvider.of<QuestBloc>(context);
+    _managerCurrentQuestBloc =
+        BlocProvider.of<ManagerCurrentQuestBloc>(context);
+  }
+
+  @override
+  void didChangeDependencies() async {
+    super.didChangeDependencies();
+
+    await _managerCurrentQuestBloc.questRepository.init();
+    _managerCurrentQuestBloc.activeCurrentQuestBlocList = [];
+    for (QuestDataType questDataType in _questBloc.availableQuestDataTypeList) {
+      _managerCurrentQuestBloc.activeCurrentQuestBlocList.add(
+          ActiveCurrentQuestBloc(
+              questRepository: _managerCurrentQuestBloc.questRepository,
+              questDataType: questDataType));
+    }
+    _managerCurrentQuestBloc.add(GetCurrentQuest());
+  }
 
   @override
   Widget build(BuildContext context) {

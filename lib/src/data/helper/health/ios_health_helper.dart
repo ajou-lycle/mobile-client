@@ -36,6 +36,7 @@ abstract class IOSHealthHelper {
   late List<String> _readTypesIdentifiers;
   late List<String> _writeTypesIdentifiers;
 
+  StreamSubscription? streamSubscription;
   bool _hasPermissions = false;
   int _deniedCount = 0;
   num _timeStamp = 0;
@@ -55,8 +56,6 @@ abstract class IOSHealthHelper {
     bool requested = await HealthKitReporter.requestAuthorization(
         _readTypesIdentifiers, _writeTypesIdentifiers);
 
-    print("request Permission $requested");
-
     // if use WorkOut, uncomment
     // await Permission.activityRecognition.request();
     // await Permission.location.request();
@@ -74,7 +73,13 @@ abstract class IOSHealthHelper {
     assert(predicate.startDate.isBefore(predicate.endDate),
         "The start time must be before end time.");
 
-    HealthKitReporter.observerQuery(_readTypesIdentifiers, predicate,
+    if (streamSubscription != null) {
+      streamSubscription?.cancel();
+      streamSubscription = null;
+    }
+
+    streamSubscription = HealthKitReporter.observerQuery(
+        _readTypesIdentifiers, predicate,
         onUpdate: onUpdate);
 
     for (final identifier in _readTypesIdentifiers) {
@@ -125,10 +130,8 @@ class QuantityIOSHealthHelper extends IOSHealthHelper {
   ///
   /// Throws an [AssertionError] if the DateTime [start] is *not* before [end].
   /// The parameter of [acceptCallback] is the quantity, num, of HealthKit data updated.
-  void observerQueryForQuantityQuery(
-      List<Quest> questList,
-      List<void Function(num)> acceptCallbackList,
-      List<void Function(int)> deniedCallbackList) {
+  void observerQueryForQuantityQuery(List<Quest> questList,
+      List<void Function(QuantityType, num)> acceptCallbackList) {
     if (questList.isEmpty) {
       return;
     }
@@ -148,7 +151,14 @@ class QuantityIOSHealthHelper extends IOSHealthHelper {
           final type = QuantityTypeFactory.from(identifier);
 
           for (int index = 0; index < questList.length; index++) {
-            for (QuantityType questType in questList[index].types) {
+            // if (questList[index]
+            //         .finishDate
+            //         .difference(DateTime.now())
+            //         .inSeconds <=
+            //     0) {
+            //   continue;
+            // }
+            for (QuantityType questType in questList[index].readTypes) {
               if (type == questType) {
                 try {
                   Predicate questPredicate = Predicate(
@@ -168,29 +178,10 @@ class QuantityIOSHealthHelper extends IOSHealthHelper {
 
                     if (isDataAllowed) {
                       result += data.harmonized.value;
-                    } else {
-                      bool isAlreadyDenied =
-                          _timeStamp >= data.startTimestamp ? true : false;
-
-                      if (isAlreadyDenied) {
-                        continue;
-                      } else {
-                        _timeStamp = data.startTimestamp;
-                        _deniedCount += 1;
-
-                        deniedCallbackList[index](_deniedCount);
-
-                        if (int.parse(dotenv.env['DENIED_COUNT']!) ==
-                            _deniedCount) {
-                          _deniedCount = 0;
-                        }
-
-                        return;
-                      }
                     }
                   }
 
-                  acceptCallbackList[index](result);
+                  acceptCallbackList[index](type, result);
                 } catch (e) {
                   // TODO: Error type 정하기
                   print(e);

@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:web3dart/credentials.dart';
 
 import '../../../data/model/quest.dart';
 
@@ -45,18 +46,16 @@ class ReplaceActiveCurrentQuest extends ActiveCurrentQuestEvent {
 }
 
 class IncrementActiveCurrentQuest extends ActiveCurrentQuestEvent {
-  final int index;
   final int count;
 
-  IncrementActiveCurrentQuest({required this.index, required this.count});
+  IncrementActiveCurrentQuest({required this.count});
 
   @override
-  String toString() =>
-      'IncrementActiveCurrentQuest { index: $index, count : $count }';
+  String toString() => 'IncrementActiveCurrentQuest { count : $count }';
 
   @override
   // TODO: implement props
-  List<Object?> get props => [index, count];
+  List<Object?> get props => [count];
 }
 
 class AchieveActiveCurrentQuest extends ActiveCurrentQuestEvent {

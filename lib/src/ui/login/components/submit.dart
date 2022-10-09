@@ -39,7 +39,7 @@ class LoginSubmitButtonState extends State<LoginSubmitButton> {
 
   Future<void> showWaitWalletConnectDialog() async {
     String contentText = "지갑 연결을 시도 중입니다.";
-    showLoadingDialog(
+    showTimeoutDialog(
         context,
         Text(
           contentText,

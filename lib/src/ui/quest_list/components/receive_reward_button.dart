@@ -2,17 +2,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:lycle/src/bloc/wallet/wallet_bloc.dart';
-import 'package:lycle/src/bloc/write_contract/write_contract_bloc.dart';
-import 'package:lycle/src/data/enum/quest_data_type.dart';
-import 'package:lycle/src/ui/widgets/snack_bar/transaction_snack_bar.dart';
 import 'package:web3dart/web3dart.dart';
 
-import '../../../bloc/current_quest/active/active_current_quest_bloc.dart';
-import '../../../bloc/current_quest/active/active_current_quest_event.dart';
+import '../../../bloc/current_quest/manager/manager_current_quest_bloc.dart';
+import '../../../bloc/current_quest/manager/manager_current_quest_event.dart';
+import '../../../bloc/wallet/wallet_bloc.dart';
+import '../../../bloc/write_contract/write_contract_bloc.dart';
 import '../../../bloc/write_contract/write_contract_event.dart';
 import '../../../data/enum/contract_function.dart';
+import '../../../data/enum/quest_data_type.dart';
 import '../../../data/model/quest.dart';
+import '../../widgets/snack_bar/transaction_snack_bar.dart';
 
 class ReceiveRewardButton extends StatefulWidget {
   @override
@@ -22,7 +22,7 @@ class ReceiveRewardButton extends StatefulWidget {
 class ReceiveRewardButtonState extends State<ReceiveRewardButton> {
   late WalletBloc _walletBloc;
   late WriteContractBloc _writeContractBloc;
-  late ActiveCurrentQuestBloc _currentQuestBloc;
+  late ManagerCurrentQuestBloc _managerCurrentQuestBloc;
 
   @override
   void initState() {
@@ -30,19 +30,21 @@ class ReceiveRewardButtonState extends State<ReceiveRewardButton> {
 
     _walletBloc = BlocProvider.of<WalletBloc>(context);
     _writeContractBloc = BlocProvider.of<WriteContractBloc>(context);
-    _currentQuestBloc = BlocProvider.of<ActiveCurrentQuestBloc>(context);
+    _managerCurrentQuestBloc =
+        BlocProvider.of<ManagerCurrentQuestBloc>(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return OutlinedButton(
         onPressed: () async {
-          if (_currentQuestBloc.ethereumAddress == null) {
-            _currentQuestBloc.add(EmptyActiveCurrentQuest());
+          if (_managerCurrentQuestBloc.questRepository.ethereumAddress == null) {
+            _managerCurrentQuestBloc.add(EmptyCurrentQuest());
             return;
           }
-          List<Quest> finishQuests = await _currentQuestBloc.questRepository
-              .getAllFinishQuest(_currentQuestBloc.ethereumAddress.toString());
+          List<Quest> finishQuests =
+              await _managerCurrentQuestBloc.questRepository.getAllFinishQuest(
+                  _managerCurrentQuestBloc.questRepository.ethereumAddress.toString());
 
           showModalBottomSheet(
             context: context,
@@ -96,7 +98,7 @@ class ReceiveRewardButtonState extends State<ReceiveRewardButton> {
                                                           _walletBloc
                                                         ],
                                                         successCallback:
-                                                            _currentQuestBloc
+                                                            _managerCurrentQuestBloc
                                                                 .callbackWhenReceiveQuestRewardSucceed),
                                                   );
                                                 },
@@ -133,6 +135,6 @@ class ReceiveRewardButtonState extends State<ReceiveRewardButton> {
             },
           );
         },
-        child: Text("걷기 퀘스트 보상 받기"));
+        child: Text("퀘스트 보상 받기"));
   }
 }

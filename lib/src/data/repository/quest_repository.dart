@@ -9,13 +9,13 @@ import '../model/quest.dart';
 import 'db_helper.dart';
 
 class QuestRepository {
+  EthereumAddress? ethereumAddress;
+  DBHelper dbHelper = DBHelper();
+
   final QuestApi _questApi = QuestApi();
   final _tableName = 'QUEST';
   final _columns = jsonDecode(dotenv.env['QUEST_TABLE']!);
-
   List<List<Quest>> _availableQuests = List<List<Quest>>.empty(growable: true);
-
-  DBHelper dbHelper = DBHelper();
 
   QuestRepository._internal();
 
@@ -38,11 +38,15 @@ class QuestRepository {
     await dbHelper.insert(_tableName, data);
   }
 
-  Future<void> updateQuest(
-      String ethereumAddress, Quest quest) async =>
+  Future<void> updateQuest(String ethereumAddress, Quest quest) async {
+    try {
       await dbHelper.update(_tableName, quest.toDBData(),
           where: "wallet_address = ? AND category = ? AND achieve_date IS NULL",
           whereArgs: [ethereumAddress, quest.category]);
+    } catch (e) {
+      print(e);
+    }
+  }
 
   Future<void> deleteQuest(String ethereumAddress, Quest quest) async {
     if (quest.achieveDate == null) {
@@ -79,13 +83,16 @@ class QuestRepository {
     return result;
   }
 
-  Future<List<Quest>> getAllCurrentQuest(
-      String ethereumAddress) async {
-    final List<Map<String, dynamic>>? data = await dbHelper.select(_tableName,
-        where: "wallet_address = ? AND achieve_date IS NULL",
-        whereArgs: [ethereumAddress]);
+  Future<List<Quest>> getAllCurrentQuest(String ethereumAddress) async {
+    List<Map<String, dynamic>>? data;
+    try {
+      data = await dbHelper.select(_tableName,
+          where: "wallet_address = ? AND achieve_date IS NULL",
+          whereArgs: [ethereumAddress]);
+    } catch (e) {
+      print(e);
+    }
 
-    print(data);
     // TODO: 에러 처리
     // if (data == null || data.isEmpty) {
     //   return null;
@@ -100,8 +107,7 @@ class QuestRepository {
     return result;
   }
 
-  Future<Quest> getCurrentQuest(
-      String ethereumAddress, String category) async {
+  Future<Quest> getCurrentQuest(String ethereumAddress, String category) async {
     final List<Map<String, dynamic>>? data = await dbHelper.select(_tableName,
         where: "wallet_address = ? AND category = ? AND achieve_date IS NULL",
         whereArgs: [ethereumAddress, category]);
@@ -122,7 +128,6 @@ class QuestRepository {
     List<Quest> result = List<Quest>.empty(growable: true);
 
     for (Map<String, dynamic> tuple in data!) {
-      print(tuple);
       result.add(Quest.fromDB(tuple));
     }
 

@@ -4,80 +4,65 @@ import '../../../data/model/quest.dart';
 
 abstract class ManagerCurrentQuestState extends Equatable {}
 
-class ActiveCurrentQuestEmpty extends ManagerCurrentQuestState {
+class ManagerCurrentQuestEmpty extends ManagerCurrentQuestState {
   @override
   List<Object?> get props => [];
 }
 
-class ActiveCurrentQuestLoading extends ManagerCurrentQuestState {
+class ManagerCurrentQuestLoading extends ManagerCurrentQuestState {
   @override
   // TODO: implement props
   List<Object?> get props => [];
 }
 
-class ActiveCurrentQuestError extends ManagerCurrentQuestState {
+class ManagerCurrentQuestError extends ManagerCurrentQuestState {
   final String? error;
 
-  ActiveCurrentQuestError({this.error});
+  ManagerCurrentQuestError({this.error});
 
   @override
-  String toString() => 'ActiveCurrentQuestError { error: $error }';
+  String toString() => 'ManagerCurrentQuestError { error: $error }';
 
   @override
   // TODO: implement props
   List<Object?> get props => [error];
 }
 
-class ActiveCurrentQuestLoaded extends ManagerCurrentQuestState {
+class ManagerCurrentQuestLoaded extends ManagerCurrentQuestState {
   final List<Quest> questList;
 
-  ActiveCurrentQuestLoaded({required this.questList});
+  ManagerCurrentQuestLoaded({required this.questList});
 
   @override
-  String toString() => 'ActiveCurrentQuestLoaded { questList: $questList }';
+  String toString() => 'ManagerCurrentQuestLoaded { questList: $questList }';
 
   @override
   // TODO: implement props
   List<Object?> get props => [questList];
 }
 
-class ActiveCurrentQuestUpdated extends ManagerCurrentQuestState {
+class ManagerCurrentQuestCreated extends ManagerCurrentQuestState {
   final List<Quest> questList;
 
-  ActiveCurrentQuestUpdated({required this.questList});
+  ManagerCurrentQuestCreated({required this.questList});
 
   @override
-  String toString() => 'ActiveCurrentQuestUpdated { quest: $questList }';
+  String toString() => 'ManagerCurrentQuestCreated { quest: $questList }';
 
   @override
   // TODO: implement props
   List<Object?> get props => [questList];
 }
 
-class ActiveCurrentQuestAchieved extends ManagerCurrentQuestState {
+class ManagerCurrentQuestUpdated extends ManagerCurrentQuestState {
   final List<Quest> questList;
 
-  ActiveCurrentQuestAchieved({required this.questList});
+  ManagerCurrentQuestUpdated({required this.questList});
 
   @override
-  String toString() => 'ActiveCurrentQuestAchieved { quest: $questList }';
+  String toString() => 'ManagerCurrentQuestUpdated { quest: $questList }';
 
   @override
   // TODO: implement props
   List<Object?> get props => [questList];
-}
-
-class ActiveCurrentQuestDenied extends ManagerCurrentQuestState {
-  final Quest quest;
-  final bool isDenied = false;
-
-  ActiveCurrentQuestDenied({required this.quest});
-
-  @override
-  String toString() =>
-      'ActiveCurrentQuestDenied { quest: $quest, isDenied: $isDenied }';
-
-  @override
-  // TODO: implement props
-  List<Object?> get props => [quest, isDenied];
 }

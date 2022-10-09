@@ -1,49 +1,70 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:health_kit_reporter/model/type/quantity_type.dart';
-import 'package:web3dart/credentials.dart';
 
 import '../../../data/enum/contract_function.dart';
+import '../../../data/enum/quest_data_type.dart';
 import '../../../data/model/quest.dart';
+import '../../../data/repository/health/ios_health_repository.dart';
 import '../../../data/repository/quest_repository.dart';
-
-import '../../../utils/health_kit_helper.dart';
-
 import '../../wallet/wallet_bloc.dart';
 import '../../wallet/wallet_event.dart';
 
+import '../active/active_current_quest_bloc.dart';
+import '../active/active_current_quest_event.dart';
 import 'manager_current_quest_event.dart';
 import 'manager_current_quest_state.dart';
 
 class ManagerCurrentQuestBloc
     extends Bloc<ManagerCurrentQuestEvent, ManagerCurrentQuestState> {
-  late QuantityHealthHelper healthHelper;
+  final IOSHealthRepository iosHealthRepository = IOSHealthRepository();
   final QuestRepository questRepository;
-  EthereumAddress? ethereumAddress;
 
-  ManagerCurrentQuestBloc(
-      {required this.healthHelper, required this.questRepository})
-      : super(ActiveCurrentQuestEmpty()) {
-    on<EmptyActiveCurrentQuest>(_mapEmptyActiveCurrentQuestToState);
-    on<GetActiveCurrentQuest>(_mapGetActiveCurrentQuestToState);
-    on<CreateActiveCurrentQuest>(_mapCreateActiveCurrentQuestToState);
-    on<ReplaceActiveCurrentQuest>(_mapReplaceActiveCurrentQuestToState);
-    on<IncrementActiveCurrentQuest>(_mapIncrementActiveCurrentQuestToState);
-    on<AchieveActiveCurrentQuest>(_mapAchieveActiveCurrentQuestToState);
-    on<DeniedActiveCurrentQuest>(_mapDeniedActiveCurrentQuestToState);
-    on<ErrorActiveCurrentQuest>(_mapErrorActiveCurrentQuestToState);
+  List<ActiveCurrentQuestBloc> activeCurrentQuestBlocList =
+      List<ActiveCurrentQuestBloc>.empty(growable: true);
+
+  ManagerCurrentQuestBloc({required this.questRepository})
+      : super(ManagerCurrentQuestEmpty()) {
+    on<EmptyCurrentQuest>(_mapEmptyCurrentQuestToState);
+    on<GetCurrentQuest>(_mapGetCurrentQuestToState);
+    on<CreateCurrentQuest>(_mapCreateCurrentQuestToState);
+    on<AchieveCurrentQuest>(_mapAchieveCurrentQuestToState);
+    on<DeleteCurrentQuest>(_mapDeleteCurrentQuestToState);
+    on<ErrorCurrentQuest>(_mapErrorCurrentQuestToState);
   }
 
-  void handleCount(int index, num acceptCount) {
-    if (state is! ActiveCurrentQuestDenied) {
-      print(acceptCount);
-      add(IncrementActiveCurrentQuest(index: index, count: acceptCount as int));
+  Future<void> registerQuestToiOSHealthHelper(Quest quest,
+      {bool isCreated = false}) async {
+    addPermissionAndCallbackIfNotExists(quest, isCreated: isCreated);
+    await iosHealthRepository.requestPermission();
+    if (state is ManagerCurrentQuestLoaded ||
+        state is ManagerCurrentQuestUpdated) {
+      print('register');
+      print(iosHealthRepository.questDataTypeList);
+      print(state.props[0] as List<Quest>);
+      iosHealthRepository
+          .observerQueryForQuantityQuery(state.props[0] as List<Quest>);
     }
   }
 
-  void deniedCount(QuantityType type, num deniedCount) =>
-      add(DeniedActiveCurrentQuest(count: deniedCount as int));
+  void addPermissionAndCallbackIfNotExists(Quest quest,
+      {bool isCreated = false}) {
+    QuestDataType questDataType = QuestDataType.getByCategory(quest.category);
+    if (!iosHealthRepository.questDataTypeList.contains(questDataType)) {
+      ActiveCurrentQuestBloc activeCurrentQuestBloc =
+          activeCurrentQuestBlocList.singleWhere((activeCurrentQuestBloc) =>
+              activeCurrentQuestBloc.questDataType == questDataType);
+
+      iosHealthRepository.questDataTypeList.add(questDataType);
+
+      iosHealthRepository.acceptCallbackList
+          .add(activeCurrentQuestBloc.handleCount);
+
+      if (isCreated) {
+        activeCurrentQuestBloc.add(CreateActiveCurrentQuest(quest: quest));
+      }
+    }
+  }
 
   Future<bool> callbackWhenRequestQuestSucceed(
       ContractFunctionEnum contractFunctionEnum, List parameters) async {
@@ -52,16 +73,12 @@ class ManagerCurrentQuestBloc
 
     switch (contractFunctionEnum) {
       case ContractFunctionEnum.burn:
-        if (!healthHelper.hasPermissions) {
-          await healthHelper.requestPermission();
-        }
-
         quest.finishDate =
             DateTime.now().add(quest.finishDate.difference(quest.startDate));
         quest.startDate = DateTime.now();
 
         walletBloc.add(UpdateWallet());
-        add(CreateActiveCurrentQuest(quest: quest));
+        add(CreateCurrentQuest(quest: quest));
 
         return true;
       default:
@@ -76,193 +93,151 @@ class ManagerCurrentQuestBloc
 
     switch (contractFunctionEnum) {
       case ContractFunctionEnum.mint:
-        if (ethereumAddress == null) {
+        if (questRepository.ethereumAddress == null) {
           return false;
-        }
-        for (Quest quest in questList) {
-          await questRepository.deleteQuest(ethereumAddress.toString(), quest);
         }
 
         walletBloc.add(UpdateWallet());
-        add(GetActiveCurrentQuest());
+        add(DeleteCurrentQuest(questList: questList));
         return true;
       default:
         return false;
     }
   }
 
-  ManagerCurrentQuestState get initialState => ActiveCurrentQuestEmpty();
+  ManagerCurrentQuestState get initialState => ManagerCurrentQuestEmpty();
 
-  Future<void> _mapEmptyActiveCurrentQuestToState(EmptyActiveCurrentQuest event,
-      Emitter<ManagerCurrentQuestState> emit) async {
-    emit(ActiveCurrentQuestEmpty());
+  Future<void> _mapEmptyCurrentQuestToState(
+      EmptyCurrentQuest event, Emitter<ManagerCurrentQuestState> emit) async {
+    emit(ManagerCurrentQuestEmpty());
   }
 
-  Future<void> _mapGetActiveCurrentQuestToState(GetActiveCurrentQuest event,
-      Emitter<ManagerCurrentQuestState> emit) async {
+  Future<void> _mapGetCurrentQuestToState(
+      GetCurrentQuest event, Emitter<ManagerCurrentQuestState> emit) async {
     try {
-      emit(ActiveCurrentQuestLoading());
+      emit(ManagerCurrentQuestLoading());
 
-      if (ethereumAddress == null) {
-        emit(ActiveCurrentQuestEmpty());
+      if (questRepository.ethereumAddress == null) {
+        emit(ManagerCurrentQuestEmpty());
         return;
       }
 
-      final questList =
-          await questRepository.getAllCurrentQuest(ethereumAddress.toString());
+      final questList = await questRepository
+          .getAllCurrentQuest(questRepository.ethereumAddress.toString());
 
-      healthHelper.observerQueryForQuantityQuery(
-          questList, handleCount, deniedCount);
+      for (Quest quest in questList) {
+        await registerQuestToiOSHealthHelper(quest);
+      }
 
-      emit(ActiveCurrentQuestLoaded(questList: questList));
+      iosHealthRepository.observerQueryForQuantityQuery(questList);
+
+      emit(ManagerCurrentQuestLoaded(questList: questList));
     } catch (e) {
-      emit(ActiveCurrentQuestError(error: "get error"));
+      emit(ManagerCurrentQuestError(error: "get error"));
     }
   }
 
-  Future<void> _mapCreateActiveCurrentQuestToState(
-      CreateActiveCurrentQuest event,
-      Emitter<ManagerCurrentQuestState> emit) async {
+  Future<void> _mapCreateCurrentQuestToState(
+      CreateCurrentQuest event, Emitter<ManagerCurrentQuestState> emit) async {
     try {
-      if (ethereumAddress == null) {
-        emit(ActiveCurrentQuestEmpty());
+      if (questRepository.ethereumAddress == null) {
+        emit(ManagerCurrentQuestEmpty());
         return;
       }
 
       List<Quest> questList = List<Quest>.empty(growable: true);
 
-      if (state is ActiveCurrentQuestLoaded) {
+      if (state is ManagerCurrentQuestLoaded) {
         questList = state.props[0] as List<Quest>;
       }
 
-      emit(ActiveCurrentQuestUpdated(questList: questList));
+      emit(ManagerCurrentQuestUpdated(questList: questList));
+
+      event.quest.finishDate = DateTime.now()
+          .add(event.quest.finishDate.difference(event.quest.startDate));
+      event.quest.startDate = DateTime.now();
 
       await questRepository.insertQuest(
-          ethereumAddress.toString(), event.quest);
-      questList =
-          await questRepository.getAllCurrentQuest(ethereumAddress.toString());
+          questRepository.ethereumAddress.toString(), event.quest);
+      questList = await questRepository
+          .getAllCurrentQuest(questRepository.ethereumAddress.toString());
 
-      healthHelper.observerQueryForQuantityQuery(
-          questList, handleCount, deniedCount);
-
-      emit(ActiveCurrentQuestLoaded(questList: questList));
+      emit(ManagerCurrentQuestLoaded(questList: questList));
+      await registerQuestToiOSHealthHelper(event.quest, isCreated: true);
     } catch (e) {
-      emit(ActiveCurrentQuestError(error: "get error"));
+      emit(ManagerCurrentQuestError(error: "get error"));
     }
   }
 
-  Future<void> _mapReplaceActiveCurrentQuestToState(
-      ReplaceActiveCurrentQuest event,
-      Emitter<ManagerCurrentQuestState> emit) async {
+  Future<void> _mapAchieveCurrentQuestToState(
+      AchieveCurrentQuest event, Emitter<ManagerCurrentQuestState> emit) async {
     try {
-      if (ethereumAddress == null) {
-        emit(ActiveCurrentQuestEmpty());
-        return;
+      List<Quest> questList = List<Quest>.empty(growable: true);
+
+      print("achieve");
+
+      if (state is ManagerCurrentQuestLoaded) {
+        questList = state.props[0] as List<Quest>;
       }
 
-      if (state is ActiveCurrentQuestLoaded ||
-          state is ActiveCurrentQuestUpdated) {
-        List<Quest> questList = state.props[0] as List<Quest>;
+      emit(ManagerCurrentQuestUpdated(questList: questList));
 
-        emit(ActiveCurrentQuestLoading());
+      var toRemove = [];
 
-        await questRepository.updateQuest(
-            ethereumAddress.toString(), event.quest);
-        questList = await questRepository
-            .getAllCurrentQuest(ethereumAddress.toString());
-
-        emit(ActiveCurrentQuestLoaded(questList: questList));
-      }
-    } catch (e) {
-      emit(ActiveCurrentQuestError(error: "replace error"));
-    }
-  }
-
-  void _mapIncrementActiveCurrentQuestToState(IncrementActiveCurrentQuest event,
-      Emitter<ManagerCurrentQuestState> emit) async {
-    try {
-      if (state is ActiveCurrentQuestLoaded) {
-        final questList = state.props[0] as List<Quest>;
-        final Quest quest = questList[event.index];
-
-        emit(ActiveCurrentQuestUpdated(questList: questList));
-        if (quest.goal <= event.count) {
-          quest.needTimes -= 1;
-
-          if (quest.needTimes == 0) {
-            quest.achieveDate = DateTime.now();
-            quest.achievement = quest.goal;
-          } else {
-            quest.achievement = 0;
-          }
-
-          add(AchieveActiveCurrentQuest(quest: quest));
-
-          return;
-        } else {
-          quest.achievement = event.count;
-        }
-        emit(ActiveCurrentQuestLoaded(questList: questList));
-      }
-    } catch (e) {
-      emit(ActiveCurrentQuestError(error: "increment error"));
-    }
-  }
-
-  Future<void> _mapAchieveActiveCurrentQuestToState(
-      AchieveActiveCurrentQuest event,
-      Emitter<ManagerCurrentQuestState> emit) async {
-    if (ethereumAddress == null) {
-      emit(ActiveCurrentQuestEmpty());
-      return;
-    }
-
-    try {
-      if (state is ActiveCurrentQuestUpdated) {
-        List<Quest> questList = state.props[0] as List<Quest>;
-
-        emit(ActiveCurrentQuestAchieved(questList: questList));
-
-        await questRepository.updateQuest(
-            ethereumAddress.toString(), event.quest);
-        questList = await questRepository.getAllCurrentQuest(
-          ethereumAddress.toString(),
-        );
-
-        if (event.quest.needTimes == 0) {
-          questList.remove(event.quest);
-        }
-
-        if (questList.isEmpty) {
-          emit(ActiveCurrentQuestEmpty());
-        } else {
-          emit(ActiveCurrentQuestLoaded(questList: questList));
+      for (Quest quest in questList) {
+        if (quest.category == event.quest.category) {
+          toRemove.add(quest);
         }
       }
+
+      questList.removeWhere((quest) => toRemove.contains(quest));
+      iosHealthRepository.deleteAccessAuthority(
+          questDataType: QuestDataType.getByCategory(event.quest.category));
+      iosHealthRepository.observerQueryForQuantityQuery(questList);
+
+      emit(ManagerCurrentQuestLoaded(questList: questList));
     } catch (e) {
-      emit(ActiveCurrentQuestError(error: "replacement error"));
+      print(e);
+      emit(ManagerCurrentQuestError(error: "achieve error"));
     }
   }
 
-  void _mapDeniedActiveCurrentQuestToState(
-      DeniedActiveCurrentQuest event, Emitter<ManagerCurrentQuestState> emit) {
+  Future<void> _mapDeleteCurrentQuestToState(
+      DeleteCurrentQuest event, Emitter<ManagerCurrentQuestState> emit) async {
     try {
-      ActiveCurrentQuestDenied questDenied =
-          ActiveCurrentQuestDenied(quest: state.props[0] as Quest);
+      List<Quest> questList = List<Quest>.empty(growable: true);
 
-      if (event.count == 2) {
-        (questDenied.props[0] as Quest).achievement = 0;
-        questDenied.props[1] = false;
+      if (state is ManagerCurrentQuestLoaded) {
+        questList = state.props[0] as List<Quest>;
       }
 
-      emit(questDenied);
+      emit(ManagerCurrentQuestUpdated(questList: questList));
+
+      for (Quest quest in event.questList) {
+        await questRepository.deleteQuest(
+            questRepository.ethereumAddress.toString(), quest);
+
+        int index = iosHealthRepository.questDataTypeList
+            .indexOf(QuestDataType.getByCategory(quest.category));
+
+        if (index > -1) {
+          iosHealthRepository.questDataTypeList.removeAt(index);
+          iosHealthRepository.acceptCallbackList.removeAt(index);
+        }
+      }
+
+      questList = await questRepository
+          .getAllCurrentQuest(questRepository.ethereumAddress.toString());
+      iosHealthRepository.observerQueryForQuantityQuery(questList);
+
+      emit(ManagerCurrentQuestLoaded(questList: questList));
     } catch (e) {
-      emit(ActiveCurrentQuestError(error: "Denied error"));
+      emit(ManagerCurrentQuestError(error: "Denied error"));
     }
   }
 
-  void _mapErrorActiveCurrentQuestToState(
-      ErrorActiveCurrentQuest event, Emitter<ManagerCurrentQuestState> emit) {
-    emit(ActiveCurrentQuestError(error: "error"));
+  void _mapErrorCurrentQuestToState(
+      ErrorCurrentQuest event, Emitter<ManagerCurrentQuestState> emit) {
+    emit(ManagerCurrentQuestError(error: "error"));
   }
 }

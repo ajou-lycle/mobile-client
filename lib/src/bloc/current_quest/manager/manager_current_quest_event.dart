@@ -4,91 +4,63 @@ import '../../../data/model/quest.dart';
 
 abstract class ManagerCurrentQuestEvent extends Equatable {}
 
-class EmptyActiveCurrentQuest extends ManagerCurrentQuestEvent {
+class EmptyCurrentQuest extends ManagerCurrentQuestEvent {
   @override
-  String toString() => 'EmptyActiveCurrentQuest';
-
-  @override
-  List<Object?> get props => [];
-}
-
-class GetActiveCurrentQuest extends ManagerCurrentQuestEvent {
-  @override
-  String toString() => 'GetActiveCurrentQuest';
+  String toString() => 'EmptyCurrentQuest';
 
   @override
   List<Object?> get props => [];
 }
 
-class CreateActiveCurrentQuest extends ManagerCurrentQuestEvent {
-  final Quest quest;
-
-  CreateActiveCurrentQuest({required this.quest});
+class GetCurrentQuest extends ManagerCurrentQuestEvent {
+  @override
+  String toString() => 'GetCurrentQuest';
 
   @override
-  String toString() => 'CreateActiveCurrentQuest { quest : $quest}';
+  List<Object?> get props => [];
+}
+
+class CreateCurrentQuest extends ManagerCurrentQuestEvent {
+  final Quest quest;
+
+  CreateCurrentQuest({required this.quest});
+
+  @override
+  String toString() => 'CreateCurrentQuest { quest : $quest}';
 
   @override
   List<Object?> get props => [quest];
 }
 
-class ReplaceActiveCurrentQuest extends ManagerCurrentQuestEvent {
+class AchieveCurrentQuest extends ManagerCurrentQuestEvent {
   final Quest quest;
 
-  ReplaceActiveCurrentQuest({required this.quest});
+  AchieveCurrentQuest({required this.quest});
 
   @override
-  String toString() => 'ReplaceActiveCurrentQuest { quest : $quest}';
+  String toString() => 'AchieveCurrentQuest { quest : $quest}';
 
   @override
   List<Object?> get props => [quest];
 }
 
-class IncrementActiveCurrentQuest extends ManagerCurrentQuestEvent {
-  final int index;
-  final int count;
+class DeleteCurrentQuest extends ManagerCurrentQuestEvent {
+  final List<Quest> questList;
 
-  IncrementActiveCurrentQuest({required this.index, required this.count});
+  DeleteCurrentQuest({required this.questList});
 
   @override
-  String toString() =>
-      'IncrementActiveCurrentQuest { index: $index, count : $count }';
+  String toString() => 'DeleteCurrentQuest { count:  }';
 
   @override
   // TODO: implement props
-  List<Object?> get props => [index, count];
+  List<Object?> get props => [];
 }
 
-class AchieveActiveCurrentQuest extends ManagerCurrentQuestEvent {
-  final Quest quest;
-
-  AchieveActiveCurrentQuest({required this.quest});
-
-  @override
-  String toString() => 'AchieveActiveCurrentQuest : $quest';
-
-  @override
-  // TODO: implement props
-  List<Object?> get props => [quest];
-}
-
-class DeniedActiveCurrentQuest extends ManagerCurrentQuestEvent {
-  final int count;
-
-  DeniedActiveCurrentQuest({required this.count});
-
-  @override
-  String toString() => 'DeniedActiveCurrentQuest { count: $count }';
-
-  @override
-  // TODO: implement props
-  List<Object?> get props => [count];
-}
-
-class ErrorActiveCurrentQuest extends ManagerCurrentQuestEvent {
+class ErrorCurrentQuest extends ManagerCurrentQuestEvent {
   final String? error;
 
-  ErrorActiveCurrentQuest({this.error});
+  ErrorCurrentQuest({this.error});
 
   @override
   String toString() => 'ErrorActiveCurrentQuest { error: $error }';

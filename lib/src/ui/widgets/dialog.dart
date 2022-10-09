@@ -29,7 +29,36 @@ showDialogByOS(
       });
 }
 
-showLoadingDialog(BuildContext context, Widget child, Duration duration,
+showLoadingDialog(BuildContext context, Widget child) {
+  isDialogShowing = true;
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return WillPopScope(
+          onWillPop: () async {
+            isDialogShowing = false;
+            return true;
+          },
+          child: Dialog(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircularProgressIndicator(),
+                const SizedBox(
+                  height: kDefaultPadding,
+                ),
+                child
+              ],
+            ),
+          ));
+    },
+  );
+}
+
+showTimeoutDialog(BuildContext context, Widget child, Duration duration,
     bool Function(Route<dynamic>) predicate, void Function() timeoutHandler) {
   isDialogShowing = true;
   showDialog(

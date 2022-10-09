@@ -1,6 +1,22 @@
+import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 import '../model/quest.dart';
 
 class QuestApi {
+  final String _validApiUri = '${dotenv.env['SERVER_API_URI']!}/successQuest';
+  final Dio _dio = Dio();
+
+  Future<Response?> successQuest(Map<String, dynamic> data) async {
+    try {
+      final response = await _dio.post('$_validApiUri/accountName/exists', data: data);
+      return response;
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
   // TODO: 현재 이용 가능한 퀘스트 가져오기 & 완료한 퀘스트 목록 전송하기
   Future<List<List<Quest>>> getAvailableQuest() async {
     await Future.delayed(const Duration(milliseconds: 100));
