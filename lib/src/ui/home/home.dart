@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
-import 'package:cupertino_icons/cupertino_icons.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'package:lycle/src/ui/nft_card_list/nft_card_list.dart';
-import 'package:lycle/src/ui/quest_list/quest_list.dart';
+import 'package:lycle/src/constants/assets.dart';
+import 'package:lycle/src/constants/ui.dart';
 
 import '../../bloc/quest/quest_bloc.dart';
 import '../../bloc/quest/quest_event.dart';
 import '../../bloc/quest/quest_state.dart';
+import '../nft_card_list/nft_card_list.dart';
+import '../quest_list/quest_list.dart';
 import '../widgets/dialog.dart';
 import '../widgets/snack_bar/transaction_snack_bar.dart';
 
@@ -29,15 +30,36 @@ class HomePageState extends State<HomePage> {
   final List<BottomNavigationBarItem> _bottomNavigationBarOptions =
       <BottomNavigationBarItem>[
     BottomNavigationBarItem(
-      icon: Icon(CupertinoIcons.rectangle_stack),
-      label: 'NFT',
+      activeIcon: SvgPicture.asset(
+        bottomNavigationBarHomeActiveIconSvg,
+        color: kPrimaryColor,
+      ),
+      icon: SvgPicture.asset(
+        bottomNavigationBarHomeDisableIconSvg,
+        color: kDisableColor,
+      ),
+      label: '홈페이지',
     ),
     BottomNavigationBarItem(
-      icon: Icon(CupertinoIcons.list_bullet_below_rectangle),
+      activeIcon: SvgPicture.asset(
+        bottomNavigationBarQuestActiveIconSvg,
+        color: kPrimaryColor,
+      ),
+      icon: SvgPicture.asset(
+        bottomNavigationBarQuestDisableIconSvg,
+        color: kDisableColor,
+      ),
       label: '퀘스트',
     ),
     BottomNavigationBarItem(
-      icon: Icon(CupertinoIcons.person_crop_circle),
+      activeIcon: SvgPicture.asset(
+        bottomNavigationBarMyPageActiveIconSvg,
+        color: kPrimaryColor,
+      ),
+      icon: SvgPicture.asset(
+        bottomNavigationBarMyPageDisableIconSvg,
+        color: kDisableColor,
+      ),
       label: '내 정보',
     ),
   ];
@@ -68,7 +90,7 @@ class HomePageState extends State<HomePage> {
           if (state is QuestLoading) {
             showLoadingDialog(context, Text("정보를 불러오는 중입니다."));
           } else if (state is QuestLoaded) {
-            if(isDialogShowing) {
+            if (isDialogShowing) {
               Navigator.of(context).pop();
               isDialogShowing = false;
             }
@@ -80,6 +102,8 @@ class HomePageState extends State<HomePage> {
           bottomNavigationBar: BottomNavigationBar(
             items: _bottomNavigationBarOptions,
             currentIndex: _selectedIndex,
+            selectedItemColor: kPrimaryColor,
+            unselectedItemColor: kDisableColor,
             onTap: _onItemTapped,
           ),
         )));

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lycle/src/constants/ui.dart';
 
 import 'package:web3dart/web3dart.dart';
 
@@ -36,15 +37,24 @@ class ReceiveRewardButtonState extends State<ReceiveRewardButton> {
 
   @override
   Widget build(BuildContext context) {
-    return OutlinedButton(
+    return ElevatedButton(
+        style: ButtonStyle(
+            shape: MaterialStateProperty.all(const RoundedRectangleBorder(
+              side: BorderSide.none,
+              borderRadius: BorderRadius.all(Radius.circular(kDefaultRadius)),
+            )),
+            backgroundColor: MaterialStateProperty.all(kPrimaryColor),
+            foregroundColor: MaterialStateProperty.all(Colors.white)),
         onPressed: () async {
-          if (_managerCurrentQuestBloc.questRepository.ethereumAddress == null) {
+          if (_managerCurrentQuestBloc.questRepository.ethereumAddress ==
+              null) {
             _managerCurrentQuestBloc.add(EmptyCurrentQuest());
             return;
           }
           List<Quest> finishQuests =
               await _managerCurrentQuestBloc.questRepository.getAllFinishQuest(
-                  _managerCurrentQuestBloc.questRepository.ethereumAddress.toString());
+                  _managerCurrentQuestBloc.questRepository.ethereumAddress
+                      .toString());
 
           showModalBottomSheet(
             context: context,
@@ -66,7 +76,7 @@ class ReceiveRewardButtonState extends State<ReceiveRewardButton> {
                               showDialog(
                                   context: context,
                                   builder: (context) => CupertinoAlertDialog(
-                                          title: Text("토큰을 받으시겠습니까?"),
+                                          title: const Text("토큰을 받으시겠습니까?"),
                                           content: Text(
                                               "이 퀘스트를 완료할 시, 토큰을 ${reward}개 획득합니다."),
                                           actions: [
@@ -102,14 +112,14 @@ class ReceiveRewardButtonState extends State<ReceiveRewardButton> {
                                                                 .callbackWhenReceiveQuestRewardSucceed),
                                                   );
                                                 },
-                                                child: Text(
+                                                child: const Text(
                                                   "확인",
                                                   style: TextStyle(
                                                       color: Colors.red),
                                                 )),
                                           ]));
                             },
-                            child: Text("획득하기")),
+                            child: const Text("획득하기")),
                       ],
                     ),
                     ListView.builder(

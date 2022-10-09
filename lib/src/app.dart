@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:form_builder_validators/localization/l10n.dart';
 
+import 'constants/ui.dart';
 import 'routes/routes.dart';
 
 import 'ui/loading/loading.dart';
@@ -20,6 +21,9 @@ class MyApp extends StatelessWidget {
       ],
       initialRoute: '/',
       routes: routes,
+      theme: ThemeData(
+        fontFamily: kDefaultFontFamily,
+      ),
       onGenerateRoute: onGenerateRoute,
     ));
   }

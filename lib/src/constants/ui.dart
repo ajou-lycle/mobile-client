@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 
 // Color
 const Color kPrimaryColor = Color(0xff58c079);
+const Color kScaffoldBackground = Color(0xffF5F5F5);
 const Color kDisableColor = Color(0xffa2a2a2);
 const Color kDisableBackgroundColor = Colors.white;
 const Color kValidColor = Color(0xff36c121);
 const Color kDoneBackgroundColor = Colors.white;
 
 // Text
+const String kDefaultFontFamily = "NotoSansKR";
 const kPrimaryTextColor = Colors.white;
 const kDefaultFontSize = 16.0;
 const kSmallFontSize = 12.0;
@@ -19,6 +21,7 @@ const kHalfPadding = 8.0;
 
 // radius
 const kDefaultRadius = 16.0;
+const kLargeRadius = 32.0;
 
 // snackBar
 bool isSnackbarActive = false;
