@@ -43,7 +43,7 @@ class Web3Repository {
       if (!connector.connected) {
         if (!isCreateSession) {
           try {
-            final session = await connector.createSession(
+            final session = await connector.createS ession(
                 chainId: EthereumNetworkType.goreliTestnet.networkId,
                 onDisplayUri: (uri) async {
                   await launchUrl(Uri.parse(uri),
